@@ -177,6 +177,12 @@
 //    #define GDISP_DONT_WAIT_FOR_NET_DISPLAY          FALSE
 //    #define GDISP_GFXNET_UNSAFE_SOCKETS              FALSE
 
+//#define GDISP_DRIVER_WIN32                           FALSE
+//    #define GDISP_WIN32_WIDTH                        640
+//    #define GDISP_WIN32_HEIGHT                       480
+//    #define GDISP_WIN32_USE_INDIRECT_UPDATE          TRUE
+//    #define GKEYBOARD_WIN32_NO_LAYOUT                FALSE
+//    #define GKEYBOARD_WIN32_DEFAULT_LAYOUT           KeyboardLayout_Win32_US
 
 ///////////////////////////////////////////////////////////////////////////
 // GWIN                                                                  //

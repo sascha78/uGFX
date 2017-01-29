@@ -50,6 +50,14 @@
 #define GDRIVER_TYPE_STRING			's'		// @< A device that returns strings of data
 
 /**
+ * @brief	A chain of GDriver VMT objects (usually of the same type)
+ */
+typedef struct GDriverVMTList {
+	const struct GDriverVMTList	*next;
+	const struct GDriverVMT		*vmt;
+} GDriverVMTList;
+
+/**
  * @brief	All runtime driver structures start with this structure
  *
  * @note	This structure (and any additional structure memory) is allocated
@@ -74,20 +82,6 @@ typedef struct GDriverVMT {
 	void		(*postinit)(GDriver *driver);										// @< Called once the driver is registered.
 	void		(*deinit)(GDriver *driver);											// @< De-initialise the driver
 } GDriverVMT;
-
-/**
- * @brief	A definition that allows getting addresses of GDriverVMT structures to put into a list.
- * @note	eg. <code>
- * 				const MyDriverVMTtype a[1] = {{...}};
- * 				const MyDriverVMTtype b[1] = {{...}};
- * 				...
- * 				\#define DRIVER_LIST		a, b
- * 				extern GDriverVMTList	DRIVER_LIST;	// Now treated as single element arrays of GDriverVMT
- * 				const GDriverVMT const * mylist = { DRIVER_LIST };
- * 				</code>
- *
- */
-typedef const struct GDriverVMT const	GDriverVMTList[1];
 
 /*===========================================================================*/
 /* External declarations.                                                    */

@@ -8,20 +8,14 @@
 // We need to include stdio.h below. Turn off GFILE_NEED_STDIO just for this file to prevent conflicts
 #define GFILE_NEED_STDIO_MUST_BE_OFF
 
-#include "gfx.h"
+#include "Win32Config_gdisp.h"
 
-#if GFX_USE_GDISP
-
-#define GDISP_DRIVER_VMT			GDISPVMT_Win32
-#include "gdisp_lld_config.h"
-#include "../../../src/gdisp/gdisp_driver.h"
-
-// Configuration parameters for this driver
-#ifndef GDISP_SCREEN_WIDTH
-	#define GDISP_SCREEN_WIDTH	640
+// Configuration options for this driver
+#ifndef GDISP_WIN32_WIDTH
+	#define GDISP_WIN32_WIDTH	640
 #endif
-#ifndef GDISP_SCREEN_HEIGHT
-	#define GDISP_SCREEN_HEIGHT	480
+#ifndef GDISP_WIN32_HEIGHT
+	#define GDISP_WIN32_HEIGHT	480
 #endif
 #ifndef GDISP_WIN32_USE_INDIRECT_UPDATE
 	/**
@@ -75,10 +69,6 @@
 
 #define GDISP_FLG_READY				(GDISP_FLG_DRIVER<<0)
 #define GDISP_FLG_HASTOGGLE			(GDISP_FLG_DRIVER<<1)
-#if GDISP_HARDWARE_STREAM_WRITE || GDISP_HARDWARE_STREAM_READ
-	#define GDISP_FLG_WSTREAM			(GDISP_FLG_DRIVER<<3)
-	#define GDISP_FLG_WRAPPED			(GDISP_FLG_DRIVER<<4)
-#endif
 
 #if GFX_USE_GINPUT && GINPUT_NEED_TOGGLE
 	/* Include toggle support code */
@@ -474,7 +464,7 @@ void gfxEmulatorSetParentWindow(void *hwnd) {
 	}
 #endif
 
-static LRESULT myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
+static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 {
 	HDC				dc;
 	PAINTSTRUCT		ps;
@@ -520,7 +510,7 @@ static LRESULT myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 
 			// Handle mouse down on the window
 			#if GINPUT_NEED_MOUSE
-				if ((coord_t)HIWORD(lParam) < GDISP_SCREEN_HEIGHT) {
+				if ((coord_t)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
 					btns = priv->mousebuttons;
 					btns |= GINPUT_MOUSE_BTN_LEFT;
 					goto mousemove;
@@ -529,13 +519,13 @@ static LRESULT myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 
 			// Handle mouse down on the toggle area
 			#if GINPUT_NEED_TOGGLE
-				if ((coord_t)HIWORD(lParam) >= GDISP_SCREEN_HEIGHT && (g->flags & GDISP_FLG_HASTOGGLE)) {
+				if ((coord_t)HIWORD(lParam) >= GDISP_WIN32_HEIGHT && (g->flags & GDISP_FLG_HASTOGGLE)) {
 					bit = 1 << ((coord_t)LOWORD(lParam)*8/g->g.Width);
 					priv->toggles ^= bit;
 					rect.left = 0;
-					rect.right = GDISP_SCREEN_WIDTH;
-					rect.top = GDISP_SCREEN_HEIGHT;
-					rect.bottom = GDISP_SCREEN_HEIGHT + WIN32_BUTTON_AREA;
+					rect.right = GDISP_WIN32_WIDTH;
+					rect.top = GDISP_WIN32_HEIGHT;
+					rect.bottom = GDISP_WIN32_HEIGHT + WIN32_BUTTON_AREA;
 					InvalidateRect(hWnd, &rect, FALSE);
 					UpdateWindow(hWnd);
 					#if GINPUT_TOGGLE_POLL_PERIOD == TIME_INFINITE
@@ -556,9 +546,9 @@ static LRESULT myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 					if ((priv->toggles & 0x0F)) {
 						priv->toggles &= ~0x0F;
 						rect.left = 0;
-						rect.right = GDISP_SCREEN_WIDTH;
-						rect.top = GDISP_SCREEN_HEIGHT;
-						rect.bottom = GDISP_SCREEN_HEIGHT + WIN32_BUTTON_AREA;
+						rect.right = GDISP_WIN32_WIDTH;
+						rect.top = GDISP_WIN32_HEIGHT;
+						rect.bottom = GDISP_WIN32_HEIGHT + WIN32_BUTTON_AREA;
 						InvalidateRect(hWnd, &rect, FALSE);
 						UpdateWindow(hWnd);
 						#if GINPUT_TOGGLE_POLL_PERIOD == TIME_INFINITE
@@ -570,7 +560,7 @@ static LRESULT myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 
 			// Handle mouse up on the window
 			#if GINPUT_NEED_MOUSE
-				if ((coord_t)HIWORD(lParam) < GDISP_SCREEN_HEIGHT) {
+				if ((coord_t)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
 					btns = priv->mousebuttons;
 					btns &= ~GINPUT_MOUSE_BTN_LEFT;
 					goto mousemove;
@@ -583,7 +573,7 @@ static LRESULT myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 		case WM_MBUTTONDOWN:
 			g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			priv = (winPriv *)g->priv;
-			if ((coord_t)HIWORD(lParam) < GDISP_SCREEN_HEIGHT) {
+			if ((coord_t)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
 				btns = priv->mousebuttons;
 				btns |= GINPUT_MOUSE_BTN_MIDDLE;
 				goto mousemove;
@@ -592,7 +582,7 @@ static LRESULT myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 		case WM_MBUTTONUP:
 			g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			priv = (winPriv *)g->priv;
-			if ((coord_t)HIWORD(lParam) < GDISP_SCREEN_HEIGHT) {
+			if ((coord_t)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
 				btns = priv->mousebuttons;
 				btns &= ~GINPUT_MOUSE_BTN_MIDDLE;
 				goto mousemove;
@@ -601,7 +591,7 @@ static LRESULT myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 		case WM_RBUTTONDOWN:
 			g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			priv = (winPriv *)g->priv;
-			if ((coord_t)HIWORD(lParam) < GDISP_SCREEN_HEIGHT) {
+			if ((coord_t)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
 				btns = priv->mousebuttons;
 				btns |= GINPUT_MOUSE_BTN_RIGHT;
 				goto mousemove;
@@ -610,7 +600,7 @@ static LRESULT myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 		case WM_RBUTTONUP:
 			g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			priv = (winPriv *)g->priv;
-			if ((coord_t)HIWORD(lParam) < GDISP_SCREEN_HEIGHT) {
+			if ((coord_t)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
 				btns = priv->mousebuttons;
 				btns &= ~GINPUT_MOUSE_BTN_RIGHT;
 				goto mousemove;
@@ -619,7 +609,7 @@ static LRESULT myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 		case WM_MOUSEMOVE:
 			g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			priv = (winPriv *)g->priv;
-			if ((coord_t)HIWORD(lParam) >= GDISP_SCREEN_HEIGHT)
+			if ((coord_t)HIWORD(lParam) >= GDISP_WIN32_HEIGHT)
 				break;
 			btns = priv->mousebuttons;
 
@@ -690,23 +680,23 @@ static LRESULT myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 		dc = BeginPaint(hWnd, &ps);
 		BitBlt(dc, ps.rcPaint.left, ps.rcPaint.top,
 			ps.rcPaint.right - ps.rcPaint.left,
-			(ps.rcPaint.bottom > GDISP_SCREEN_HEIGHT ? GDISP_SCREEN_HEIGHT : ps.rcPaint.bottom) - ps.rcPaint.top,
+			(ps.rcPaint.bottom > GDISP_WIN32_HEIGHT ? GDISP_WIN32_HEIGHT : ps.rcPaint.bottom) - ps.rcPaint.top,
 			priv->dcBuffer, ps.rcPaint.left, ps.rcPaint.top, SRCCOPY);
 
 		// Paint the toggle area
 		#if GFX_USE_GINPUT && GINPUT_NEED_TOGGLE
-			if (ps.rcPaint.bottom >= GDISP_SCREEN_HEIGHT && (g->flags & GDISP_FLG_HASTOGGLE)) {
+			if (ps.rcPaint.bottom >= GDISP_WIN32_HEIGHT && (g->flags & GDISP_FLG_HASTOGGLE)) {
 				pen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
 				hbrOn = CreateSolidBrush(RGB(0, 0, 255));
 				hbrOff = CreateSolidBrush(RGB(128, 128, 128));
 				old = SelectObject(dc, pen);
-				MoveToEx(dc, 0, GDISP_SCREEN_HEIGHT, &p);
-				LineTo(dc, GDISP_SCREEN_WIDTH, GDISP_SCREEN_HEIGHT);
-				for(pos = 0, bit=1; pos < GDISP_SCREEN_WIDTH; pos=rect.right, bit <<= 1) {
+				MoveToEx(dc, 0, GDISP_WIN32_HEIGHT, &p);
+				LineTo(dc, GDISP_WIN32_WIDTH, GDISP_WIN32_HEIGHT);
+				for(pos = 0, bit=1; pos < GDISP_WIN32_WIDTH; pos=rect.right, bit <<= 1) {
 					rect.left = pos;
-					rect.right = pos + GDISP_SCREEN_WIDTH/8;
-					rect.top = GDISP_SCREEN_HEIGHT;
-					rect.bottom = GDISP_SCREEN_HEIGHT + WIN32_BUTTON_AREA;
+					rect.right = pos + GDISP_WIN32_WIDTH/8;
+					rect.top = GDISP_WIN32_HEIGHT;
+					rect.bottom = GDISP_WIN32_HEIGHT + WIN32_BUTTON_AREA;
 					FillRect(dc, &rect, (priv->toggles & bit) ? hbrOn : hbrOff);
 					if (pos > 0) {
 						MoveToEx(dc, rect.left, rect.top, &p);
@@ -748,7 +738,7 @@ static LRESULT myWindowProc(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-static DWORD WINAPI WindowThread(void *param) {
+static DWORD WINAPI GDISPDRIVERID(WindowThread)(void *param) {
 	(void)param;
 	MSG msg;
 
@@ -763,7 +753,7 @@ static DWORD WINAPI WindowThread(void *param) {
 		ATOM			winClass;
 
 		wc.style           = CS_HREDRAW | CS_VREDRAW; // | CS_OWNDC;
-		wc.lpfnWndProc     = (WNDPROC)myWindowProc;
+		wc.lpfnWndProc     = (WNDPROC)GDISPDRIVERID(WindowProc);
 		wc.cbClsExtra      = 0;
 		wc.cbWndExtra      = 0;
 		wc.hInstance       = GetModuleHandle(0);
@@ -819,7 +809,7 @@ static DWORD WINAPI WindowThread(void *param) {
 /* Driver exported functions.                                                */
 /*===========================================================================*/
 
-LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
+LLDSPEC bool_t GDISPDRIVERID(init)(GDisplay *g) {
 	winPriv	*	priv;
 	char		buf[132];
 
@@ -831,7 +821,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 		drawMutex = CreateMutex(0, FALSE, 0);
 
 		// Create the thread
-		if (!(hth = CreateThread(0, 0, WindowThread, 0, CREATE_SUSPENDED, 0)))
+		if (!(hth = CreateThread(0, 0, GDISPDRIVERID(WindowThread), 0, CREATE_SUSPENDED, 0)))
 			return FALSE;
 		SetThreadPriority(hth, THREAD_PRIORITY_ABOVE_NORMAL);
 		ResumeThread(hth);
@@ -847,8 +837,8 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	g->g.Powermode = powerOn;
 	g->g.Backlight = 100;
 	g->g.Contrast = 50;
-	g->g.Width = GDISP_SCREEN_WIDTH;
-	g->g.Height = GDISP_SCREEN_HEIGHT;
+	g->g.Width = GDISP_WIN32_WIDTH;
+	g->g.Height = GDISP_WIN32_HEIGHT;
 
 	// Turn on toggles for the first GINPUT_TOGGLE_CONFIG_ENTRIES windows
 	#if GFX_USE_GINPUT && GINPUT_NEED_TOGGLE
@@ -863,10 +853,6 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	assert(priv != 0);
 	memset(priv, 0, sizeof(winPriv));
 	g->priv = priv;
-	#if GDISP_HARDWARE_STREAM_WRITE || GDISP_HARDWARE_STREAM_READ
-		// Initialise with an invalid window
-		g->flags &= ~GDISP_FLG_WSTREAM;
-	#endif
 	g->board = 0;			// no board interface for this controller
 
 	// Create the window in the message thread
@@ -891,7 +877,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 }
 
 #if GDISP_HARDWARE_FLUSH
-	LLDSPEC void gdisp_lld_flush(GDisplay *g) {
+	LLDSPEC void GDISPDRIVERID(flush)(GDisplay *g) {
 		winPriv	*	priv;
 
 		priv = g->priv;
@@ -899,158 +885,116 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	}
 #endif
 
-#if GDISP_HARDWARE_STREAM_WRITE || GDISP_HARDWARE_STREAM_READ
-	void BAD_PARAMETER(const char *msg) {
-		fprintf(stderr, "%s\n", msg);
-	}
-#endif
+void BAD_PARAMETER(const char *msg) {
+	fprintf(stderr, "%s\n", msg);
+}
 
-#if GDISP_HARDWARE_STREAM_WRITE
-	LLDSPEC	void gdisp_lld_write_start(GDisplay *g) {
-		winPriv	*	priv;
+LLDSPEC	void GDISPDRIVERID(start)(GDisplay *g) {
+	winPriv	*	priv;
 
-		if (g->flags & GDISP_FLG_WSTREAM)
-			BAD_PARAMETER("write_start: already in streaming mode");
-		if (g->p.cx <= 0 || g->p.cy <= 0 || g->p.x < 0 || g->p.y < 0 || g->p.x+g->p.cx > g->g.Width || g->p.y+g->p.cy > g->g.Height)
-			BAD_PARAMETER("write_start: bad window parameter");
+	if (g->p.cx <= 0 || g->p.cy <= 0 || g->p.x < 0 || g->p.y < 0 || g->p.x+g->p.cx > g->g.Width || g->p.y+g->p.cy > g->g.Height)
+		BAD_PARAMETER("write_start: bad window parameter");
 
-		priv = g->priv;
-		priv->x0 = g->p.x;	priv->x1 = g->p.x + g->p.cx - 1;
-		priv->y0 = g->p.y;	priv->y1 = g->p.y + g->p.cy - 1;
-		#if GDISP_HARDWARE_STREAM_POS
-			priv->x = g->p.x-1;			// Make sure these values are invalid (for testing)
-			priv->y = g->p.y-1;
-		#else
-			priv->x = g->p.x;
-			priv->y = g->p.y;
-		#endif
-		g->flags |= GDISP_FLG_WSTREAM;
-		g->flags &= ~GDISP_FLG_WRAPPED;
-	}
-	LLDSPEC	void gdisp_lld_write_color(GDisplay *g) {
-		winPriv	*	priv;
-		int			x, y;
-		COLORREF	color;
+	priv = g->priv;
+	priv->x0 = g->p.x;	priv->x1 = g->p.x + g->p.cx - 1;
+	priv->y0 = g->p.y;	priv->y1 = g->p.y + g->p.cy - 1;
+	#if GDISP_HARDWARE_STREAM_POS
+		priv->x = g->p.x-1;			// Make sure these values are invalid (for testing)
+		priv->y = g->p.y-1;
+	#else
+		priv->x = g->p.x;
+		priv->y = g->p.y;
+	#endif
+}
 
-		priv = g->priv;
-		color = gdispColor2Native(g->p.color);
+LLDSPEC	void GDISPDRIVERID(write)(GDisplay *g) {
+	winPriv	*	priv;
+	int			x, y;
+	COLORREF	color;
 
-		if (!(g->flags & GDISP_FLG_WSTREAM))
-			BAD_PARAMETER("write_color: not in streaming mode");
-		if (priv->x < priv->x0 || priv->x > priv->x1 || priv->y < priv->y0 || priv->y > priv->y1)
-			BAD_PARAMETER("write_color: cursor outside streaming area");
-		if (g->flags & GDISP_FLG_WRAPPED) {
-			BAD_PARAMETER("write_color: Warning - Area wrapped.");
-			g->flags &= ~GDISP_FLG_WRAPPED;
-		}
+	priv = g->priv;
+	color = gdispColor2Native(g->p.color);
 
-		#if GDISP_NEED_CONTROL
-			switch(g->g.Orientation) {
-			case GDISP_ROTATE_0:
-			default:
-				x = priv->x;
-				y = priv->y;
-				break;
-			case GDISP_ROTATE_90:
-				x = priv->y;
-				y = g->g.Width - 1 - priv->x;
-				break;
-			case GDISP_ROTATE_180:
-				x = g->g.Width - 1 - priv->x;
-				y = g->g.Height - 1 - priv->y;
-				break;
-			case GDISP_ROTATE_270:
-				x = g->g.Height - 1 - priv->y;
-				y = priv->x;
-				break;
-			}
-		#else
+	if (priv->x < priv->x0 || priv->x > priv->x1 || priv->y < priv->y0 || priv->y > priv->y1)
+		BAD_PARAMETER("write_color: cursor outside streaming area");
+
+	#if GDISP_NEED_CONTROL
+		switch(g->g.Orientation) {
+		case GDISP_ROTATE_0:
+		default:
 			x = priv->x;
 			y = priv->y;
-		#endif
-
-		// Draw the pixel on the screen and in the buffer.
-		WaitForSingleObject(drawMutex, INFINITE);
-		SetPixel(priv->dcBuffer, x, y, color);
-		#if GDISP_WIN32_USE_INDIRECT_UPDATE
-			ReleaseMutex(drawMutex);
-			{
-				RECT	r;
-				r.left = x; r.right = x+1;
-				r.top = y; r.bottom = y+1;
-				InvalidateRect(priv->hwnd, &r, FALSE);
-			}
-		#else
-			{
-				HDC		dc;
-				dc = GetDC(priv->hwnd);
-				SetPixel(dc, x, y, color);
-				ReleaseDC(priv->hwnd, dc);
-				ReleaseMutex(drawMutex);
-			}
-		#endif
-
-		// Update the cursor
-		if (++priv->x > priv->x1) {
-			priv->x = priv->x0;
-			if (++priv->y > priv->y1) {
-				g->flags |= GDISP_FLG_WRAPPED;
-				priv->y = priv->y0;
-			}
+			break;
+		case GDISP_ROTATE_90:
+			x = priv->y;
+			y = g->g.Width - 1 - priv->x;
+			break;
+		case GDISP_ROTATE_180:
+			x = g->g.Width - 1 - priv->x;
+			y = g->g.Height - 1 - priv->y;
+			break;
+		case GDISP_ROTATE_270:
+			x = g->g.Height - 1 - priv->y;
+			y = priv->x;
+			break;
 		}
-	}
-	LLDSPEC	void gdisp_lld_write_stop(GDisplay *g) {
-		if (!(g->flags & GDISP_FLG_WSTREAM))
-			BAD_PARAMETER("write_stop: not in streaming mode");
-		g->flags &= ~GDISP_FLG_WSTREAM;
-	}
-	#if GDISP_HARDWARE_STREAM_POS
-		LLDSPEC void gdisp_lld_write_pos(GDisplay *g) {
-			winPriv	*	priv;
+	#else
+		x = priv->x;
+		y = priv->y;
+	#endif
 
-			priv = g->priv;
-
-			if (!(g->flags & GDISP_FLG_WSTREAM))
-				BAD_PARAMETER("write_pos: not in streaming mode");
-			if (g->p.x < priv->x0 || g->p.x > priv->x1 || g->p.y < priv->y0 || g->p.y > priv->y1)
-				BAD_PARAMETER("write_color: new cursor outside streaming area");
-			priv->x = g->p.x;
-			priv->y = g->p.y;
+	// Draw the pixel on the screen and in the buffer.
+	WaitForSingleObject(drawMutex, INFINITE);
+	SetPixel(priv->dcBuffer, x, y, color);
+	#if GDISP_WIN32_USE_INDIRECT_UPDATE
+		ReleaseMutex(drawMutex);
+		{
+			RECT	r;
+			r.left = x; r.right = x+1;
+			r.top = y; r.bottom = y+1;
+			InvalidateRect(priv->hwnd, &r, FALSE);
+		}
+	#else
+		{
+			HDC		dc;
+			dc = GetDC(priv->hwnd);
+			SetPixel(dc, x, y, color);
+			ReleaseDC(priv->hwnd, dc);
+			ReleaseMutex(drawMutex);
 		}
 	#endif
+
+	// Update the cursor
+	if (++priv->x > priv->x1) {
+		priv->x = priv->x0;
+		if (++priv->y > priv->y1) {
+			priv->y = priv->y0;
+		}
+	}
+}
+
+#if GDISP_HARDWARE_STREAM_POS
+	LLDSPEC void GDISPDRIVERID(setpos)(GDisplay *g) {
+		winPriv	*	priv;
+
+		priv = g->priv;
+
+		if (g->p.x < priv->x0 || g->p.x > priv->x1 || g->p.y < priv->y0 || g->p.y > priv->y1)
+			BAD_PARAMETER("write_color: new cursor outside streaming area");
+		priv->x = g->p.x;
+		priv->y = g->p.y;
+	}
 #endif
 
 #if GDISP_HARDWARE_STREAM_READ
-	LLDSPEC	void gdisp_lld_read_start(GDisplay *g) {
-		winPriv	*	priv;
-
-		if (g->flags & GDISP_FLG_WSTREAM)
-			BAD_PARAMETER("read_start: already in streaming mode");
-		if (g->p.cx <= 0 || g->p.cy <= 0 || g->p.x < 0 || g->p.y < 0 || g->p.x+g->p.cx > g->g.Width || g->p.y+g->p.cy > g->g.Height)
-			BAD_PARAMETER("read_start: bad window parameter");
-
-		priv = g->priv;
-		priv->x0 = g->p.x;	priv->x1 = g->p.x + g->p.cx - 1;
-		priv->y0 = g->p.y;	priv->y1 = g->p.y + g->p.cy - 1;
-		priv->x = g->p.x;
-		priv->y = g->p.y;
-		g->flags |= GDISP_FLG_WSTREAM;
-		g->flags &= ~GDISP_FLG_WRAPPED;
-	}
-	LLDSPEC	color_t gdisp_lld_read_color(GDisplay *g) {
+	LLDSPEC	color_t GDISPDRIVERID(read)(GDisplay *g) {
 		winPriv	*	priv;
 		COLORREF	color;
 
 		priv = g->priv;
 
-		if (!(g->flags & GDISP_FLG_WSTREAM))
-			BAD_PARAMETER("read_color: not in streaming mode");
 		if (priv->x < priv->x0 || priv->x > priv->x1 || priv->y < priv->y0 || priv->y > priv->y1)
 			BAD_PARAMETER("read_color: cursor outside streaming area");
-		if (g->flags & GDISP_FLG_WRAPPED) {
-			BAD_PARAMETER("read_color: Warning - Area wrapped.");
-			g->flags &= ~GDISP_FLG_WRAPPED;
-		}
 
 		WaitForSingleObject(drawMutex, INFINITE);
 		#if GDISP_NEED_CONTROL
@@ -1078,144 +1022,16 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 		if (++priv->x > priv->x1) {
 			priv->x = priv->x0;
 			if (++priv->y > priv->y1) {
-				g->flags |= GDISP_FLG_WRAPPED;
 				priv->y = priv->y0;
 			}
 		}
 
 		return gdispNative2Color(color);
 	}
-	LLDSPEC	void gdisp_lld_read_stop(GDisplay *g) {
-		if (!(g->flags & GDISP_FLG_WSTREAM))
-			BAD_PARAMETER("write_stop: not in streaming mode");
-		g->flags &= ~GDISP_FLG_WSTREAM;
-	}
 #endif
 
-#if GDISP_HARDWARE_DRAWPIXEL
-	LLDSPEC void gdisp_lld_draw_pixel(GDisplay *g) {
-		winPriv	*	priv;
-		int			x, y;
-		COLORREF	color;
-
-		priv = g->priv;
-		color = gdispColor2Native(g->p.color);
-
-		#if GDISP_NEED_CONTROL
-			switch(g->g.Orientation) {
-			case GDISP_ROTATE_0:
-			default:
-				x = g->p.x;
-				y = g->p.y;
-				break;
-			case GDISP_ROTATE_90:
-				x = g->p.y;
-				y = g->g.Width - 1 - g->p.x;
-				break;
-			case GDISP_ROTATE_180:
-				x = g->g.Width - 1 - g->p.x;
-				y = g->g.Height - 1 - g->p.y;
-				break;
-			case GDISP_ROTATE_270:
-				x = g->g.Height - 1 - g->p.y;
-				y = g->p.x;
-				break;
-			}
-		#else
-			x = g->p.x;
-			y = g->p.y;
-		#endif
-
-		// Draw the pixel on the screen and in the buffer.
-		WaitForSingleObject(drawMutex, INFINITE);
-		SetPixel(priv->dcBuffer, x, y, color);
-		#if GDISP_WIN32_USE_INDIRECT_UPDATE
-			ReleaseMutex(drawMutex);
-			{
-				RECT	r;
-				r.left = x; r.right = x+1;
-				r.top = y; r.bottom = y+1;
-				InvalidateRect(priv->hwnd, &r, FALSE);
-			}
-		#else
-			{
-				HDC		dc;
-				dc = GetDC(priv->hwnd);
-				SetPixel(dc, x, y, color);
-				ReleaseDC(priv->hwnd, dc);
-				ReleaseMutex(drawMutex);
-			}
-		#endif
-	}
-#endif
 
 /* ---- Optional Routines ---- */
-
-#if GDISP_HARDWARE_FILLS
-	LLDSPEC void gdisp_lld_fill_area(GDisplay *g) {
-		winPriv	*	priv;
-		RECT		rect;
-		HBRUSH		hbr;
-		COLORREF	color;
-
-		priv = g->priv;
-		color = gdispColor2Native(g->p.color);
-		hbr = CreateSolidBrush(color);
-
-		#if GDISP_NEED_CONTROL
-			switch(g->g.Orientation) {
-			case GDISP_ROTATE_0:
-			default:
-				rect.top = g->p.y;
-				rect.bottom = rect.top + g->p.cy;
-				rect.left = g->p.x;
-				rect.right = rect.left + g->p.cx;
-				break;
-			case GDISP_ROTATE_90:
-				rect.bottom = g->g.Width - g->p.x;
-				rect.top = rect.bottom - g->p.cx;
-				rect.left = g->p.y;
-				rect.right = rect.left + g->p.cy;
-				break;
-			case GDISP_ROTATE_180:
-				rect.bottom = g->g.Height - g->p.y;
-				rect.top = rect.bottom - g->p.cy;
-				rect.right = g->g.Width - g->p.x;
-				rect.left = rect.right - g->p.cx;
-				break;
-			case GDISP_ROTATE_270:
-				rect.top = g->p.x;
-				rect.bottom = rect.top + g->p.cx;
-				rect.right = g->g.Height - g->p.y;
-				rect.left = rect.right - g->p.cy;
-				break;
-			}
-		#else
-			rect.top = g->p.y;
-			rect.bottom = rect.top + g->p.cy;
-			rect.left = g->p.x;
-			rect.right = rect.left + g->p.cx;
-		#endif
-
-
-		WaitForSingleObject(drawMutex, INFINITE);
-		FillRect(priv->dcBuffer, &rect, hbr);
-		#if GDISP_WIN32_USE_INDIRECT_UPDATE
-			ReleaseMutex(drawMutex);
-			InvalidateRect(priv->hwnd, &rect, FALSE);
-		#else
-			{
-				HDC		dc;
-				dc = GetDC(priv->hwnd);
-				FillRect(dc, &rect, hbr);
-				ReleaseDC(priv->hwnd, dc);
-				ReleaseMutex(drawMutex);
-			}
-		#endif
-
-		DeleteObject(hbr);
-	}
-#endif
 
 #if GDISP_HARDWARE_BITFILLS && GDISP_NEED_CONTROL
 	static pixel_t *rotateimg(GDisplay *g, const pixel_t *buffer) {
@@ -1365,39 +1181,6 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	}
 #endif
 
-#if GDISP_HARDWARE_PIXELREAD
-	LLDSPEC	color_t gdisp_lld_get_pixel_color(GDisplay *g) {
-		winPriv	*	priv;
-		COLORREF	color;
-
-		priv = g->priv;
-
-		WaitForSingleObject(drawMutex, INFINITE);
-		#if GDISP_NEED_CONTROL
-			switch(g->g.Orientation) {
-			case GDISP_ROTATE_0:
-			default:
-				color = GetPixel(priv->dcBuffer, g->p.x, g->p.y);
-				break;
-			case GDISP_ROTATE_90:
-				color = GetPixel(priv->dcBuffer, g->p.y, g->g.Width - 1 - g->p.x);
-				break;
-			case GDISP_ROTATE_180:
-				color = GetPixel(priv->dcBuffer, g->g.Width - 1 - g->p.x, g->g.Height - 1 - g->p.y);
-				break;
-			case GDISP_ROTATE_270:
-				color = GetPixel(priv->dcBuffer, g->g.Height - 1 - g->p.y, g->p.x);
-				break;
-			}
-		#else
-			color = GetPixel(priv->dcBuffer, g->p.x, g->p.y);
-		#endif
-		ReleaseMutex(drawMutex);
-
-		return gdispNative2Color(color);
-	}
-#endif
-
 #if GDISP_NEED_SCROLL && GDISP_HARDWARE_SCROLL
 	LLDSPEC void gdisp_lld_vertical_scroll(GDisplay *g) {
 		winPriv	*	priv;
@@ -1522,13 +1305,13 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 			switch((orientation_t)g->p.ptr) {
 				case GDISP_ROTATE_0:
 				case GDISP_ROTATE_180:
-					g->g.Width = GDISP_SCREEN_WIDTH;
-					g->g.Height = GDISP_SCREEN_HEIGHT;
+					g->g.Width = GDISP_WIN32_WIDTH;
+					g->g.Height = GDISP_WIN32_HEIGHT;
 					break;
 				case GDISP_ROTATE_90:
 				case GDISP_ROTATE_270:
-					g->g.Height = GDISP_SCREEN_WIDTH;
-					g->g.Width = GDISP_SCREEN_HEIGHT;
+					g->g.Height = GDISP_WIN32_WIDTH;
+					g->g.Width = GDISP_WIN32_HEIGHT;
 					break;
 				default:
 					return;
