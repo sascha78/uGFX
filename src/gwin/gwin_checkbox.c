@@ -33,7 +33,7 @@ static void SendCheckboxEvent(GWidgetObject *gw) {
 			continue;
 		pce->type = GEVENT_GWIN_CHECKBOX;
 		pce->gwin = &gw->g;
-		pce->isChecked = (gw->g.flags & GCHECKBOX_FLG_CHECKED) ? TRUE : FALSE;
+		pce->isChecked = (gw->g.flags & GCHECKBOX_FLG_CHECKED) ? GTrue : GFalse;
 		#if GWIN_WIDGET_TAGS
 			pce->tag = gw->tag;
 		#endif
@@ -156,9 +156,9 @@ void gwinCheckboxCheck(GHandle gh, bool_t isChecked) {
 
 bool_t gwinCheckboxIsChecked(GHandle gh) {
 	if (gh->vmt != (gwinVMT *)&checkboxVMT)
-		return FALSE;
+		return GFalse;
 
-	return (gh->flags & GCHECKBOX_FLG_CHECKED) ? TRUE : FALSE;
+	return (gh->flags & GCHECKBOX_FLG_CHECKED) ? GTrue : GFalse;
 }
 
 /*----------------------------------------------------------
@@ -242,7 +242,7 @@ void gwinCheckboxDraw_CheckOnRight(GWidgetObject *gw, void *param) {
 
 		#if GWIN_NEED_FLASHING
 			// Flash the on and off state.
-			pcol = _gwinGetFlashedColor(gw, pcol, TRUE);
+			pcol = _gwinGetFlashedColor(gw, pcol, GTrue);
 		#endif
 
 		gdispGFillStringBox(gw->g.display, gw->g.x, gw->g.y, gw->g.width-1, gw->g.height-1, gw->text, gw->g.font, pcol->text, pcol->fill, justifyCenter);
@@ -263,7 +263,7 @@ void gwinCheckboxDraw_CheckOnRight(GWidgetObject *gw, void *param) {
 
 		#if GWIN_NEED_FLASHING
 			// Flash the on and off state.
-			pcol = _gwinGetFlashedColor(gw, pcol, TRUE);
+			pcol = _gwinGetFlashedColor(gw, pcol, GTrue);
 		#endif
 
 		/* Fill the box blended from variants of the fill color */

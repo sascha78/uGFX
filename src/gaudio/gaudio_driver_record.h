@@ -71,7 +71,7 @@ extern "C" {
 
 /**
  * @brief				Initialise the record driver
- * @return				TRUE if the channel, frequency and format are valid.
+ * @return				GTrue if the channel, frequency and format are valid.
  *
  * @param[in] channel	The channel to use (see the driver for the available channels provided)
  * @param[in] frequency	The sample frequency to use

@@ -93,10 +93,10 @@ static bool_t init_board(GMouse* m, unsigned driverinstance)
   _hspi.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
   _hspi.Init.CRCPolynomial = 10;
   if (HAL_SPI_Init(&_hspi) != HAL_OK) {
-    return FALSE;
+    return GFalse;
   }
 
-  return TRUE;
+  return GTrue;
 }
 
 static GFXINLINE bool_t getpin_pressed(GMouse* m)
@@ -104,9 +104,9 @@ static GFXINLINE bool_t getpin_pressed(GMouse* m)
   (void)m;
 
   if (HAL_GPIO_ReadPin(GPIOC, GPIO_PIN_4) == GPIO_PIN_RESET)
-    return TRUE;
+    return GTrue;
 
-  return FALSE;
+  return GFalse;
 }
 
 static GFXINLINE void aquire_bus(GMouse* m)

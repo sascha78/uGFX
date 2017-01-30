@@ -54,7 +54,7 @@ static bool_t getbuffer(WAVEHDR *pwh) {
 		gaudioRecordDoneI();
 	gfxSystemUnlock();
 	if (!paud)
-		return FALSE;
+		return GFalse;
 
 	// Prepare the wave header for Windows
 	pwh->dwUser = (DWORD_PTR)paud;
@@ -73,7 +73,7 @@ static bool_t getbuffer(WAVEHDR *pwh) {
 	}
 
 	nQueuedBuffers++;
-	return TRUE;
+	return GTrue;
 }
 
 static DWORD WINAPI waveProc(LPVOID arg) {
@@ -126,7 +126,7 @@ bool_t gaudio_record_lld_init(uint16_t channel, uint32_t frequency, ArrayDataFor
 	WAVEFORMATEX	wfx;
 
 	if (format != ARRAY_DATA_8BITUNSIGNED && format != ARRAY_DATA_16BITSIGNED)
-		return FALSE;
+		return GFalse;
 
 	if (!waveThread) {
 		if (!(waveThread = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)waveProc, 0, 0, &threadID))) {
@@ -153,7 +153,7 @@ bool_t gaudio_record_lld_init(uint16_t channel, uint32_t frequency, ArrayDataFor
 		exit(-1);
 	}
 
-	return TRUE;
+	return GTrue;
 }
 
 void gaudio_record_lld_start(void) {
@@ -171,13 +171,13 @@ void gaudio_record_lld_start(void) {
 			break;
 	}
 	if (!isRunning) {
-		isRunning = TRUE;
+		isRunning = GTrue;
 		waveInStart(ah);
 	}
 }
 
 void gaudio_record_lld_stop(void) {
-	isRunning = FALSE;
+	isRunning = GFalse;
 	waveInReset(ah);
 	while(nQueuedBuffers) Sleep(1);
 }

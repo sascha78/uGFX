@@ -95,18 +95,18 @@ static void Native_flags2mode(char *buf, uint16_t flags) {
 	*buf++ = 0;
 }
 
-static bool_t NativeDel(const char *fname)							{ return remove(fname) ? FALSE : TRUE; }
+static bool_t NativeDel(const char *fname)							{ return remove(fname) ? GFalse : GTrue; }
 static void NativeClose(GFILE *f)									{ fclose((FILE *)f->obj); }
 static int NativeRead(GFILE *f, void *buf, int size)				{ return fread(buf, 1, size, (FILE *)f->obj); }
 static int NativeWrite(GFILE *f, const void *buf, int size)			{ return fwrite(buf, 1, size, (FILE *)f->obj); }
-static bool_t NativeSetpos(GFILE *f, long int pos)					{ return fseek((FILE *)f->obj, pos, SEEK_SET) ?  FALSE : TRUE; }
-static bool_t NativeEof(GFILE *f)									{ return feof((FILE *)f->obj) ? TRUE : FALSE; }
-static bool_t NativeRen(const char *oldname, const char *newname)	{ return rename(oldname, newname) ? FALSE : TRUE; }
+static bool_t NativeSetpos(GFILE *f, long int pos)					{ return fseek((FILE *)f->obj, pos, SEEK_SET) ?  GFalse : GTrue; }
+static bool_t NativeEof(GFILE *f)									{ return feof((FILE *)f->obj) ? GTrue : GFalse; }
+static bool_t NativeRen(const char *oldname, const char *newname)	{ return rename(oldname, newname) ? GFalse : GTrue; }
 static bool_t NativeExists(const char *fname) {
 	// We define access this way so we don't have to include <unistd.h> which may
 	//	(and does under windows) contain conflicting definitions for types such as uint16_t.
 	extern int access(const char *pathname, int mode);
-	return access(fname, 0) ? FALSE : TRUE;
+	return access(fname, 0) ? GFalse : GTrue;
 }
 static long int	NativeFilesize(const char *fname) {
 	struct stat st;
@@ -119,9 +119,9 @@ static bool_t NativeOpen(GFILE *f, const char *fname) {
 
 	Native_flags2mode(mode, f->flags);
 	if (!(fd = fopen(fname, mode)))
-		return FALSE;
+		return GFalse;
 	f->obj = (void *)fd;
-	return TRUE;
+	return GTrue;
 }
 static long int NativeGetsize(GFILE *f) {
 	struct stat st;
@@ -148,7 +148,7 @@ static long int NativeGetsize(GFILE *f) {
 				gfxFree(p);
 				return 0;
 			}
-			p->first = TRUE;
+			p->first = GTrue;
 			return &p->fl;
 		}
 
@@ -157,7 +157,7 @@ static long int NativeGetsize(GFILE *f) {
 			while(1) {
 				if (!nfl->first && !FindNextFile(nfl->d, &nfl->f))
 					return 0;
-				nfl->first = FALSE;
+				nfl->first = GFalse;
 				if (nfl->f.cFileName[0] == '.')
 					continue;
 				if (nfl->fl.dirs) {

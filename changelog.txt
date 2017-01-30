@@ -2,6 +2,16 @@
 *** Releases                                                              ***
 *****************************************************************************
 
+*** Release 3.0 ***
+FEATURE:	GFXON and GFXOFF replaces TRUE/FALSE for configuration options
+FEATURE:	GTrue and GFalse replaces TRUE/FALSE for the bool_t type
+FEATURE:	Added GFX_COMPAT_V2 configuration option (set to GFXON by default)
+FEATURE:	Added GFX_COMPAT_OLDCOLORS configuration option (set to GFXON by default)
+FEATURE:	Added new color definitions GFXBLACK, GFXWHITE, GFXRED etc
+DEPRECATED:	Deprecated TRUE/FALSE macro constants [still available with GFX_COMPAT_V2]
+DEPRECATED:	Deprecated old macro constants eg Red, Green [still available with GFX_COMPAT_V2 && GFX_COMPAT_OLDCOLORS]
+
+
 *** Changes after 2.7 ***
 FEATURE:	Added support for 128x32 SSD1306 based displays
 FIX:		Fixed recursion bug in console history

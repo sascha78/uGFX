@@ -25,7 +25,7 @@ static bool_t _init(GMouse* m, unsigned driverinstance)
 
     qwidgetMouse = m;
 
-	return TRUE;
+	return GTrue;
 }
 
 static bool_t _read(GMouse* m, GMouseReading* pdr)
@@ -37,7 +37,7 @@ static bool_t _read(GMouse* m, GMouseReading* pdr)
     pdr->z = qwidgetMouseZ;
     pdr->buttons = qwidgetMouseButtons;
 
-	return TRUE;
+	return GTrue;
 }
 
 const GMouseVMT GMOUSE_DRIVER_VMT[1] = {{

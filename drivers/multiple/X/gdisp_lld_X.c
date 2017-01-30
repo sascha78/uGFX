@@ -300,7 +300,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	if (!initdone) {
 		gfxThreadHandle			hth;
 
-		initdone = TRUE;
+		initdone = GTrue;
 		#if GFX_USE_OS_LINUX || GFX_USE_OS_OSX
 			XInitThreads();
 		#endif
@@ -315,7 +315,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 			if (!XMatchVisualInfo(dis, scr, 24, TrueColor, &vis)) {
 				fprintf(stderr, "Your display has no TrueColor mode\n");
 				XCloseDisplay(dis);
-				return FALSE;
+				return GFalse;
 			}
 			cmap = XCreateColormap(dis, RootWindow(dis, scr),
 					vis.visual, AllocNone);
@@ -400,7 +400,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
     g->g.Width = GDISP_SCREEN_WIDTH;
     g->g.Height = GDISP_SCREEN_HEIGHT;
 
-    return TRUE;
+    return GTrue;
 }
 
 LLDSPEC void gdisp_lld_draw_pixel(GDisplay *g)
@@ -479,7 +479,7 @@ LLDSPEC void gdisp_lld_draw_pixel(GDisplay *g)
 	static bool_t XMouseInit(GMouse *m, unsigned driverinstance) {
 		(void)	m;
 		(void)	driverinstance;
-		return TRUE;
+		return GTrue;
 	}
 	static bool_t XMouseRead(GMouse *m, GMouseReading *pt) {
 		xPriv	*	priv;
@@ -489,7 +489,7 @@ LLDSPEC void gdisp_lld_draw_pixel(GDisplay *g)
 		pt->y = priv->mousey;
 		pt->z = (priv->buttons & GINPUT_MOUSE_BTN_LEFT) ? 1 : 0;
 		pt->buttons = priv->buttons;
-		return TRUE;
+		return GTrue;
 	}
 #endif /* GINPUT_NEED_MOUSE */
 
@@ -499,10 +499,10 @@ LLDSPEC void gdisp_lld_draw_pixel(GDisplay *g)
 
 		// Only one please
 		if (keyboard)
-			return FALSE;
+			return GFalse;
 
 		keyboard = k;
-		return TRUE;
+		return GTrue;
 	}
 
 	static int XKeyboardGetData(GKeyboard *k, uint8_t *pch, int sz) {

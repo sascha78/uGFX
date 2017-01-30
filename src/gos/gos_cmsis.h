@@ -27,6 +27,8 @@
 /*===========================================================================*/
 
 typedef bool				bool_t;
+	#define GFalse						false
+	#define GTrue						true
 
 #define TIME_IMMEDIATE		0
 #define TIME_INFINITE		osWaitForever

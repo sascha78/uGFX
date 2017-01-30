@@ -57,9 +57,9 @@ bool_t gfxSemWait(gfxSem* psem, delaytime_t ms)
 {
 	if (osSemaphoreWait(psem->id, ms) > 0) {
 		psem->available++;
-		return TRUE;
+		return GTrue;
 	}
-	return FALSE;
+	return GFalse;
 }
 
 bool_t gfxSemWaitI(gfxSem* psem)

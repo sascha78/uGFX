@@ -145,7 +145,7 @@ gfxQueueFSyncItem *gfxQueueFSyncGet(gfxQueueFSync *pqueue, delaytime_t ms);
 /**
  * @name	Put() Functions
  * @brief	Put an item on the end of the queue.
- * @return	none for ASync and GSync queues; For FSync queues - FALSE on timeout, otherwise TRUE
+ * @return	none for ASync and GSync queues; For FSync queues - GFalse on timeout, otherwise GTrue
  *
  * @param[in]	pqueue	A pointer to the queue
  * @param[in]	pitem	A pointer to the queue item
@@ -183,7 +183,7 @@ bool_t gfxQueueFSyncPut(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem, delayti
 /**
  * @name	Push() Functions
  * @brief	Push an item into the start of the queue.
- * @return	none for ASync and GSync queues; For FSync queues - FALSE on timeout, otherwise TRUE
+ * @return	none for ASync and GSync queues; For FSync queues - GFalse on timeout, otherwise GTrue
  *
  * @param[in]	pqueue	A pointer to the queue
  * @param[in]	pitem	A pointer to the queue item
@@ -207,7 +207,7 @@ bool_t gfxQueueFSyncPush(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem, delayt
 /**
  * @name	Insert() Functions
  * @brief	Insert an item on the queue after the specified item.
- * @return	none for ASync and GSync queues; For FSync queues - FALSE on timeout, otherwise TRUE
+ * @return	none for ASync and GSync queues; For FSync queues - GFalse on timeout, otherwise GTrue
  *
  * @param[in]	pqueue	A pointer to the queue
  * @param[in]	pitem	A pointer to the queue item
@@ -256,7 +256,7 @@ void gfxQueueFSyncRemove(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem);
 /**
  * @name	isEmpty() Functions
  * @brief	Is the queue empty?
- * @return	TRUE if the queue is empty
+ * @return	GTrue if the queue is empty
  *
  * @param[in]	pqueue	A pointer to the queue
  *
@@ -276,7 +276,7 @@ void gfxQueueFSyncRemove(gfxQueueFSync *pqueue, gfxQueueFSyncItem *pitem);
 /**
  * @name	IsInQueue() Functions
  * @brief	Is an item in the queue?
- * @return	TRUE if the item is in the queue?
+ * @return	GTrue if the item is in the queue?
  *
  * @param[in]	pqueue	A pointer to the queue
  * @param[in]	pitem	A pointer to the queue item
@@ -348,7 +348,7 @@ bool_t gfxQueueFSyncIsInI(gfxQueueFSync *pqueue, const gfxQueueFSyncItem *pitem)
 /**
  * @name		BufferAlloc() Functions
  * @brief		Allocate some buffers and put them on the free list
- * @return		TRUE is it succeeded. FALSE on allocation failure.
+ * @return		GTrue is it succeeded. GFalse on allocation failure.
  *
  * @param[in] num	The number of buffers to allocate
  * @param[in] size	The size (in bytes) of each buffer
@@ -362,7 +362,7 @@ bool_t gfxBufferAlloc(unsigned num, size_t size);
 /**
  * @name		BufferIsAvailable() Functions
  * @brief		Is there one or more buffers currently available on the free list
- * @return		TRUE if there are buffers in the free list
+ * @return		GTrue if there are buffers in the free list
  *
  * @api
  * @{

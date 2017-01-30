@@ -47,7 +47,7 @@ int main(void) {
 	gdispFillEllipse (width-width/6, height-height/6, width/8, height/16, Blue);
 	gdispDrawEllipse (width-width/6, height-height/6, width/16, height/8, Yellow);
 
-    while(TRUE) {
+    while(GTrue) {
     	gfxSleepMilliseconds(500);
     }   
 }

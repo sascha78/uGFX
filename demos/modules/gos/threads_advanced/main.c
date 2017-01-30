@@ -69,7 +69,7 @@ threadreturn_t Thread_function(void* param)
 	bool_t* doExit = (bool_t*)param;
 
 	/* Execute this until we shall be terminated */
-	while (*doExit == FALSE) {
+	while (*doExit == GFalse) {
 		DEBUGWRITE("Message from Thread\n");
 		gfxSleepMilliseconds(500);
 	}
@@ -89,7 +89,7 @@ void timerCallback(void* param)
 	
 	/* Ask the Thread to fall over the end */
 	DEBUGWRITE("Closing thread!\n");
-	*threadExit = TRUE;
+	*threadExit = GTrue;
 }
 
 /*
@@ -97,7 +97,7 @@ void timerCallback(void* param)
  */
 int main(void)
 {
-	bool_t exitThread = FALSE;
+	bool_t exitThread = GFalse;
 
 	gfxInit();
 
@@ -112,9 +112,9 @@ int main(void)
 	/* Start the timer. The callback function will be called once after 2000ms
 	 * We will pass the thread handle as a parameter so the timer can ask the thread to terminate
 	 */
-	gtimerStart(&gt, timerCallback, (void*)&exitThread, FALSE, 2000);
+	gtimerStart(&gt, timerCallback, (void*)&exitThread, GFalse, 2000);
 
-	while(TRUE) {
+	while(GTrue) {
 		DEBUGWRITE("Message from main!\n");
 		gfxSleepMilliseconds(500);
 	}   

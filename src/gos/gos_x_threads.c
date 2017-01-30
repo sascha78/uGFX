@@ -74,12 +74,12 @@ bool_t gfxSemWait(gfxSem *psem, delaytime_t ms) {
 		// Check if we have exceeded the defined delay
 		switch (delay) {
 		case TIME_IMMEDIATE:
-			return FALSE;
+			return GFalse;
 		case TIME_INFINITE:
 			break;
 		default:
 			if (gfxSystemTicks() - starttm >= delay)
-				return FALSE;
+				return GFalse;
 			break;
 		}
 		gfxYield();
@@ -87,14 +87,14 @@ bool_t gfxSemWait(gfxSem *psem, delaytime_t ms) {
 	}
 	psem->cnt--;
 	INTERRUPTS_ON();
-	return TRUE;
+	return GTrue;
 }
 
 bool_t gfxSemWaitI(gfxSem *psem) {
 	if (psem->cnt <= 0)
-		return FALSE;
+		return GFalse;
 	psem->cnt--;
-	return TRUE;
+	return GTrue;
 }
 
 void gfxSemSignal(gfxSem *psem) {
@@ -415,8 +415,8 @@ static thread		mainthread;				// The main thread context
 		CXT_RESTORE(newt->cxt, 1);
 	}
 
-	#define _gfxTaskSwitch(oldt, newt)		_gfxXSwitch(oldt, newt, FALSE)
-	#define _gfxStartThread(oldt, newt)		_gfxXSwitch(oldt, newt, TRUE)
+	#define _gfxTaskSwitch(oldt, newt)		_gfxXSwitch(oldt, newt, GFalse)
+	#define _gfxStartThread(oldt, newt)		_gfxXSwitch(oldt, newt, GTrue)
 #endif
 #undef GFX_THREADS_DONE
 

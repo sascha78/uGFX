@@ -603,14 +603,14 @@ void _gdispInit(void)
 				#endif
 			}
 
-			gdispInitDone = TRUE;
+			gdispInitDone = GTrue;
 		}
 	#endif
 
 	// Start the automatic timer flush (if required)
 	#if GDISP_NEED_TIMERFLUSH
 		gtimerInit(&FlushTimer);
-		gtimerStart(&FlushTimer, FlushTimerFn, 0, TRUE, GDISP_NEED_TIMERFLUSH);
+		gtimerStart(&FlushTimer, FlushTimerFn, 0, GTrue, GDISP_NEED_TIMERFLUSH);
 	#endif
 }
 
@@ -3347,7 +3347,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 			linecount = (uint16_t*)state;
 			(*linecount)++;
 
-			return TRUE;
+			return GTrue;
 		}
 		static bool mf_drawline_callback(mf_str line, uint16_t count, void *state) {
 			wrapParameters_t* wrapParameters = (wrapParameters_t*)state;
@@ -3355,7 +3355,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 			mf_render_aligned(wrapParameters->font, wrapParameters->x, wrapParameters->y, wrapParameters->justify, line, count, drawcharglyph, wrapParameters->g);
 
 			wrapParameters->y += wrapParameters->font->line_height;
-			return TRUE;
+			return GTrue;
 		}
 		static bool mf_fillline_callback(mf_str line, uint16_t count, void *state) {
 			wrapParameters_t* wrapParameters = (wrapParameters_t*)state;
@@ -3363,7 +3363,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 			mf_render_aligned(wrapParameters->font, wrapParameters->x, wrapParameters->y, wrapParameters->justify, line, count, fillcharglyph, wrapParameters->g);
 
 			wrapParameters->y += wrapParameters->font->line_height;
-			return TRUE;
+			return GTrue;
 		}	
 	#endif
 
@@ -3589,9 +3589,9 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 
 		// No mutex required as we only read static data
 		#if GDISP_NEED_TEXT_KERNING
-			return mf_get_string_width(font, str, count, TRUE);
+			return mf_get_string_width(font, str, count, GTrue);
 		#else
-			return mf_get_string_width(font, str, count, FALSE);
+			return mf_get_string_width(font, str, count, GFalse);
 		#endif
 	}
 

@@ -91,7 +91,7 @@ void gtimerDeinit(GTimer* pt);
  * @param[in] pt	Pointer to a GTimer structure
  * @param[in] fn		The callback function
  * @param[in] param		The parameter to pass to the callback function
- * @param[in] periodic	Is the timer a periodic timer? FALSE is a once-only timer.
+ * @param[in] periodic	Is the timer a periodic timer? GFalse is a once-only timer.
  * @param[in] millisec	The timer period. The following special values are allowed:
  *							TIME_IMMEDIATE	causes the callback function to be called asap.
  *											A periodic timer with this value will fire once only.
@@ -132,7 +132,7 @@ void gtimerStop(GTimer *pt);
  *
  * @param[in] pt		Pointer to a GTimer structure
  *
- * @return	TRUE if active, FALSE otherwise
+ * @return	GTrue if active, GFalse otherwise
  *
  * @api
  */

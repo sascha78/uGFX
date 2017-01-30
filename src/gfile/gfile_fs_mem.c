@@ -44,7 +44,7 @@ static int MEMWrite(GFILE *f, const void *buf, int size) {
 static bool_t MEMSetpos(GFILE *f, long int pos) {
 	(void) f;
 	(void) pos;
-	return TRUE;
+	return GTrue;
 }
 
 GFILE *	gfileOpenMemory(void *memptr, const char *mode) {

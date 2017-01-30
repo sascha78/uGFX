@@ -101,7 +101,7 @@ extern "C" {
 	/**
 	 * @brief		Set the audio device to play on the specified channel and with the specified
 	 * 				sample frequency.
-	 * @return		TRUE is successful, FALSE if the driver doesn't accept those parameters.
+	 * @return		GTrue is successful, GFalse if the driver doesn't accept those parameters.
 	 *
 	 * @param[in] channel	The audio output channel to use. Can be set from 0 to GAUDIO_PLAY_NUM_CHANNELS - 1
 	 * @param[in] frequency	The audio sample rate in samples per second
@@ -159,11 +159,11 @@ extern "C" {
 
 	/**
 	 * @brief				Set the output volume.
-	 * @return				TRUE if successful.
+	 * @return				GTrue if successful.
 	 *
 	 * @param[in] vol		0->255 (0 = muted)
 	 *
-	 * @note				Some drivers may not support this. They will return FALSE.
+	 * @note				Some drivers may not support this. They will return GFalse.
 	 * @note				For stereo devices, both channels are set to the same volume.
 	 *
 	 * @api
@@ -191,7 +191,7 @@ extern "C" {
 
 	/**
 	 * @brief		Wait for any currently playing sounds to complete
-	 * @return		TRUE if there is now nothing playing or FALSE if the timeout is exceeded
+	 * @return		GTrue if there is now nothing playing or GFalse if the timeout is exceeded
 	 *
 	 * @param[in] ms	The maximum amount of time in milliseconds to wait for playing to complete.
 	 *
@@ -203,7 +203,7 @@ extern "C" {
 #if GAUDIO_NEED_RECORD || defined(__DOXYGEN__)
 	/**
 	 * @brief		Initialise (but not start) the Audio Recording sub-system.
-	 * @details		Returns FALSE for an invalid channel or other invalid parameter.
+	 * @details		Returns GFalse for an invalid channel or other invalid parameter.
 	 *
 	 * @param[in] channel		The channel to convert. Can be set from 0 to GAUDIO_RECORD_NUM_CHANNELS - 1
 	 * @param[in] frequency		The sample frequency
@@ -225,7 +225,7 @@ extern "C" {
 	 * 						Make sure you allocate your buffers large enough. Each channel is then interleaved
 	 * 						into the provided buffer.
 	 *
-	 * @return				FALSE if invalid channel or parameter
+	 * @return				GFalse if invalid channel or parameter
 	 *
 	 * @api
 	 */

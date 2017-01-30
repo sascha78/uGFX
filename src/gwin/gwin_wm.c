@@ -38,7 +38,7 @@
 		gh->x = gh->y = gh->width = gh->height = 0;
 		gwinMove(gh, pInit->x, pInit->y);
 		gwinResize(gh, pInit->width, pInit->height);
-		return TRUE;
+		return GTrue;
 	}
 
 	void _gwinFlushRedraws(GRedrawMethod how) {
@@ -85,10 +85,10 @@
 
 	bool_t _gwinDrawStart(GHandle gh) {
 		if (!(gh->flags & GWIN_FLG_SYSVISIBLE))
-			return FALSE;
+			return GFalse;
 
 		getLock(gh);
-		return TRUE;
+		return GTrue;
 	}
 
 	void _gwinDrawEnd(GHandle gh) {
@@ -190,7 +190,7 @@ void _gwmInit(void)
 	#endif
 	#if !GWIN_REDRAW_IMMEDIATE
 		gtimerInit(&RedrawTimer);
-		gtimerStart(&RedrawTimer, RedrawTimerFn, 0, TRUE, TIME_INFINITE);
+		gtimerStart(&RedrawTimer, RedrawTimerFn, 0, GTrue, TIME_INFINITE);
 	#endif
 	_GWINwm = (GWindowManager *)&GNullWindowManager;
 	_GWINwm->vmt->Init();
@@ -370,7 +370,7 @@ bool_t _gwinDrawStart(GHandle gh) {
 	// This test should occur inside the lock. We do this
 	//	here as well as an early out (more efficient).
 	if (!(gh->flags & GWIN_FLG_SYSVISIBLE))
-		return FALSE;
+		return GFalse;
 
 	// Obtain the drawing lock
 	gfxSemWait(&gwinsem, TIME_INFINITE);
@@ -378,14 +378,14 @@ bool_t _gwinDrawStart(GHandle gh) {
 	// Re-test visibility as we may have waited a while
 	if (!(gh->flags & GWIN_FLG_SYSVISIBLE)) {
 		_gwinDrawEnd(gh);
-		return FALSE;
+		return GFalse;
 	}
 
 	// OK - we are ready to draw.
 	#if GDISP_NEED_CLIP
 		gdispGSetClip(gh->display, gh->x, gh->y, gh->width, gh->height);
 	#endif
-	return TRUE;
+	return GTrue;
 }
 
 void _gwinDrawEnd(GHandle gh) {
@@ -408,12 +408,12 @@ bool_t _gwinWMAdd(GHandle gh, const GWindowInit *pInit) {
 
 		// Ensure the display is consistent with any parents
 		if (gh->parent && (!(gh->parent->flags & GWIN_FLG_CONTAINER) || gh->display != gh->parent->display))
-			return FALSE;
+			return GFalse;
 	#endif
 
 	// Add to the window manager
 	if (!_GWINwm->vmt->Add(gh, pInit))
-		return FALSE;
+		return GFalse;
 
 	#if GWIN_NEED_CONTAINERS
 		// Notify the parent it has been added
@@ -421,7 +421,7 @@ bool_t _gwinWMAdd(GHandle gh, const GWindowInit *pInit) {
 			((gcontainerVMT *)gh->parent->vmt)->NotifyAdd(gh->parent, gh);
 	#endif
 
-	return TRUE;
+	return GTrue;
 }
 
 void gwinSetWindowManager(struct GWindowManager *gwm) {
@@ -642,9 +642,9 @@ GHandle gwinGetNextWindow(GHandle gh) {
 				RedrawPending |= DOREDRAW_FLASHRUNNING;
 
 				// Ensure we start the timer with flash bit on
-				_gwinFlashState = FALSE;
+				_gwinFlashState = GFalse;
 				FlashTimerFn(0);														// First flash
-				gtimerStart(&FlashTimer, FlashTimerFn, 0, TRUE, GWIN_FLASHING_PERIOD);	// Subsequent flashes
+				gtimerStart(&FlashTimer, FlashTimerFn, 0, GTrue, GWIN_FLASHING_PERIOD);	// Subsequent flashes
 			}
 
 		// Stop flashing?
@@ -737,7 +737,7 @@ static bool_t WM_Add(GHandle gh, const GWindowInit *pInit) {
 	gh->x = gh->y = 0;
 	WM_Move(gh, pInit->x, pInit->y);
 	WM_Size(gh, pInit->width, pInit->height);
-	return TRUE;
+	return GTrue;
 }
 
 static void WM_Delete(GHandle gh) {
@@ -858,7 +858,7 @@ static void WM_Size(GHandle gh, coord_t w, coord_t h) {
 
 		} else {
 			// We need to make this window invisible and ensure that has been drawn
-			gwinSetVisible(gh, FALSE);
+			gwinSetVisible(gh, GFalse);
 			_gwinFlushRedraws(REDRAW_WAIT);
 
 			// Resize
@@ -876,7 +876,7 @@ static void WM_Size(GHandle gh, coord_t w, coord_t h) {
 			#endif
 
 			// Mark it visible again in its new location
-			gwinSetVisible(gh, TRUE);
+			gwinSetVisible(gh, GTrue);
 		}
 	} else {
 		gh->width = w; gh->height = h;
@@ -939,7 +939,7 @@ static void WM_Move(GHandle gh, coord_t x, coord_t y) {
 	// Clear the old area and then redraw
 	if ((gh->flags & GWIN_FLG_SYSVISIBLE)) {
 		// We need to make this window invisible and ensure that has been drawn
-		gwinSetVisible(gh, FALSE);
+		gwinSetVisible(gh, GFalse);
 		_gwinFlushRedraws(REDRAW_WAIT);
 
 		// Do the move
@@ -957,7 +957,7 @@ static void WM_Move(GHandle gh, coord_t x, coord_t y) {
 			}
 		#endif
 
-		gwinSetVisible(gh, TRUE);
+		gwinSetVisible(gh, GTrue);
 	} else {
 		u = gh->x; gh->x = x;
 		v = gh->y; gh->y = y;
@@ -998,7 +998,7 @@ static void WM_Raise(GHandle gh) {
 			// Note: Children can also have their own children so after each move we have to start again.
 			for (gx = gwinGetNextWindow(0); gx; gx = gwinGetNextWindow(gx)) {
 				if ((gx->flags & GWIN_FLG_CONTAINER)) {
-					restart = FALSE;
+					restart = GFalse;
 					for (child = gwinGetNextWindow(0); child && child != gx; child = gwinGetNextWindow(child)) {
 						if (child->parent == gx) {
 							// Oops - this child is behind its parent. Move it to the front.
@@ -1008,7 +1008,7 @@ static void WM_Raise(GHandle gh) {
 							// Restart at the front of the list for this parent container as we have moved this child
 							// to the end of the list. We also need to restart everything once this container is done.
 							child = 0;
-							restart = TRUE;
+							restart = GTrue;
 						}
 					}
 					if (restart)

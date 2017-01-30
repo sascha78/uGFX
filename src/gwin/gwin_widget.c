@@ -236,7 +236,7 @@ static void gwidgetEvent(void *param, GEvent *pe) {
 
 		// Do we already have the focus?
 		if (gh == _widgetInFocus)
-			return TRUE;
+			return GTrue;
 
 		// The new window must be NULLL or a visible enabled widget with a keyboard handler
 		if (!gh || ((gh->flags & (GWIN_FLG_WIDGET|GWIN_FLG_ENABLED|GWIN_FLG_SYSENABLED|GWIN_FLG_VISIBLE|GWIN_FLG_SYSVISIBLE)) == (GWIN_FLG_WIDGET|GWIN_FLG_ENABLED|GWIN_FLG_SYSENABLED|GWIN_FLG_VISIBLE|GWIN_FLG_SYSVISIBLE)
@@ -246,9 +246,9 @@ static void gwidgetEvent(void *param, GEvent *pe) {
 			_widgetInFocus = gh;
 			if (oldFocus)	_gwinUpdate(oldFocus);
 			if (gh)			_gwinUpdate(gh);
-			return TRUE;
+			return GTrue;
 		}
-		return FALSE;
+		return GFalse;
 	}
 
 	void _gwinMoveFocus(void) {
@@ -256,10 +256,10 @@ static void gwidgetEvent(void *param, GEvent *pe) {
 		bool_t	looponce;
 
 		// Find a new focus window (one may or may not exist).
-		looponce = FALSE;
+		looponce = GFalse;
 		for(gh = gwinGetNextWindow(_widgetInFocus); ; gh = gwinGetNextWindow(gh)) {
 			if (!gh && !looponce) {
-				looponce = TRUE;
+				looponce = GTrue;
 				gh = gwinGetNextWindow(0);
 			}
 			if (gwinSetFocus(gh))
@@ -577,10 +577,10 @@ const char *gwinGetText(GHandle gh) {
 
 bool_t gwinIsWidget(GHandle gh) {
 	if (gh->flags & GWIN_FLG_WIDGET) {
-		return TRUE;
+		return GTrue;
 	}
 
-	return FALSE;
+	return GFalse;
 }
 
 void gwinSetStyle(GHandle gh, const GWidgetStyle *pstyle) {
@@ -618,7 +618,7 @@ bool_t gwinAttachListener(GListener *pl) {
 	bool_t DEPRECATED("This call can now be removed. Attaching the mouse to GWIN is now automatic.") gwinAttachMouse(uint16_t instance) {
 		// This is now a NULL event because we automatically attach to all mice in the system.
 		(void) instance;
-		return TRUE;
+		return GTrue;
 	}
 #endif
 
@@ -629,20 +629,20 @@ bool_t gwinAttachListener(GListener *pl) {
 
 		// Is this a widget
 		if (!(gh->flags & GWIN_FLG_WIDGET))
-			return FALSE;
+			return GFalse;
 
 		// Is the role valid
 		if (role >= wvmt->toggleroles)
-			return FALSE;
+			return GFalse;
 
 		// Is this a valid device
 		if (!(gsh = ginputGetToggle(instance)))
-			return FALSE;
+			return GFalse;
 
 		// Is this already done?
 		oi = wvmt->ToggleGet(gw, role);
 		if (instance == oi)
-			return TRUE;
+			return GTrue;
 
 		// Remove the old instance
 		if (oi != GWIDGET_NO_INSTANCE) {
@@ -661,11 +661,11 @@ bool_t gwinAttachListener(GListener *pl) {
 
 		// Is this a widget
 		if (!(gh->flags & GWIN_FLG_WIDGET))
-			return FALSE;
+			return GFalse;
 
 		// Is the role valid
 		if (role >= ((gwidgetVMT *)gh->vmt)->toggleroles)
-			return FALSE;
+			return GFalse;
 
 		oi = ((gwidgetVMT *)gh->vmt)->ToggleGet(gw, role);
 
@@ -675,7 +675,7 @@ bool_t gwinAttachListener(GListener *pl) {
 			if (!FindToggleUser(oi))
 				geventDetachSource(&gl, ginputGetToggle(oi));
 		}
-		return TRUE;
+		return GTrue;
 	}
 
 #endif
@@ -686,20 +686,20 @@ bool_t gwinAttachListener(GListener *pl) {
 		uint16_t		oi;
 
 		if (!(gh->flags & GWIN_FLG_WIDGET))
-			return FALSE;
+			return GFalse;
 
 		// Is the role valid
 		if (role >= wvmt->dialroles)
-			return FALSE;
+			return GFalse;
 
 		// Is this a valid device
 		if (!(gsh = ginputGetDial(instance)))
-			return FALSE;
+			return GFalse;
 
 		// Is this already done?
 		oi = wvmt->DialGet(gw, role);
 		if (instance == oi)
-			return TRUE;
+			return GTrue;
 
 		// Remove the old instance
 		if (oi != GWIDGET_NO_INSTANCE) {

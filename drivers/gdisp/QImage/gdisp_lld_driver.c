@@ -33,7 +33,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g)
     g->priv = g->board = 0;
 
     if (!qimage_init(g, GDISP_SCREEN_WIDTH, GDISP_SCREEN_HEIGHT)) {
-        return FALSE;
+        return GFalse;
     }
 
 	/* Initialise the GDISP structure */
@@ -44,7 +44,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g)
 	g->g.Backlight = GDISP_INITIAL_BACKLIGHT;
 	g->g.Contrast = GDISP_INITIAL_CONTRAST;
 
-	return TRUE;
+	return GTrue;
 }
 
 #if GDISP_HARDWARE_DRAWPIXEL

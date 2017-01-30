@@ -51,7 +51,7 @@ void __early_init(void) {
 bool_t sdc_lld_is_card_inserted(SDCDriver *sdcp) {
   (void)sdcp;
 
-  return TRUE;
+  return GTrue;
 }
 
 /**
@@ -69,7 +69,7 @@ bool_t sdc_lld_is_write_protected(SDCDriver *sdcp) {
 bool_t mmc_lld_is_card_inserted(MMCDriver *mmcp) {
   (void)mmcp;
 
-  return TRUE;
+  return GTrue;
 }
 
 bool_t mmc_lld_is_write_protected(MMCDriver *mmcp) {

@@ -83,7 +83,7 @@ static GFXINLINE void post_init_board(GDisplay *g) {
  * @brief   Set or clear the lcd reset pin.
  *
  * @param[in] g			The GDisplay structure
- * @param[in] state		TRUE = lcd in reset, FALSE = normal operation
+ * @param[in] state		GTrue = lcd in reset, GFalse = normal operation
  * 
  * @notapi
  */

@@ -53,7 +53,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	g->board = 0;							// preinitialize
 	board_init(g, &((fbPriv *)g->priv)->fbi);
 
-	return TRUE;
+	return GTrue;
 }
 
 #if GDISP_HARDWARE_FLUSH

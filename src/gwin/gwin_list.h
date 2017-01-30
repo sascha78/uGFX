@@ -127,7 +127,7 @@ extern "C" {
  * @param[in] g			The GDisplay to display this window on
  * @param[in] widget	The GListObject structure to initialize. If this is NULL, the structure is dynamically allocated.
  * @param[in] pInit		The initialization parameters to use
- * @param[in] multiselect	If TRUE the list is multi-select instead of single-select.
+ * @param[in] multiselect	If GTrue the list is multi-select instead of single-select.
  *
  * @return				NULL if there is no resulting drawing area, otherwise a window handle.
  *
@@ -144,7 +144,7 @@ GHandle gwinGListCreate(GDisplay *g, GListObject *widget, GWidgetInit *pInit, bo
  *						by temporarely disabling the render using this function.
  *
  * @param[in] gh		The widget handle (must be a list handle)
- * @param[in] ena		TRUE or FALSE
+ * @param[in] ena		GTrue or GFalse
  *
  * @api
  */
@@ -170,7 +170,7 @@ void gwinListSetScroll(GHandle gh, scroll_t flag);
  *
  * @param[in] gh		The widget handle (must be a list handle)
  * @param[in] text		The string which shall be displayed in the list afterwards
- * @param[in] useAlloc	If set to TRUE, the string will be dynamically allocated. A static buffer must be passed otherwise
+ * @param[in] useAlloc	If set to GTrue, the string will be dynamically allocated. A static buffer must be passed otherwise
  *
  * @return				The current ID of the item. The ID might change if you remove items from the middle of the list
  *
@@ -184,7 +184,7 @@ int gwinListAddItem(GHandle gh, const char* text, bool_t useAlloc);
  * @param[in] gh		The widget handle (must be a list handle)
  * @param[in] item		The item ID
  * @param[in] text		The text to replace the existing text
- * @param[in] useAlloc	If set to TRUE, the string will be dynamically allocated. A static buffer must be passed otherwise
+ * @param[in] useAlloc	If set to GTrue, the string will be dynamically allocated. A static buffer must be passed otherwise
  *
  * @api
  */
@@ -273,7 +273,7 @@ int gwinListItemCount(GHandle gh);
  * @param[in] gh		The widget handle (must be a list handle)
  * @param[in] item		The item ID
  *
- * @return				TRUE if the item is selected, FALSE otherwise
+ * @return				GTrue if the item is selected, GFalse otherwise
  *
  * @api
  */
@@ -312,7 +312,7 @@ const char* gwinListGetSelectedText(GHandle gh);
  *
  * @param[in] gh		The widget handle (must be a list handle)
  * @param[in] item		The item ID
- * @param[in] doSelect	TRUE to select the item or FALSE to deselect the item
+ * @param[in] doSelect	GTrue to select the item or GFalse to deselect the item
  *
  * @note				Changing the selection using this api call will NOT send the list selection
  * 						change event.

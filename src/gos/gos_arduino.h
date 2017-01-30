@@ -32,6 +32,8 @@
 /*===========================================================================*/
 
 typedef unsigned char	bool_t;
+	#define GFalse						0
+	#define GTrue						((bool_t)-1)
 
 #if 0
 	// Already defined by Arduino

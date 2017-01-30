@@ -143,7 +143,7 @@ void gwinSliderSetPosition(GHandle gh, int pos);
  * @brief   Should the slider send extended events.
  *
  * @param[in] gh		The window handle (must be a slider window)
- * @param[in] enabled	TRUE to enable extended events, FALSE to disable them
+ * @param[in] enabled	GTrue to enable extended events, GFalse to disable them
  *
  * @note	The slider by default will only send slider events with an action of GSLIDER_EVENT_SET.
  * 			This call can be used to enable other slider action's to be sent as events

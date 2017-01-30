@@ -73,8 +73,8 @@ bool_t geventAttachSource(GListener *pl, GSourceHandle gsh, uint32_t flags) {
 
 	// Safety first
 	if (!pl || !gsh) {
-		GEVENT_ASSERT(FALSE);
-		return FALSE;
+		GEVENT_ASSERT(GFalse);
+		return GFalse;
 	}
 
 	gfxMutexEnter(&geventMutex);
@@ -87,7 +87,7 @@ bool_t geventAttachSource(GListener *pl, GSourceHandle gsh, uint32_t flags) {
 			// Just update the flags
 			psl->listenflags = flags;
 			gfxMutexExit(&geventMutex);
-			return TRUE;
+			return GTrue;
 		}
 		if (!pslfree && !psl->pListener)
 			pslfree = psl;

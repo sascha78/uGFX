@@ -37,7 +37,7 @@ static void createWidgets(void) {
 
 	// Apply some default values for GWIN
 	gwinWidgetClearInit(&wi);
-	wi.g.show = TRUE;
+	wi.g.show = GTrue;
 
 	// Apply the button parameters
 	wi.g.width = 100;
@@ -64,7 +64,7 @@ int main(void) {
 
 	// Set the widget defaults
 	gwinSetDefaultFont(gdispOpenFont("UI2"));
-	gwinSetDefaultStyle(&WhiteWidgetStyle, FALSE);
+	gwinSetDefaultStyle(&WhiteWidgetStyle, GFalse);
 	gdispClear(White);
 
 	// create the widget
@@ -90,7 +90,7 @@ int main(void) {
 					// corner which should translate safely into any orientation.
 					gdispSetOrientation(orients[which]);
 					gdispClear(White);
-					gwinRedrawDisplay(GDISP, FALSE);
+					gwinRedrawDisplay(GDISP, GFalse);
 				}
 				break;
 

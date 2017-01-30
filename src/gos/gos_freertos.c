@@ -109,11 +109,11 @@ bool_t gfxSemWait(gfxSem* psem, delaytime_t ms)
 	psem->counter--;
 
 	if (xSemaphoreTake(psem->sem, MS2ST(ms)) == pdPASS)
-		return TRUE;
+		return GTrue;
 
 	psem->counter++;
 
-	return FALSE;
+	return GFalse;
 }
 
 bool_t gfxSemWaitI(gfxSem* psem)
@@ -123,11 +123,11 @@ bool_t gfxSemWaitI(gfxSem* psem)
 	psem->counter--;
 
 	if (xSemaphoreTakeFromISR(psem->sem,&xHigherPriorityTaskWoken) == pdTRUE)
-		return TRUE;
+		return GTrue;
 
 	psem->counter++;
 
-	return FALSE;
+	return GFalse;
 }
 
 void gfxSemSignal(gfxSem* psem)

@@ -81,13 +81,13 @@ int main(void) {
   gfxInit();
 
   /* Calibrate the touchscreen */
-  ginputSetMouseCalibrationRoutines(0, NULL, tsCalibRead, FALSE);
+  ginputSetMouseCalibrationRoutines(0, NULL, tsCalibRead, GFalse);
   ginputGetMouse(0);
 
   // Set the color scheme
   nSetColorScheme(schemeDefault);
 
-  while (TRUE) {
+  while (GTrue) {
 	gfxThreadWait(nLaunchNotepadApp());
 
 	gdispSetClip(0, 0, gdispGetWidth(), gdispGetHeight());

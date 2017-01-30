@@ -9,6 +9,8 @@
 #define TIME_IMMEDIATE		(RAW_NO_WAIT)
 #define TIME_INFINITE		(RAW_WAIT_FOREVER)
 typedef int8_t				bool_t;
+	#define GFalse						0
+	#define GTrue						((bool_t)-1)
 typedef uint32_t			delaytime_t;
 typedef RAW_TICK_TYPE		systemticks_t;
 typedef int32_t				semcount_t;

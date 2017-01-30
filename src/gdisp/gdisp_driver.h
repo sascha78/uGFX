@@ -417,7 +417,7 @@ typedef struct GDISPVMT {
 
 	/**
 	 * @brief   Initialize the driver.
-	 * @return	TRUE if successful.
+	 * @return	GTrue if successful.
 	 * @param[in]	g					The driver structure
 	 * @param[out]	g->g				The driver must fill in the GDISPControl structure
 	 */

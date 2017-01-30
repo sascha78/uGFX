@@ -76,7 +76,7 @@ extern "C" {
 	 * @brief	Can be used to invert the sense of a toggle
 	 *
 	 * @param[in] instance	The ID of the toggle input instance
-	 * @param[in] invert	If TRUE, will be inverted
+	 * @param[in] invert	If GTrue, will be inverted
 	 */
 	void ginputInvertToggle(uint16_t instance, bool_t invert);
 
@@ -86,7 +86,7 @@ extern "C" {
 	 * @param[in] instance	The ID of the toggle input instance
 	 * @param[in] ptoggle	The toggle event struct
 	 *
-	 * @return Returns FALSE on an error (eg invalid instance)
+	 * @return Returns GFalse on an error (eg invalid instance)
 	 */
 	bool_t ginputGetToggleStatus(uint16_t instance, GEventToggle *ptoggle);
 

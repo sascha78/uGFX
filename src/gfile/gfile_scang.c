@@ -37,15 +37,15 @@ int vfscang(GFILE *f, const char *fmt, va_list arg) {
 
 		case '%':
 			fmt++;
-			assign = TRUE;
-			negate = FALSE;
+			assign = GTrue;
+			negate = GFalse;
 			width = 0;
 			size = 1;
 			num = 0;
 
 			if (*fmt == '*') {
 				fmt++;
-				assign = FALSE;
+				assign = GFalse;
 			}
 			while(*fmt >= '0' && *fmt <= '9')
 				width = width * 10 + (*fmt++ - '0');
@@ -145,7 +145,7 @@ int vfscang(GFILE *f, const char *fmt, va_list arg) {
 					break;
 				}
 				if (c == '-' && *fmt != 'u') {
-					negate = TRUE;
+					negate = GTrue;
 					if ((width && !--width) || !gfileRead(f, &c, 1))			return res;
 				}
 				if (base == -1) {

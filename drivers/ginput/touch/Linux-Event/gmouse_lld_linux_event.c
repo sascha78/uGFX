@@ -42,7 +42,7 @@ static bool_t _init(GMouse* m, unsigned driverInstance)
 	priv->fd = open(GMOUSE_LINUX_EVENT_DEVICE, O_RDONLY | O_NONBLOCK);
 	if (priv->fd < 0) {
 		fprintf(stderr, "GINPUT Mouse: Cannot open input device (%s)\n", GMOUSE_LINUX_EVENT_DEVICE);
-		return FALSE;
+		return GFalse;
 	}
 
 	// Initialize
@@ -51,7 +51,7 @@ static bool_t _init(GMouse* m, unsigned driverInstance)
 	priv->lastReading.y = 0;
 	priv->lastReading.z = 0;
 
-	return TRUE;
+	return GTrue;
 }
 
 static bool_t _read(GMouse* m, GMouseReading* pdr)
@@ -97,7 +97,7 @@ static bool_t _read(GMouse* m, GMouseReading* pdr)
 	priv->lastReading.z = pdr->z;
 	priv->lastReading.buttons = pdr->buttons;
 	
-	return TRUE;
+	return GTrue;
 }
 
 const GMouseVMT const GMOUSE_DRIVER_VMT[1] = {{

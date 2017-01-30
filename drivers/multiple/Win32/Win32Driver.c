@@ -453,7 +453,7 @@ void gfxEmulatorSetParentWindow(void *hwnd) {
 		priv->mousebuttons = buttons;
 		priv->mousex = x;
 		priv->mousey = y;
-		if ((gmvmt(priv->mouse)->d.flags & GMOUSE_VFLG_NOPOLL))		// For normal setup this is always TRUE
+		if ((gmvmt(priv->mouse)->d.flags & GMOUSE_VFLG_NOPOLL))		// For normal setup this is always GTrue
 			_gmouseWakeup(priv->mouse);
 	}
 	void gfxEmulatorMouseEnable(GDisplay *g, bool_t enabled) {
@@ -620,7 +620,7 @@ static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPA
 				priv->mousebuttons = btns;
 				priv->mousex = (coord_t)LOWORD(lParam);
 				priv->mousey = (coord_t)HIWORD(lParam);
-				if ((gmvmt(priv->mouse)->d.flags & GMOUSE_VFLG_NOPOLL))		// For normal setup this is always TRUE
+				if ((gmvmt(priv->mouse)->d.flags & GMOUSE_VFLG_NOPOLL))		// For normal setup this is always GTrue
 					_gmouseWakeup(priv->mouse);
 			}
 			break;
@@ -638,7 +638,7 @@ static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPA
 				else if (HIWORD(lParam) & KF_REPEAT)
 					keybuffer[keypos++] = 0x01;			// Repeat
 				keybuffer[keypos++] = wParam;
-				if ((gkvmt(keyboard)->d.flags & GKEYBOARD_VFLG_NOPOLL))		// For normal setup this is always TRUE
+				if ((gkvmt(keyboard)->d.flags & GKEYBOARD_VFLG_NOPOLL))		// For normal setup this is always GTrue
 					_gkeyboardWakeup(keyboard);
 			}
 			return 0;
@@ -652,7 +652,7 @@ static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPA
 				w = wParam;
 				len = WideCharToMultiByte(CP_UTF8, 0, &w, 1, (char *)(keybuffer+keypos), sizeof(keybuffer)-keypos, 0, 0);
 				keypos += len;
-				if (len && (gkvmt(keyboard)->d.flags & GKEYBOARD_VFLG_NOPOLL))		// For normal setup this is always TRUE
+				if (len && (gkvmt(keyboard)->d.flags & GKEYBOARD_VFLG_NOPOLL))		// For normal setup this is always GTrue
 					_gkeyboardWakeup(keyboard);
 			}
 			return 0;
@@ -668,7 +668,7 @@ static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPA
 		// Pretend we have erased the background.
 		// We know we don't really need to do this as we
 		// redraw the entire surface in the WM_PAINT handler.
-		return TRUE;
+		return GTrue;
 
 	case WM_PAINT:
 		// Get our GDisplay structure
@@ -745,7 +745,7 @@ static DWORD WINAPI GDISPDRIVERID(WindowThread)(void *param) {
 	// Establish this thread as a message queue thread
 	winThreadId = GetCurrentThreadId();
 	PeekMessage(&msg, 0, WM_USER, WM_USER, PM_NOREMOVE);
-	QReady = TRUE;
+	QReady = GTrue;
 
 	// Create the window class
 	{
@@ -822,7 +822,7 @@ LLDSPEC bool_t GDISPDRIVERID(init)(GDisplay *g) {
 
 		// Create the thread
 		if (!(hth = CreateThread(0, 0, GDISPDRIVERID(WindowThread), 0, CREATE_SUSPENDED, 0)))
-			return FALSE;
+			return GFalse;
 		SetThreadPriority(hth, THREAD_PRIORITY_ABOVE_NORMAL);
 		ResumeThread(hth);
 		CloseHandle(hth);
@@ -864,7 +864,7 @@ LLDSPEC bool_t GDISPDRIVERID(init)(GDisplay *g) {
 
 	// Create the associated mouse
 	#if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
-		priv->mouseenabled = hWndParent ? FALSE : TRUE;
+		priv->mouseenabled = hWndParent ? GFalse : GTrue;
 		priv->mouse = (GMouse *)gdriverRegister((const GDriverVMT const *)GMOUSE_DRIVER_VMT, g);
 	#endif
 
@@ -873,7 +873,7 @@ LLDSPEC bool_t GDISPDRIVERID(init)(GDisplay *g) {
 	ShowWindow(priv->hwnd, SW_SHOW);
 	UpdateWindow(priv->hwnd);
 
-	return TRUE;
+	return GTrue;
 }
 
 #if GDISP_HARDWARE_FLUSH
@@ -1331,7 +1331,7 @@ LLDSPEC	void GDISPDRIVERID(write)(GDisplay *g) {
 	static bool_t Win32MouseInit(GMouse *m, unsigned driverinstance) {
 		(void)	m;
 		(void)	driverinstance;
-		return TRUE;
+		return GTrue;
 	}
 	static bool_t Win32MouseRead(GMouse *m, GMouseReading *pt) {
 		GDisplay *	g;
@@ -1372,7 +1372,7 @@ LLDSPEC	void GDISPDRIVERID(write)(GDisplay *g) {
 			}
 		#endif
 
-		return TRUE;
+		return GTrue;
 	}
 #endif /* GINPUT_NEED_MOUSE */
 
@@ -1382,10 +1382,10 @@ LLDSPEC	void GDISPDRIVERID(write)(GDisplay *g) {
 
 		// Only one please
 		if (keyboard)
-			return FALSE;
+			return GFalse;
 
 		keyboard = k;
-		return TRUE;
+		return GTrue;
 	}
 
 	static int Win32KeyboardGetData(GKeyboard *k, uint8_t *pch, int sz) {

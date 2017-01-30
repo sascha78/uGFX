@@ -401,7 +401,7 @@ static DECLARE_THREAD_FUNCTION(notepadThread, param) {
 
   ncoreSpawnDrawThread(nDrawingArea, gstatusConsole);
 
-  while(TRUE) {
+  while(GTrue) {
 	  pem = (GEventMouse *) geventEventWait(&gl, TIME_INFINITE);
 
 	  /* button pressed... */

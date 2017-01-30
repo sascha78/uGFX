@@ -20,10 +20,10 @@
 static bool_t MouseInit(GMouse* m, unsigned driverinstance)
 {
 	if (!init_board(m, driverinstance)) {
-		return FALSE;
+		return GFalse;
 	}
 	
-	return TRUE;
+	return GTrue;
 }
 
 static bool_t read_xyz(GMouse* m, GMouseReading* pdr)
@@ -35,7 +35,7 @@ static bool_t read_xyz(GMouse* m, GMouseReading* pdr)
 
 	// Read
 	if (!read_bytes(m, EXC7200_READ_CMD, rxbuf, 10)) {
-		return FALSE;
+		return GFalse;
 	}
 	
 	// Check if touched
@@ -47,7 +47,7 @@ static bool_t read_xyz(GMouse* m, GMouseReading* pdr)
 		pdr->z = 0;
 	}	
 
-	return TRUE;
+	return GTrue;
 }
 
 const GMouseVMT const GMOUSE_DRIVER_VMT[1] = {{

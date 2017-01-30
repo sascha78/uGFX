@@ -100,7 +100,7 @@ static GFXINLINE void init_board(GDisplay *g) {
      * SPI1 I/O pins setup.
      */
     palSetPadMode(SPFD54124B_PIN_PORT, SPFD54124B_PIN_RST,  PAL_MODE_OUTPUT_PUSHPULL);            /* RESET */
-    setpin_reset(g, TRUE);
+    setpin_reset(g, GTrue);
 
 #if USE_HARD_SPI
     palSetPadMode(SPFD54124B_SPI_PORT, SPFD54124B_SPI_SCK,  PAL_MODE_ALTERNATE(5) | PAL_STM32_OSPEED_HIGHEST);   /* SCK. */

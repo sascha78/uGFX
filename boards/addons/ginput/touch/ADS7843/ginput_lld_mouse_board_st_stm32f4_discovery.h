@@ -49,7 +49,7 @@ static bool_t init_board(GMouse* m, unsigned driverinstance) {
 	(void)		m;
 
 	if (driverinstance)
-		return FALSE;
+		return GFalse;
 
 	palSetPadMode(GPIOB, 13, PAL_MODE_ALTERNATE(5) );	/* SCK */
 	palSetPadMode(GPIOB, 14, PAL_MODE_ALTERNATE(5) );	/* MISO */
@@ -57,7 +57,7 @@ static bool_t init_board(GMouse* m, unsigned driverinstance) {
 	palSetPadMode(GPIOC,  4, PAL_MODE_OUTPUT_PUSHPULL);	/* CS */
 
 	spiStart(&SPID2, &spicfg);
-	return TRUE;
+	return GTrue;
 }
 
 static GFXINLINE bool_t getpin_pressed(GMouse* m) {

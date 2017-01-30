@@ -122,7 +122,7 @@ int main(void) {
 		GWindowInit				wi;
 
 		gwinClearInit(&wi);
-		wi.show = TRUE; wi.x = 0; wi.y = bHeight; wi.width = swidth; wi.height = sheight-bHeight;
+		wi.show = GTrue; wi.x = 0; wi.y = bHeight; wi.width = swidth; wi.height = sheight-bHeight;
 		ghc = gwinConsoleCreate(&gc, &wi);
 	}
 
@@ -144,8 +144,8 @@ int main(void) {
 	geventAttachSource(&gl, gs, GLISTEN_MOUSEDOWNMOVES|GLISTEN_MOUSEMETA);
 
 	// Get initial display settings for buttons
-	isFirstTime = TRUE;
-	isCalibrated = (vmt->d.flags & GMOUSE_VFLG_CALIBRATE) ? FALSE : TRUE;
+	isFirstTime = GTrue;
+	isCalibrated = (vmt->d.flags & GMOUSE_VFLG_CALIBRATE) ? GFalse : GTrue;
 	calerr = 0;
 
 	/*
@@ -156,8 +156,8 @@ StepDeviceType:
 	DrawHeader("1. Device Type", isCalibrated, isCalibrated && !isFirstTime, isCalibrated);
 
 	// Get the type of device and the current mode
-	isTouch = (vmt->d.flags & GMOUSE_VFLG_TOUCH) ? TRUE : FALSE;
-	isFinger = (m->flags & GMOUSE_FLG_FINGERMODE) ? TRUE : FALSE;
+	isTouch = (vmt->d.flags & GMOUSE_VFLG_TOUCH) ? GTrue : GFalse;
+	isFinger = (m->flags & GMOUSE_FLG_FINGERMODE) ? GTrue : GFalse;
 	pjit = isFinger ? &vmt->finger_jitter : &vmt->pen_jitter;
 	isFingerText = isFinger ? "finger" : "pen";
 	deviceText = isTouch ? isFingerText : "mouse";
@@ -205,7 +205,7 @@ StepDeviceType:
 	 */
 
 StepRawReading:
-	DrawHeader("2. Raw Mouse Output", FALSE, FALSE, FALSE);
+	DrawHeader("2. Raw Mouse Output", GFalse, GFalse, GFalse);
 	if (isTouch)
 		gwinPrintf(ghc, "Press and hold on the surface.\n\n");
 	else
@@ -292,7 +292,7 @@ StepCalibrate:
 		calerr = ginputCalibrateMouse(0);
 		if (calerr)
 			goto StepCalibrate;
-		isCalibrated = TRUE;
+		isCalibrated = GTrue;
 	}
 
 	/*
@@ -300,7 +300,7 @@ StepCalibrate:
 	 */
 
 StepMouseCoords:
-	DrawHeader("4. Show Mouse Coordinates", TRUE, TRUE, TRUE);
+	DrawHeader("4. Show Mouse Coordinates", GTrue, GTrue, GTrue);
 	if (isTouch)
 		gwinPrintf(ghc, "Press and hold on the surface.\n\n");
 	else
@@ -345,7 +345,7 @@ StepMouseCoords:
 	 */
 
 StepMovementJitter:
-	DrawHeader("5. Movement Jitter", TRUE, TRUE, TRUE);
+	DrawHeader("5. Movement Jitter", GTrue, GTrue, GTrue);
 	if (isTouch)
 		gwinPrintf(ghc, "Press firmly on the surface and move around as if to draw.\n\n");
 	else
@@ -456,6 +456,6 @@ StepDrawing:
 	}
 
 	// Can't let this really exit
-	isFirstTime = FALSE;
+	isFirstTime = GFalse;
 	goto StepDeviceType;
 }

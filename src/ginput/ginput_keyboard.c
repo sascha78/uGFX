@@ -502,13 +502,13 @@ bool_t _gkeyboardInitDriver(GDriver *g, void *param, unsigned driverinstance, un
 
 	// Init the mouse
     if (!gkvmt(k)->init((GKeyboard *)g, driverinstance))
-        return FALSE;
+        return GFalse;
 
 	// Ensure the Poll timer is started
 	if (!gtimerIsActive(&KeyboardTimer))
-		gtimerStart(&KeyboardTimer, KeyboardPoll, 0, TRUE, GINPUT_KEYBOARD_POLL_PERIOD);
+		gtimerStart(&KeyboardTimer, KeyboardPoll, 0, GTrue, GINPUT_KEYBOARD_POLL_PERIOD);
 
-    return TRUE;
+    return GTrue;
 
     #undef k
 }
@@ -540,11 +540,11 @@ bool_t ginputGetKeyboardStatus(unsigned instance, GEventKeyboard *pe) {
 	gfxSleepMilliseconds(1);
 
 	if (!(k = (GKeyboard *)gdriverGetInstance(GDRIVER_TYPE_KEYBOARD, instance)))
-		return FALSE;
+		return GFalse;
 
 	pe->type = GEVENT_KEYBOARD;
 	// TODO
-	return TRUE;
+	return GTrue;
 }
 
 #if !GKEYBOARD_LAYOUT_OFF
@@ -552,14 +552,14 @@ bool_t ginputGetKeyboardStatus(unsigned instance, GEventKeyboard *pe) {
 		GKeyboard *k;
 
 		if (!(k = (GKeyboard *)gdriverGetInstance(GDRIVER_TYPE_KEYBOARD, instance)))
-			return FALSE;
+			return GFalse;
 
 		if (pLayout)
 			k->pLayout = pLayout;
 		else
 			k->pLayout = gkvmt(k)->defLayout;
 
-		return TRUE;
+		return GTrue;
 	}
 #endif
 

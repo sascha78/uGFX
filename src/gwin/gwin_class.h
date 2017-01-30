@@ -220,7 +220,7 @@ typedef enum GRedrawMethod { REDRAW_WAIT, REDRAW_NOWAIT, REDRAW_INSESSION }	GRed
  * @note	This call will attempt to flush any pending redraws
  * 			in the system. The doWait parameter tells this call
  * 			how to handle someone already holding the drawing lock.
- * 			If doWait is TRUE it waits to obtain the lock. If FALSE
+ * 			If doWait is GTrue it waits to obtain the lock. If GFalse
  * 			and the drawing lock is free then the redraw is done
  * 			immediately. If the drawing lock was taken it will postpone the flush
  * 			on the basis that someone else will do it for us later.
@@ -231,7 +231,7 @@ void _gwinFlushRedraws(GRedrawMethod how);
 
 /**
  * @brief	Obtain a drawing session
- * @return	TRUE if the drawing session was obtained, FALSE if the window is not visible
+ * @return	GTrue if the drawing session was obtained, GFalse if the window is not visible
  *
  * @param[in]	gh		The window
  *
@@ -261,7 +261,7 @@ void _gwinDestroy(GHandle gh, GRedrawMethod how);
 
 /**
  * @brief	Add a window to the window manager and set its position and size
- * @return	TRUE if successful
+ * @return	GTrue if successful
  *
  * @param[in]	gh		The window
  * @param[in]	pInit	The window init structure

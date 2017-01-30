@@ -91,7 +91,7 @@ int main(void)
     gtransSetBaseLanguage(&EnglishTranslation);
 
     // Loop through the languages
-    while (TRUE) {
+    while (GTrue) {
         // English
         gtransSetLanguage(&EnglishTranslation);
         updateText();

@@ -34,7 +34,7 @@ static bool_t matchfont(const char *pattern, const char *name) {
 			return name[0] == 0;
 		default:
 			if (name[0] != pattern[0])
-				return FALSE;
+				return GFalse;
 			pattern++;
 			name++;
 			break;
@@ -94,10 +94,10 @@ bool_t gdispAddFont(font_t font) {
 	struct mf_font_list_s *hdr;
 
 	if ((font->flags & (FONT_FLAG_DYNAMIC|FONT_FLAG_UNLISTED)) != (FONT_FLAG_DYNAMIC|FONT_FLAG_UNLISTED))
-		return FALSE;
+		return GFalse;
 		
 	if (!(hdr = gfxAlloc(sizeof(struct mf_font_list_s))))
-		return FALSE;
+		return GFalse;
 
 	if (!fontList)
 		fontList = mf_get_font_list();
@@ -105,7 +105,7 @@ bool_t gdispAddFont(font_t font) {
 	hdr->next = fontList;
 	((struct mf_font_s *)font)->flags &= ~FONT_FLAG_UNLISTED;
 	fontList = hdr;
-	return TRUE;
+	return GTrue;
 }
 
 #endif /* GFX_USE_GDISP && GDISP_NEED_TEXT */

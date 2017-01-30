@@ -105,12 +105,12 @@
 			attr &= ~ESC_BOLD;
 			break;
 		default:
-			return FALSE;
+			return GFalse;
 		}
 		if (attr == pattr[0])
-			return FALSE;
+			return GFalse;
 		pattr[0] = attr;
-		return TRUE;
+		return GTrue;
 	}
 
 	static color_t ESCPrintColor(GConsoleObject *gcw) {
@@ -348,7 +348,7 @@ GHandle gwinGConsoleCreate(GDisplay *g, GConsoleObject *gc, const GWindowInit *p
 	#if GWIN_CONSOLE_USE_HISTORY
 		gc->buffer = 0;
 		#if GWIN_CONSOLE_HISTORY_ATCREATE
-			gwinConsoleSetBuffer(&gc->g, TRUE);
+			gwinConsoleSetBuffer(&gc->g, GTrue);
 		#endif
 	#endif
 
@@ -380,7 +380,7 @@ GHandle gwinGConsoleCreate(GDisplay *g, GConsoleObject *gc, const GWindowInit *p
 		#define gcw		((GConsoleObject *)gh)
 
 		if (gh->vmt != &consoleVMT)
-			return FALSE;
+			return GFalse;
 
 		// Do we want the buffer turned off?
 		if (!onoff) {
@@ -388,12 +388,12 @@ GHandle gwinGConsoleCreate(GDisplay *g, GConsoleObject *gc, const GWindowInit *p
 				gfxFree(gcw->buffer);
 				gcw->buffer = 0;
 			}
-			return FALSE;
+			return GFalse;
 		}
 
 		// Is the buffer already on?
 		if (gcw->buffer)
-			return TRUE;
+			return GTrue;
 
 		// Get the number of characters that fit in the x direction
 		#if GWIN_CONSOLE_HISTORY_AVERAGING
@@ -408,12 +408,12 @@ GHandle gwinGConsoleCreate(GDisplay *g, GConsoleObject *gc, const GWindowInit *p
 
 		// Allocate the buffer
 		if (!(gcw->buffer = gfxAlloc(gcw->bufsize)))
-			return FALSE;
+			return GFalse;
 
 		// All good!
 		gh->flags &= ~GCONSOLE_FLG_OVERRUN;
 		gcw->bufpos = 0;
-		return TRUE;
+		return GTrue;
 		
 		#undef gcw
 	}
@@ -689,7 +689,7 @@ void gwinPrintf(GHandle gh, const char *fmt, ...) {
 		return;
 
 	va_start(ap, fmt);
-	while (TRUE) {
+	while (GTrue) {
 		c = *fmt++;
 		if (c == 0) {
 			va_end(ap);
@@ -702,10 +702,10 @@ void gwinPrintf(GHandle gh, const char *fmt, ...) {
 
 		p = tmpbuf;
 		s = tmpbuf;
-		left_align = FALSE;
+		left_align = GFalse;
 		if (*fmt == '-') {
 			fmt++;
-			left_align = TRUE;
+			left_align = GTrue;
 		}
 		filler = ' ';
 		if (*fmt == '0') {
@@ -714,7 +714,7 @@ void gwinPrintf(GHandle gh, const char *fmt, ...) {
 		}
 		width = 0;
 
-		while (TRUE) {
+		while (GTrue) {
 			c = *fmt++;
 			if (c >= '0' && c <= '9')
 				c -= '0';
@@ -726,7 +726,7 @@ void gwinPrintf(GHandle gh, const char *fmt, ...) {
 		}
 		precision = 0;
 		if (c == '.') {
-			while (TRUE) {
+			while (GTrue) {
 				c = *fmt++;
 				if (c >= '0' && c <= '9')
 					c -= '0';
@@ -739,7 +739,7 @@ void gwinPrintf(GHandle gh, const char *fmt, ...) {
 		}
 		/* Long modifier.*/
 		if (c == 'l' || c == 'L') {
-			is_long = TRUE;
+			is_long = GTrue;
 			if (*fmt)
 				c = *fmt++;
 		}
@@ -808,7 +808,7 @@ void gwinPrintf(GHandle gh, const char *fmt, ...) {
 		i = (int)(p - s);
 		if ((width -= i) < 0)
 			width = 0;
-		if (left_align == FALSE)
+		if (left_align == GFalse)
 			width = -width;
 		if (width < 0) {
 			if (*s == '-' && filler == '0') {

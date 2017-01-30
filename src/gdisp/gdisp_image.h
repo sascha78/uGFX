@@ -163,7 +163,7 @@ extern "C" {
 
 	/**
 	 * @brief	Is an image open.
-	 * @return	TRUE if the image is currently open.
+	 * @return	GTrue if the image is currently open.
 	 *
 	 * @param[in] img   The image structure
 	 *
@@ -273,14 +273,14 @@ extern "C" {
 	
 	/**
 	 * @brief	Modify an entry in the color palette.
-	 * @return	@p TRUE on success, @p FALSE otherwise.
+	 * @return	@p GTrue on success, @p GFalse otherwise.
 	 *
 	 * @param[in] img		The image structure
 	 * @param[in] index		The index of the color palette entry
 	 * @param[in] newColor	The new color value of the specified entry
 	 * 
 	 * @pre		gdispImageOpen() must have returned successfully.
-	 * @note	This function will return @p FALSE if the index is out of bounds or if the image doesn't use a color palette.
+	 * @note	This function will return @p GFalse if the index is out of bounds or if the image doesn't use a color palette.
 	 */
 	bool_t gdispImageAdjustPalette(gdispImage *img, uint16_t index, color_t newColor);
 	

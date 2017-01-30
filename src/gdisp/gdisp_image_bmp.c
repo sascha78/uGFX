@@ -866,20 +866,20 @@ bool_t gdispImageAdjustPalette_BMP(gdispImage *img, uint16_t index, color_t newC
 	
 		priv = (gdispImagePrivate_BMP *)img->priv;
 		if (!priv)
-			return FALSE;
+			return GFalse;
 	
 		if (!(priv->bmpflags & BMP_PALETTE))
-			return FALSE;
+			return GFalse;
 	
 		if (index >= priv->palsize)
-			return FALSE;
+			return GFalse;
 
 		priv->palette[(uint8_t)index] = newColor;
 
-		return TRUE;
+		return GTrue;
 	
 	#else
-		return 0;
+		return GFalse;
 	#endif
 }
 

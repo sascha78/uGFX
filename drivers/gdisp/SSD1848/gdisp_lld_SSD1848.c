@@ -123,7 +123,7 @@ LLDSPEC bool_t gdisp_lld_init (GDisplay *g)
     /* The private area is the display surface. */
     g->priv = gfxAlloc (sizeof(DisplayData) + GDISP_SCREEN_WIDTH / 8 * GDISP_SCREEN_HEIGHT);
 	if (!g->priv)
-		return FALSE;
+		return GFalse;
     memset (g->priv, 0, sizeof(DisplayData) + GDISP_SCREEN_WIDTH / 8 * GDISP_SCREEN_HEIGHT);
 
     /* Initialise the board interface */
@@ -131,11 +131,11 @@ LLDSPEC bool_t gdisp_lld_init (GDisplay *g)
 
     /* Init LCD */
     /* Hardware reset */
-    setpin_reset (g, FALSE);
+    setpin_reset (g, GFalse);
     gfxSleepMilliseconds (50);
-    setpin_reset (g, TRUE);
+    setpin_reset (g, GTrue);
     gfxSleepMilliseconds (50);
-    setpin_reset (g, FALSE);
+    setpin_reset (g, GFalse);
 
 
     acquire_bus (g);
@@ -217,7 +217,7 @@ LLDSPEC bool_t gdisp_lld_init (GDisplay *g)
     g->g.Powermode   = powerOn;
     g->g.Backlight   = GDISP_INITIAL_BACKLIGHT;
     g->g.Contrast    = GDISP_INITIAL_CONTRAST;
-    return TRUE;
+    return GTrue;
 }
 
 #if GDISP_HARDWARE_STREAM_WRITE

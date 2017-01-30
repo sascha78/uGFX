@@ -42,7 +42,7 @@ static bool_t MouseXYZ(GMouse* m, GMouseReading* pdr)
 
 		release_bus(m);
 	}
-	return TRUE;
+	return GTrue;
 }
 
 const GMouseVMT const GMOUSE_DRIVER_VMT[1] = {{

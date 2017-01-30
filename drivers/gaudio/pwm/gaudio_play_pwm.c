@@ -69,7 +69,7 @@ bool_t gaudio_play_lld_init(uint16_t channel, uint32_t frequency, ArrayDataForma
 	(void) channel;
 
 	if (format != ARRAY_DATA_8BITUNSIGNED && format != ARRAY_DATA_10BITUNSIGNED)
-		return FALSE;
+		return GFalse;
 
 	playfmt = format;
 	return gaudio_play_pwm_setup(frequency, format);
@@ -77,7 +77,7 @@ bool_t gaudio_play_lld_init(uint16_t channel, uint32_t frequency, ArrayDataForma
 
 bool_t gaudio_play_lld_set_volume(uint8_t vol) {
 	(void) vol;
-	return FALSE;
+	return GFalse;
 }
 
 void gaudio_play_lld_start(void) {

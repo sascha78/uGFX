@@ -30,6 +30,8 @@
 /*===========================================================================*/
 
 typedef unsigned char	bool_t;
+	#define GFalse						0
+	#define GTrue						((bool_t)-1)
 
 #if __STDC_VERSION__ >= 199901L
 	#include <stdint.h>

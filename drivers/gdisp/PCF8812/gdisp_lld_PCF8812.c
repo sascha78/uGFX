@@ -65,9 +65,9 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	init_board(g);
 
 	// Hardware reset
-	setpin_reset(g, TRUE);
+	setpin_reset(g, GTrue);
 	gfxSleepMilliseconds(100);
-	setpin_reset(g, FALSE);
+	setpin_reset(g, GFalse);
 	gfxSleepMilliseconds(100);
 
 	acquire_bus(g);
@@ -101,7 +101,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	g->g.Backlight = GDISP_INITIAL_BACKLIGHT;
 	g->g.Contrast = GDISP_INITIAL_CONTRAST;
 
-	return TRUE;
+	return GTrue;
 }
 
 #if GDISP_HARDWARE_FLUSH

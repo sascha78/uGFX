@@ -46,7 +46,7 @@ static bool_t MouseInit(GMouse* m, unsigned driverinstance)
 	};
 
 	if (!init_board(m, driverinstance))
-		return FALSE;
+		return GFalse;
 
 	aquire_bus(m);
 	for (p = commandList; p < commandList+sizeof(commandList); p += 2)
@@ -60,12 +60,12 @@ static bool_t MouseInit(GMouse* m, unsigned driverinstance)
     aquire_bus(m);
 	if (write_command(m, MAX11802_CMD_MODE_RD, 0) != MAX11802_MODE) {
 		release_bus(m);
-		return FALSE;
+		return GFalse;
 	}
 
 	release_bus(m);
 
-	return TRUE;
+	return GTrue;
 }
 
 static bool_t read_xyz(GMouse* m, GMouseReading* pdr)
@@ -126,7 +126,7 @@ static bool_t read_xyz(GMouse* m, GMouseReading* pdr)
 
 			// Has it been too long? If so give up
 			if (++notReadyCount >= 5) {
-				return FALSE;
+				return GFalse;
 			}
 
 			// Give up the time slice to someone else and then try again
@@ -149,7 +149,7 @@ static bool_t read_xyz(GMouse* m, GMouseReading* pdr)
     // Was there a valid touch?
     if (((pdr->x | pdr->y) & 0x03) != 0x0) {
     	pdr->z = Z_MIN;
-    	return TRUE;
+    	return GTrue;
     }
 
     // Strip the tags (we need to take care because coord_t is signed - and sign bit gets extended on shift!)
@@ -157,7 +157,7 @@ static bool_t read_xyz(GMouse* m, GMouseReading* pdr)
     pdr->y = (uint16_t)(pdr->y) >> 4;
    	pdr->z = Z_MAX;
 
-    return TRUE;
+    return GTrue;
 }
 
 const GMouseVMT const GMOUSE_DRIVER_VMT[1] = {{

@@ -48,7 +48,7 @@ static bool_t init_board(GMouse* m, unsigned driverinstance) {
 
 	// This board only supports one touch panel
 	if (driverinstance)
-		return FALSE;
+		return GFalse;
 
 	palSetPadMode(GPIOC, 13, PAL_MODE_INPUT | PAL_STM32_PUDR_FLOATING);			/* TP IRQ */
 	palSetPadMode(GPIOB, 8, PAL_MODE_ALTERNATE(4) | PAL_STM32_OTYPE_OPENDRAIN);	/* SCL */
@@ -56,7 +56,7 @@ static bool_t init_board(GMouse* m, unsigned driverinstance) {
 
 	i2cStart(&I2CD1, &i2ccfg);
 
-	return TRUE;
+	return GTrue;
 }
 
 #if GMOUSE_STMPE811_GPIO_IRQPIN

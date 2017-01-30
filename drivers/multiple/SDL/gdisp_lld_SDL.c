@@ -380,7 +380,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	g->g.Width = GDISP_SCREEN_WIDTH;
 	g->g.Height = GDISP_SCREEN_HEIGHT;
 
-	return TRUE;
+	return GTrue;
 }
 
 
@@ -436,18 +436,18 @@ LLDSPEC void gdisp_lld_draw_pixel(GDisplay *g)
 	static bool_t SDL_MouseInit(GMouse *m, unsigned driverinstance) {
 		mouse = m;
 		(void)	driverinstance;
-		return TRUE;
+		return GTrue;
 	}
 
 	static bool_t SDL_MouseRead(GMouse *m, GMouseReading *pt) {
 		(void)	m;
 		if (!context)
-			return FALSE;
+			return GFalse;
 		pt->x = context->mousex;
 		pt->y = context->mousey;
 		pt->z = (context->buttons & GINPUT_MOUSE_BTN_LEFT) ? 1 : 0;
 		pt->buttons = context->buttons;
-		return TRUE;
+		return GTrue;
 	}
 #endif /* GINPUT_NEED_MOUSE */
 
@@ -455,7 +455,7 @@ LLDSPEC void gdisp_lld_draw_pixel(GDisplay *g)
 	static bool_t SDL_KeyboardInit(GKeyboard *k, unsigned driverinstance) {
 		keyboard = k;
 		(void)	driverinstance;
-		return TRUE;
+		return GTrue;
 	}
 
 	static int SDL_KeyboardGetData(GKeyboard *k, uint8_t *pch, int sz) {

@@ -102,13 +102,13 @@ GHandle gwinGConsoleCreate(GDisplay *g, GConsoleObject *gc, const GWindowInit *p
 	 * @pre		GWIN_CONSOLE_USE_HISTORY must be set to GFXON in your gfxconf.h
 	 *
 	 * @param[in] gh		The window handle (must be a console window)
-	 * @param[in] onoff		If TRUE a buffer is allocated to maintain console text
-	 * 						when the console is obscured or invisible. If FALSE, then
+	 * @param[in] onoff		If GTrue a buffer is allocated to maintain console text
+	 * 						when the console is obscured or invisible. If GFalse, then
 	 * 						any existing buffer is deallocated.
 	 * @note	When the history buffer is turned on, scrolling is implemented using the
 	 * 			history buffer.
 	 *
-	 * @return	TRUE if the history buffer is now turned on.
+	 * @return	GTrue if the history buffer is now turned on.
 	 */
 	bool_t gwinConsoleSetBuffer(GHandle gh, bool_t onoff);
 #endif

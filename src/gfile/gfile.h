@@ -51,7 +51,7 @@ extern "C" {
 	 * 
 	 * @param[in] fname			The file name
 	 * 
-	 * @return					TRUE if file exists, FALSE otherwise
+	 * @return					GTrue if file exists, GFalse otherwise
 	 * 
 	 * @api
 	 */
@@ -62,7 +62,7 @@ extern "C" {
 	 * 
 	 * @param[in] fname			The file name
 	 * 
-	 * @return					TRUE on success, FALSE otherwise
+	 * @return					GTrue on success, GFalse otherwise
 	 * 
 	 * @api
 	 */
@@ -86,7 +86,7 @@ extern "C" {
 	 * @param[in] oldname		The current file name
 	 * @param[in] newname		The new name of the file
 	 *
-	 * @return					TRUE on success, FALSE otherwise
+	 * @return					GTrue on success, GFalse otherwise
 	 *
 	 * @api
 	 */
@@ -183,7 +183,7 @@ extern "C" {
 	 * @param[in] f				The file
 	 * @param[in] pos			The position to which the cursor will be set
 	 *
-	 * @return					TRUE on success, FALSE otherwise
+	 * @return					GTrue on success, GFalse otherwise
 	 *
 	 * @api
 	 */
@@ -207,7 +207,7 @@ extern "C" {
 	 *
 	 * @param[in] f				The file
 	 *
-	 * @return					TRUE if EOF, FALSE otherwise
+	 * @return					GTrue if EOF, GFalse otherwise
 	 *
 	 * @api
 	 */
@@ -222,7 +222,7 @@ extern "C" {
 	 * @param[in] fs			The file system (F for FatFS)
 	 * @param[in] drive			The logical drive prefix
 	 *
-	 * @return					TRUE on success, FALSE otherwise
+	 * @return					GTrue on success, GFalse otherwise
 	 *
 	 * @api
 	 */
@@ -236,7 +236,7 @@ extern "C" {
 	 * @param[in] fs			The file system (F for FatFS)
 	 * @param[in] drive			The logical drive prefix
 	 *
-	 * @return					TRUE on success, FALSE otherwise
+	 * @return					GTrue on success, GFalse otherwise
 	 *
 	 * @api
 	 */
@@ -249,7 +249,7 @@ extern "C" {
 	 *
 	 * @param[in] f				The file
 	 *
-	 * @return					TRUE on success, FALSE otherwise
+	 * @return					GTrue on success, GFalse otherwise
 	 *
 	 * @api
 	 */
@@ -261,7 +261,7 @@ extern "C" {
 		 *
 		 * @param[in] fs		The file system (F for FatFS)
 		 * @param[in] path		Path information to pass to the file system
-		 * @param[in] dirs		Pass TRUE to get directories only, FALSE to get files only
+		 * @param[in] dirs		Pass GTrue to get directories only, GFalse to get files only
 		 *
 		 * @return				A pointer to a file list on success, NULL otherwise
 		 *
@@ -269,7 +269,7 @@ extern "C" {
 		 * 						treated as a directory name, it may be treated as a file pattern, or it
 		 * 						may be ignored. Passing NULL will always return the full list of files
 		 * 						in at least the top level directory.
-		 * @note				For file systems that do not support directories, passing TRUE for dirs
+		 * @note				For file systems that do not support directories, passing GTrue for dirs
 		 * 						will return an error.
 		 * @note				You must call @p gfileCloseFileList() when you have finished with the
 		 * 						file list in order to free resources.

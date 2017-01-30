@@ -476,7 +476,7 @@ extern "C" {
 	 * @param[in] cnt			The number of points in the point array @p pntarray
 	 * @param[in] p				The point to test
 	 *
-	 * @return	@p TRUE if the point @p p is inside or on the edge of the polygon @p pntarray, @p FALSE otherwise.
+	 * @return	@p GTrue if the point @p p is inside or on the edge of the polygon @p pntarray, @p GFalse otherwise.
 	 *
 	 * @api
 	 */

@@ -38,10 +38,10 @@ static bool_t init_board(GMouse* m, unsigned driverinstance) {
 	(void)		m;
 
 	if (driverinstance)
-		return FALSE;
+		return GFalse;
 
 	spiStart(&SPID2, &spicfg);
-	return TRUE;
+	return GTrue;
 }
 
 static GFXINLINE bool_t getpin_pressed(GMouse* m) {

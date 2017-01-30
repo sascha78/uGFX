@@ -81,14 +81,14 @@ int vfnprintg(GFILE *f, int maxlen, const char *fmt, va_list arg) {
 		fmt++;
 
 		p = s = tmpbuf;
-		left_align = FALSE;
+		left_align = GFalse;
 		filler = ' ';
 		width = 0;
 		precision = 0;
 
 		if (*fmt == '-') {
 			fmt++;
-			left_align = TRUE;
+			left_align = GTrue;
 		}
 		if (*fmt == '0') {
 			fmt++;
@@ -119,7 +119,7 @@ int vfnprintg(GFILE *f, int maxlen, const char *fmt, va_list arg) {
 		}
 		/* Long modifier.*/
 		if (c == 'l' || c == 'L') {
-			is_long = TRUE;
+			is_long = GTrue;
 			if (*fmt)
 				c = *fmt++;
 		}
@@ -194,7 +194,7 @@ int vfnprintg(GFILE *f, int maxlen, const char *fmt, va_list arg) {
 		i = (int)(p - s);
 		if ((width -= i) < 0)
 			width = 0;
-		if (left_align == FALSE)
+		if (left_align == GFalse)
 			width = -width;
 		if (width < 0) {
 			if (*s == '-' && filler == '0') {

@@ -584,17 +584,17 @@ bool_t gwinListItemIsSelected(GHandle gh, int item) {
 
 	// is it a valid handle?
 	if (gh->vmt != (gwinVMT *)&listVMT)
-		return FALSE;
+		return GFalse;
 
 	// watch out for an invalid item
 	if (item < 0 || item > (gh2obj->cnt) - 1)
-		return FALSE;
+		return GFalse;
 
 	for(qi = gfxQueueASyncPeek(&gh2obj->list_head), i = 0; qi; qi = gfxQueueASyncNext(qi), i++) {
 		if (i == item)
-			return (qi2li->flags &  GLIST_FLG_SELECTED) ? TRUE : FALSE;
+			return (qi2li->flags &  GLIST_FLG_SELECTED) ? GTrue : GFalse;
 	}
-	return FALSE;
+	return GFalse;
 }
 
 int gwinListItemCount(GHandle gh) {

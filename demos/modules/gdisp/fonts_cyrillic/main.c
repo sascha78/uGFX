@@ -42,7 +42,7 @@ int main(void) {
 	gdispDrawString(10, 10, "привет мир", font1, Yellow);
 
 	// Wait forever
-    while(TRUE) {
+    while(GTrue) {
     	gfxSleepMilliseconds(500);
     }   
 }

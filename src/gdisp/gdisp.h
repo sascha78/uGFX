@@ -1097,7 +1097,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	
 	/**
 	 * @brief	Add a font permanently to the font list.
-	 * @returns	TRUE on success. Reasons it may fail: out of memory, if it is already on the list, it is not a font loaded in RAM.
+	 * @returns	GTrue on success. Reasons it may fail: out of memory, if it is already on the list, it is not a font loaded in RAM.
 	 * @pre		GDISP_NEED_TEXT must be GFXON in your gfxconf.h
 	 *
 	 * @param[in] font		The font to add to the font list.

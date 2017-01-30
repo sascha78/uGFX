@@ -115,7 +115,7 @@ extern "C" {
 	 * @param[in] driverinstance	The driver instance		ToDo: Add some more details
 	 * @param[in] systeminstance	The mouse instance		ToDo: Add some more details
 	 *
-	 * @return	TRUE on success, FALSE otherwise
+	 * @return	GTrue on success, GFalse otherwise
 	 * @note	This routine is provided by the high level code for
 	 * 			use in the driver VMT's GMouseVMT.d structure.
 	 *

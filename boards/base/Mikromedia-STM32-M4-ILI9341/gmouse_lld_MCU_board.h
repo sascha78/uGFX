@@ -27,7 +27,7 @@
 #define ADC_BUF_DEPTH      1
 
 static const ADCConversionGroup adcgrpcfg = {
-  FALSE,
+  0,
   ADC_NUM_CHANNELS,
   0,
   0,
@@ -46,7 +46,7 @@ static bool_t init_board(GMouse *m, unsigned driverinstance) {
 
 	// Only one touch interface on this board
 	if (driverinstance)
-		return FALSE;
+		return GFalse;
 
 	adcStart(&ADCD1, 0);
 
@@ -54,7 +54,7 @@ static bool_t init_board(GMouse *m, unsigned driverinstance) {
 	palClearPad(GPIOB, GPIOB_DRIVEA);
 	palClearPad(GPIOB, GPIOB_DRIVEB);
     chThdSleepMilliseconds(1);				// Settling time
-	return TRUE;
+	return GTrue;
 }
 
 static bool_t read_xyz(GMouse *m, GMouseReading *prd) {
@@ -89,7 +89,7 @@ static bool_t read_xyz(GMouse *m, GMouseReading *prd) {
 		palClearPad(GPIOB, GPIOB_DRIVEA);
 		palClearPad(GPIOB, GPIOB_DRIVEB);
     }
-    return TRUE;
+    return GTrue;
 }
 
 #endif /* _LLD_GMOUSE_MCU_BOARD_H */

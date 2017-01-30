@@ -106,7 +106,7 @@ void gwinRadioPress(GHandle gh);
 
 /**
  * @brief	Is the radio button currently pressed
- * @return	TRUE if the button is pressed
+ * @return	GTrue if the button is pressed
  *
  * @param[in] gh	The window handle (must be a radio widget)
  *

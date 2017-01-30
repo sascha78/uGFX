@@ -28,7 +28,7 @@ static bool_t init_board(GMouse* m, unsigned driverinstance)
 
     // Only one touch interface on this board
     if (driverinstance)
-	return FALSE;
+	return GFalse;
 
     // Set the GPIO modes
         palSetPadMode(GPIOC, 6, PAL_MODE_OUTPUT_PUSHPULL);
@@ -40,7 +40,7 @@ static bool_t init_board(GMouse* m, unsigned driverinstance)
     // Start the SPI peripheral
     spiStart(&SPID1, &spicfg);
 
-    return TRUE;
+    return GTrue;
 }
 
 GFXINLINE bool_t getpin_pressed(void) {

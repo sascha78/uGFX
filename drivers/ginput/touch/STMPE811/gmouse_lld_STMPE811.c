@@ -59,7 +59,7 @@
  */
 static bool_t MouseInit(GMouse* m, unsigned driverinstance) {
 	if (!init_board(m, driverinstance))
-		return FALSE;
+		return GFalse;
 
 	aquire_bus(m);
 
@@ -95,7 +95,7 @@ static bool_t MouseInit(GMouse* m, unsigned driverinstance) {
 	write_reg(m, STMPE811_REG_INT_CTRL, 0x01);		// Level interrupt, enable interrupts
 
 	release_bus(m);
-	return TRUE;
+	return GTrue;
 }
 
 static bool_t read_xyz(GMouse* m, GMouseReading* pdr)
@@ -133,14 +133,14 @@ static bool_t read_xyz(GMouse* m, GMouseReading* pdr)
 				write_reg(m, STMPE811_REG_INT_STA, 0xFF);
 			#endif
 			release_bus(m);
-			return TRUE;
+			return GTrue;
 		}
 
 	#else
 		// Is there a new sample or a touch transition
 		#if GMOUSE_STMPE811_GPIO_IRQPIN
 			if(!getpin_irq(m))
-				return FALSE;
+				return GFalse;
 		#endif
 
 		// Is there something in the fifo
@@ -157,7 +157,7 @@ static bool_t read_xyz(GMouse* m, GMouseReading* pdr)
 					write_reg(m, STMPE811_REG_INT_STA, 0xFF);
 				#endif
 				release_bus(m);
-				return TRUE;
+				return GTrue;
 			}
 
 			// No new result
@@ -165,7 +165,7 @@ static bool_t read_xyz(GMouse* m, GMouseReading* pdr)
 				write_reg(m, STMPE811_REG_INT_STA, 0xFF);
 			#endif
 			release_bus(m);
-			return FALSE;
+			return GFalse;
 		}
 
 	#endif
@@ -228,7 +228,7 @@ static bool_t read_xyz(GMouse* m, GMouseReading* pdr)
 		#endif
 	#endif
 
-	return TRUE;
+	return GTrue;
 }
 
 const GMouseVMT const GMOUSE_DRIVER_VMT[1] = {{

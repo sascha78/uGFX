@@ -20,7 +20,7 @@
 
 static bool_t MouseInit(GMouse* m, unsigned driverinstance) {
 	if (!init_board(m, driverinstance))
-		return FALSE;
+		return GFalse;
 
 	aquire_bus(m);
 
@@ -53,7 +53,7 @@ static bool_t MouseInit(GMouse* m, unsigned driverinstance) {
 	write_reg(m, FT6x06_ID_G_PERIODMONITOR, 0x28);
 
 	release_bus(m);
-	return TRUE;
+	return GTrue;
 }
 
 static bool_t read_xyz(GMouse* m, GMouseReading* pdr)
@@ -96,7 +96,7 @@ static bool_t read_xyz(GMouse* m, GMouseReading* pdr)
 	}
 
 	release_bus(m);
-	return TRUE;
+	return GTrue;
 }
 
 const GMouseVMT const GMOUSE_DRIVER_VMT[1] = {{

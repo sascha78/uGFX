@@ -27,7 +27,7 @@
 #define ADC_BUF_DEPTH      1
 
 static const ADCConversionGroup adc_y_config = {
-    FALSE,
+    0,
     ADC_NUM_CHANNELS,
     0,
     0,
@@ -39,7 +39,7 @@ static const ADCConversionGroup adc_y_config = {
 };
 
 static const ADCConversionGroup adc_x_config = {
-    FALSE,
+    0,
     ADC_NUM_CHANNELS,
     0,
     0,
@@ -63,14 +63,14 @@ static bool_t init_board(GMouse *m, unsigned driverinstance) {
 
 	// Only one touch interface on this board
 	if (driverinstance)
-		return FALSE;
+		return GFalse;
 
 	adcStart(&ADCD1, 0);
 
 	// Set up for reading Z
 	setup_z();
     chThdSleepMilliseconds(1);				// Settling time
-	return TRUE;
+	return GTrue;
 }
 
 static bool_t read_xyz(GMouse *m, GMouseReading *prd) {
@@ -130,7 +130,7 @@ static bool_t read_xyz(GMouse *m, GMouseReading *prd) {
 		// Set up for reading z again. We know it will be 20ms before we get called again so don't worry about settling time
 	    setup_z();
     }
-	return TRUE;
+	return GTrue;
 }
 
 #endif /* _LLD_GMOUSE_MCU_BOARD_H */

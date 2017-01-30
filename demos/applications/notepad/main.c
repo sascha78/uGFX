@@ -82,7 +82,7 @@ int main(void) {
 
 	drawScreen();
 
-	while (TRUE) {
+	while (GTrue) {
 		ginputGetMouseStatus(0, &ev);
 		if (!(ev.buttons & GINPUT_MOUSE_BTN_LEFT))
 			continue;

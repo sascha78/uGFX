@@ -54,7 +54,7 @@ static int ChibiOSBFSWrite(GFILE *f, const void *buf, int size) {
 }
 static bool_t ChibiOSBFSSetpos(GFILE *f, long int pos) {
 	fileStreamSeek(((FileStream *)f->obj), pos);
-	return TRUE;
+	return GTrue;
 }
 static long int ChibiOSBFSGetsize(GFILE *f) { return fileStreamGetSize(((FileStream *)f->obj)); }
 static bool_t ChibiOSBFSEof(GFILE *f) { return f->pos >= fileStreamGetSize(((FileStream *)f->obj)); }

@@ -22,7 +22,7 @@ typedef struct {          // Node properties
 } nodeProps;
 
 nodeProps             jg10Field[JG10_FIELD_WIDTH][JG10_FIELD_HEIGHT];   // jg10 field array
-bool_t                jg10GameOver                           = FALSE;
+bool_t                jg10GameOver                           = GFalse;
 const char            *jg10Graph[] = {"background.bmp", "1.bmp","2.bmp","3.bmp","4.bmp","5.bmp","6.bmp","7.bmp","8.bmp", "9.bmp", "10.bmp", "11.bmp", "12.bmp", "13.bmp", "14.bmp", "15.bmp", "16.bmp", "17.bmp", "18.bmp", "19.bmp", "20.bmp"}; // 21 elements (0-20)
 gdispImage            jg10Image[JG10_MAX_COUNT];
 #define JG10_ANIM_IMAGES 5
@@ -33,7 +33,7 @@ uint8_t               jg10MaxVal=4;                                     // Max v
 font_t font;
 #if JG10_SHOW_SPLASH
 GTimer                jg10SplashBlink;
-bool_t                jg10SplashTxtVisible = FALSE;
+bool_t                jg10SplashTxtVisible = GFalse;
 gdispImage            jg10SplashImage;
 #endif
 
@@ -87,15 +87,15 @@ static int uitoa(unsigned int value, char * buf, int max) {
 }
 
 static bool_t inRange(int16_t x, int16_t y) {
-    if ((x >= 0) && (x < JG10_FIELD_WIDTH) && (y >= 0) && (y < JG10_FIELD_HEIGHT)) return TRUE; else return FALSE;
+    if ((x >= 0) && (x < JG10_FIELD_WIDTH) && (y >= 0) && (y < JG10_FIELD_HEIGHT)) return GTrue; else return GFalse;
 }
 
 static void clean_SelCheck(void) {
     uint16_t i ,j;
     for (i = 0; i < JG10_FIELD_WIDTH; i++) {
         for (j = 0; j < JG10_FIELD_HEIGHT; j++) {
-            jg10Field[i][j].check = FALSE;
-            jg10Field[i][j].sel = FALSE;
+            jg10Field[i][j].check = GFalse;
+            jg10Field[i][j].sel = GFalse;
         }
     }
 }
@@ -121,7 +121,7 @@ static void remove_Selected(void) {
     for (i = 0; i < JG10_FIELD_WIDTH; i++) {
         for (j = 0; j < JG10_FIELD_HEIGHT; j++) {
             if (jg10Field[i][j].sel) {
-                jg10Field[i][j].sel = FALSE;
+                jg10Field[i][j].sel = GFalse;
                 jg10Field[i][j].num = 0;
             }
         }
@@ -148,9 +148,9 @@ static uint8_t jg10_randomer(uint8_t max, uint8_t th) {
 
 static void movePiecesDown(void) {
     uint8_t tmp = 0;
-    bool_t needToCheck = TRUE;
+    bool_t needToCheck = GTrue;
     while (needToCheck) {
-        needToCheck = FALSE;
+        needToCheck = GFalse;
         for (int8_t y = (JG10_FIELD_HEIGHT-1); y >= 0; y--) {
             for (uint8_t x = 0; x < JG10_FIELD_WIDTH; x++) {
                 if (jg10Field[x][y].num == 0) {
@@ -164,7 +164,7 @@ static void movePiecesDown(void) {
                             jg10Field[x][tmpy].num = jg10Field[x][tmpy-1].num;
                         }
                         jg10Field[x][0].num = 0;
-                        needToCheck = TRUE;
+                        needToCheck = GTrue;
                     }
                 }
             }
@@ -172,9 +172,9 @@ static void movePiecesDown(void) {
     }
     gwinRedraw(mainWin);
     // Add new pieces
-    needToCheck = TRUE;
+    needToCheck = GTrue;
     while (needToCheck) {
-        needToCheck = FALSE;
+        needToCheck = GFalse;
         for (int8_t y = (JG10_FIELD_HEIGHT-1); y >= 0; y--) {
             for (uint8_t x = 0; x < JG10_FIELD_WIDTH; x++) {
                 if (jg10Field[x][y].num == 0) {
@@ -182,7 +182,7 @@ static void movePiecesDown(void) {
                         jg10Field[x][tmpy].num = jg10Field[x][tmpy-1].num;
                     }
                     jg10Field[x][0].num = jg10_randomer(jg10MaxVal, 3);
-                    needToCheck = TRUE;
+                    needToCheck = GTrue;
                 }
             }
         }
@@ -192,7 +192,7 @@ static void movePiecesDown(void) {
 }
 
 static bool_t checkForPossibleMove(void) {
-    bool_t canMove = FALSE;
+    bool_t canMove = GFalse;
     uint16_t i ,j;
     for (i = 0; i < JG10_FIELD_WIDTH; i++) {
         for (j = 0; j < JG10_FIELD_HEIGHT; j++) {
@@ -200,7 +200,7 @@ static bool_t checkForPossibleMove(void) {
                 (inRange(i-1,j) && jg10Field[i-1][j].num == jg10Field[i][j].num) ||
                 (inRange(i,j+1) && jg10Field[i][j+1].num == jg10Field[i][j].num) ||
                 (inRange(i+1,j) && jg10Field[i+1][j].num == jg10Field[i][j].num)) {
-                canMove = TRUE;
+                canMove = GTrue;
                 return canMove;
             }
         }
@@ -242,10 +242,10 @@ static DECLARE_THREAD_FUNCTION(thdJg10, msg) {
                         (inRange(x-1,y) && jg10Field[x-1][y].num == jg10Field[x][y].num) ||
                         (inRange(x,y+1) && jg10Field[x][y+1].num == jg10Field[x][y].num) ||
                         (inRange(x+1,y) && jg10Field[x+1][y].num == jg10Field[x][y].num)) {
-                        gwinSetVisible(Jg10SelectWidget, FALSE);
+                        gwinSetVisible(Jg10SelectWidget, GFalse);
                         clean_SelCheck();
-                        jg10Field[x][y].check = TRUE;
-                        gwinSetVisible(Jg10SelectWidget, TRUE);
+                        jg10Field[x][y].check = GTrue;
+                        gwinSetVisible(Jg10SelectWidget, GTrue);
                     }
                 } else {
                     // already selected section clicked...
@@ -254,19 +254,19 @@ static DECLARE_THREAD_FUNCTION(thdJg10, msg) {
                         jg10MaxVal = jg10Field[x][y].num;
                         if (jg10MaxVal >= 10) printCongrats();
                         if (jg10MaxVal == 20) { // Just in case someone got so far :D I cannot imaginge though 
-                            jg10GameOver = TRUE;
+                            jg10GameOver = GTrue;
                             printGameOver();
                         }
                     }
-                    jg10Field[x][y].sel = FALSE;
-                    gwinSetVisible(Jg10SelectWidget, FALSE);
+                    jg10Field[x][y].sel = GFalse;
+                    gwinSetVisible(Jg10SelectWidget, GFalse);
                     remove_Selected();
                     movePiecesDown();
                     if (checkForPossibleMove()) {
                         clean_SelCheck();
                         //gwinRedraw(mainWin);
                     } else {
-                        jg10GameOver = TRUE;
+                        jg10GameOver = GTrue;
                         printGameOver();
                     }
                 }
@@ -284,11 +284,11 @@ static void initField(void) {
             //jg10Field[x][y].num = 1;      // good for animation testing
             //jg10Field[x][y].num = x+x+5;    // good to get high score fast
             //jg10Field[x][y].num = x+y+5;  // good demo to check out pieces :D
-            jg10Field[x][y].check = FALSE;
-            jg10Field[x][y].sel = FALSE;
+            jg10Field[x][y].check = GFalse;
+            jg10Field[x][y].sel = GFalse;
         }
     }
-    jg10GameOver = FALSE;
+    jg10GameOver = GFalse;
     printGameOver();
 }
 
@@ -304,21 +304,21 @@ static void mainWinDraw(GWidgetObject* gw, void* param) {
 
 static void jg10SelectionWidget_Draw(GWidgetObject* gw, void* param) {
     int16_t x, y;
-    bool_t needToCheck = TRUE;
+    bool_t needToCheck = GTrue;
 
 	(void)param;
 
     while (needToCheck) {
-        needToCheck = FALSE;
+        needToCheck = GFalse;
         for (x = 0; x < JG10_FIELD_WIDTH; x++) {
             for (y = 0; y < JG10_FIELD_HEIGHT; y++) {
                 if (jg10Field[x][y].check && !jg10Field[x][y].sel) {
-                    jg10Field[x][y].sel = TRUE;
-                    jg10Field[x][y].check = FALSE;
+                    jg10Field[x][y].sel = GTrue;
+                    jg10Field[x][y].check = GFalse;
                     // Up
                     if (inRange(x, y-1) && !jg10Field[x][y-1].sel && (jg10Field[x][y-1].num == jg10Field[x][y].num)) {
-                        jg10Field[x][y-1].check = TRUE;
-                        needToCheck = TRUE;
+                        jg10Field[x][y-1].check = GTrue;
+                        needToCheck = GTrue;
                     } else  if (!inRange(x, y-1) || (inRange(x, y-1) && !jg10Field[x][y-1].sel)) {
                         // We need longer line if this is wide corner inside shape
                         if (inRange(x+1, y) && inRange(x+1, y-1) && (jg10Field[x][y].num == jg10Field[x+1][y].num) && (jg10Field[x][y].num == jg10Field[x+1][y-1].num)) {
@@ -329,8 +329,8 @@ static void jg10SelectionWidget_Draw(GWidgetObject* gw, void* param) {
                     }
                     // Down
                     if (inRange(x, y+1) && !jg10Field[x][y+1].sel && (jg10Field[x][y+1].num == jg10Field[x][y].num)) {
-                        jg10Field[x][y+1].check = TRUE;
-                        needToCheck = TRUE;
+                        jg10Field[x][y+1].check = GTrue;
+                        needToCheck = GTrue;
                     } else if (!inRange(x, y+1) || (inRange(x, y+1) && !jg10Field[x][y+1].sel)) {
                         // We need longer line if this is wide corner inside shape
                         if (inRange(x-1, y) && inRange(x-1, y+1) && (jg10Field[x][y].num == jg10Field[x-1][y].num) && (jg10Field[x][y].num == jg10Field[x-1][y+1].num)) {
@@ -341,8 +341,8 @@ static void jg10SelectionWidget_Draw(GWidgetObject* gw, void* param) {
                     }
                     // Left
                     if (inRange(x-1, y) && !jg10Field[x-1][y].sel && (jg10Field[x-1][y].num == jg10Field[x][y].num)) {
-                        jg10Field[x-1][y].check = TRUE;
-                        needToCheck = TRUE;
+                        jg10Field[x-1][y].check = GTrue;
+                        needToCheck = GTrue;
                     } else if (!inRange(x-1, y) || (inRange(x-1, y) && !jg10Field[x-1][y].sel)) {
                         // We need longer line if this is wide corner inside shape
                         if (inRange(x, y-1) && inRange(x-1, y-1) && (jg10Field[x][y].num == jg10Field[x][y-1].num) && (jg10Field[x][y].num == jg10Field[x-1][y-1].num)) {
@@ -353,8 +353,8 @@ static void jg10SelectionWidget_Draw(GWidgetObject* gw, void* param) {
                     }
                     // Right
                     if (inRange(x+1, y) && !jg10Field[x+1][y].sel && (jg10Field[x+1][y].num == jg10Field[x][y].num)) {
-                        jg10Field[x+1][y].check = TRUE;
-                        needToCheck = TRUE;
+                        jg10Field[x+1][y].check = GTrue;
+                        needToCheck = GTrue;
                     } else if (!inRange(x+1, y) || (inRange(x+1, y) && !jg10Field[x+1][y].sel)) {
                         // We need longer line if this is wide corner inside shape
                         if (inRange(x, y+1) && inRange(x+1, y+1) && (jg10Field[x][y].num == jg10Field[x][y+1].num) && (jg10Field[x][y].num == jg10Field[x+1][y+1].num)) {
@@ -422,7 +422,7 @@ static void createMainWin(void) {
     GWidgetInit wi;
     gwinWidgetClearInit(&wi);
     // Container - mainWin
-    wi.g.show = FALSE;
+    wi.g.show = GFalse;
     wi.g.x = 0;
     wi.g.y = 0;
     wi.g.width = gdispGetWidth();
@@ -435,7 +435,7 @@ static void createMainWin(void) {
     mainWin = gwinContainerCreate(0, &wi, 0);
 
     // create selection widget
-    wi.g.show = FALSE;
+    wi.g.show = GFalse;
     wi.g.x = 0;
     wi.g.y = 0;
     wi.g.width = 272;
@@ -496,6 +496,6 @@ void jg10ShowSplash(void) {
     gdispImageOpenFile(&jg10SplashImage, "splash.bmp");
     gdispImageDraw(&jg10SplashImage, (gdispGetWidth()/2)-150, (gdispGetHeight()/2)-100, 300, 200, 0, 0);
     gdispImageClose(&jg10SplashImage);
-    gtimerStart(&jg10SplashBlink, jg10SplashBlinker, 0, TRUE, 400);
+    gtimerStart(&jg10SplashBlink, jg10SplashBlinker, 0, GTrue, 400);
 }
 #endif

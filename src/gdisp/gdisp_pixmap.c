@@ -114,7 +114,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	// The user api function should have already allocated and initialised the pixmap
 	//	structure and put it into the priv member during driver initialisation.
 	if (!g->priv)
-		return FALSE;
+		return GFalse;
 
 	// Initialize the GDISP structure
 	//	Width and height were saved into the start of the framebuffer.
@@ -126,7 +126,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	g->g.Powermode = powerOn;
 	g->board = 0;
 
-	return TRUE;
+	return GTrue;
 }
 
 LLDSPEC	void gdisp_lld_deinit(GDisplay *g) {

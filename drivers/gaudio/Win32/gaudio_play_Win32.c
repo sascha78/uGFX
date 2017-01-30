@@ -54,7 +54,7 @@ static bool_t senddata(WAVEHDR *pwh) {
 		gaudioPlayDoneI();
 	gfxSystemUnlock();
 	if (!paud)
-		return FALSE;
+		return GFalse;
 
 	// Prepare the wave header for Windows
 	pwh->dwUser = (DWORD_PTR)paud;
@@ -74,7 +74,7 @@ static bool_t senddata(WAVEHDR *pwh) {
 	}
 
 	nQueuedBuffers++;
-	return TRUE;
+	return GTrue;
 }
 
 static DWORD WINAPI waveProc(LPVOID arg) {
@@ -124,7 +124,7 @@ bool_t gaudio_play_lld_init(uint16_t channel, uint32_t frequency, ArrayDataForma
 	WAVEFORMATEX	wfx;
 
 	if (format != ARRAY_DATA_8BITUNSIGNED && format != ARRAY_DATA_16BITSIGNED)
-		return FALSE;
+		return GFalse;
 
 	if (!waveThread) {
 		if (!(waveThread = CreateThread(0, 0, (LPTHREAD_START_ROUTINE)waveProc, 0, 0, &threadID))) {
@@ -151,19 +151,19 @@ bool_t gaudio_play_lld_init(uint16_t channel, uint32_t frequency, ArrayDataForma
 		exit(-1);
 	}
 
-	return TRUE;
+	return GTrue;
 }
 
 bool_t gaudio_play_lld_set_volume(uint8_t vol) {
 	if (!ah)
-		return FALSE;
+		return GFalse;
 	return waveOutSetVolume(ah, (((uint16_t)vol)<<8)|vol) != 0;
 }
 
 void gaudio_play_lld_start(void) {
 	WAVEHDR		*pwh;
 
-	isRunning = TRUE;
+	isRunning = GTrue;
 	while (nQueuedBuffers < MAX_WAVE_HEADERS) {
 		// Find the empty one - there will always be at least one.
 		for(pwh = WaveHdrs; pwh->lpData; pwh++);
@@ -175,7 +175,7 @@ void gaudio_play_lld_start(void) {
 }
 
 void gaudio_play_lld_stop(void) {
-	isRunning = FALSE;
+	isRunning = GFalse;
 	waveOutReset(ah);
 	while(nQueuedBuffers) Sleep(1);
 }

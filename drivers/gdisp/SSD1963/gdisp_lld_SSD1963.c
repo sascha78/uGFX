@@ -168,9 +168,9 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 
 	#if !GDISP_SSD1963_NO_INIT
 		// Hardware reset
-		setpin_reset(g, TRUE);
+		setpin_reset(g, GTrue);
 		gfxSleepMilliseconds(200);
-		setpin_reset(g, FALSE);
+		setpin_reset(g, GFalse);
 		gfxSleepMilliseconds(200);
 	#endif
 
@@ -271,7 +271,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	g->g.Powermode = powerOn;
 	g->g.Backlight = GDISP_INITIAL_BACKLIGHT;
 	g->g.Contrast = GDISP_INITIAL_CONTRAST;
-	return TRUE;
+	return GTrue;
 }
 
 #if GDISP_HARDWARE_STREAM_WRITE

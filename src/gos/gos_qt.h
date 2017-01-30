@@ -26,6 +26,8 @@
 #define HIGH_PRIORITY				4
 
 typedef bool bool_t;
+	#define GFalse						false
+	#define GTrue						true
 typedef int systemticks_t;
 typedef int delaytime_t;
 typedef void* gfxMutex;

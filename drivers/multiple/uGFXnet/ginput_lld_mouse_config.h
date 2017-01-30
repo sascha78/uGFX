@@ -36,6 +36,6 @@
 //#define GINPUT_MOUSE_POLL_PERIOD				25						// Poll driven
 
 // This driver does not require rotation of co-ordinates for orientations other than 0.
-#define GINPUT_MOUSE_NO_ROTATION				TRUE
+#define GINPUT_MOUSE_NO_ROTATION				GFXON
 
 #endif /* _LLD_GINPUT_MOUSE_CONFIG_H */

@@ -51,10 +51,10 @@ static bool_t init_board(GMouse* m, unsigned instance)
 
 	// Initialize the I2C3 peripheral
 	if (!(i2cInit(I2C3))) {
-		return FALSE;
+		return GFalse;
 	}
 
-	return TRUE;
+	return GTrue;
 }
 
 static void write_reg(GMouse* m, uint8_t reg, uint8_t val)

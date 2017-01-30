@@ -62,7 +62,7 @@ int main(void) {
     gdispGDrawLine(pixmap, 0, 0, gdispGGetWidth(pixmap)-1, gdispGGetHeight(pixmap)-1, White);
     
     i = j = 0;
-    while(TRUE) {
+    while(GTrue) {
     	// Clear the old position
     	gdispFillArea(i, j, PIXMAP_WIDTH, PIXMAP_HEIGHT, Black);
 

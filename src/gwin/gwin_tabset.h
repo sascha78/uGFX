@@ -89,7 +89,7 @@ GHandle gwinGTabsetCreate(GDisplay *g, GTabsetObject *fo, GWidgetInit *pInit, ui
  *
  * @param[in] gh		The tabset handle
  * @param[in] title		The text to set. This must be a constant string unless useAlloc is set.
- * @param[in] useAlloc	If TRUE the string specified will be copied into dynamically allocated memory.
+ * @param[in] useAlloc	If GTrue the string specified will be copied into dynamically allocated memory.
  *
  * @api
  */
@@ -144,7 +144,7 @@ GHandle gwinTabsetGetTabByTitle(GHandle gh, const char *title);
  *
  * @param[in] gh		The tab-page handle (NB: Use the page handle NOT the tabset handle)
  * @param[in] title		The text to set. This must be a constant string unless useAlloc is set.
- * @param[in] useAlloc	If TRUE the string specified will be copied into dynamically allocated memory.
+ * @param[in] useAlloc	If GTrue the string specified will be copied into dynamically allocated memory.
  *
  * @note				This function should be used to change the text associated with a tab-page
  * 						rather than @p gwinSetText().

@@ -37,8 +37,8 @@ static bool_t init_board(GMouse* m, unsigned driverinstance) {
 
 	// We only support one of these on this board
 	if (driverinstance)
-		return FALSE;
-	return TRUE;
+		return GFalse;
+	return GTrue;
 }
 
 static GFXINLINE void aquire_bus(GMouse* m) {

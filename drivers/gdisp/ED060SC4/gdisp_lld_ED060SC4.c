@@ -109,9 +109,9 @@ static GFXINLINE void clockdelay(void)
 /* Fast vertical clock pulse for gate driver, used during initializations */
 static void vclock_quick(GDisplay *g)
 {
-	setpin_ckv(g, TRUE);
+	setpin_ckv(g, GTrue);
 	eink_delay(1);
-	setpin_ckv(g, FALSE);
+	setpin_ckv(g, GFalse);
 	eink_delay(4);
 }
 
@@ -119,9 +119,9 @@ static void vclock_quick(GDisplay *g)
 static void hclock(GDisplay *g)
 {
 	clockdelay();
-	setpin_cl(g, TRUE);
+	setpin_cl(g, GTrue);
 	clockdelay();
-	setpin_cl(g, FALSE);
+	setpin_cl(g, GFalse);
 }
 
 /* Start a new vertical gate driver scan from top.
@@ -131,11 +131,11 @@ static void hclock(GDisplay *g)
  */
 static void vscan_start(GDisplay *g)
 {
-	setpin_gmode(g, TRUE);
+	setpin_gmode(g, GTrue);
 	vclock_quick(g);
-	setpin_spv(g, FALSE);
+	setpin_spv(g, GFalse);
 	vclock_quick(g);
-	setpin_spv(g, TRUE);
+	setpin_spv(g, GTrue);
 	vclock_quick(g);
 }
 
@@ -145,11 +145,11 @@ static void vscan_start(GDisplay *g)
  */
 static void vscan_write(GDisplay *g)
 {
-	setpin_ckv(g, TRUE);
-	setpin_oe(g, TRUE);
+	setpin_ckv(g, GTrue);
+	setpin_oe(g, GTrue);
 	eink_delay(5);
-	setpin_oe(g, FALSE);
-	setpin_ckv(g, FALSE);
+	setpin_oe(g, GFalse);
+	setpin_ckv(g, GFalse);
 	eink_delay(200);
 }
 
@@ -158,9 +158,9 @@ static void vscan_write(GDisplay *g)
  */
 static void vscan_bulkwrite(GDisplay *g)
 {
-	setpin_ckv(g, TRUE);
+	setpin_ckv(g, GTrue);
 	eink_delay(20);
-	setpin_ckv(g, FALSE);
+	setpin_ckv(g, GFalse);
 	eink_delay(200);
 }
 
@@ -169,9 +169,9 @@ static void vscan_bulkwrite(GDisplay *g)
  */
 static void vscan_skip(GDisplay *g)
 {
-	setpin_ckv(g, TRUE);
+	setpin_ckv(g, GTrue);
 	eink_delay(1);
-	setpin_ckv(g, FALSE);
+	setpin_ckv(g, GFalse);
 	eink_delay(100);
 }
 
@@ -180,7 +180,7 @@ static void vscan_skip(GDisplay *g)
  */
 static void vscan_stop(GDisplay *g)
 {
-	setpin_gmode(g, FALSE);
+	setpin_gmode(g, GFalse);
 	vclock_quick(g);
 	vclock_quick(g);
 	vclock_quick(g);
@@ -192,11 +192,11 @@ static void vscan_stop(GDisplay *g)
 static void hscan_start(GDisplay *g)
 {
 	/* Disable latching and output enable while we are modifying the row. */
-	setpin_le(g, FALSE);
-	setpin_oe(g, FALSE);
+	setpin_le(g, GFalse);
+	setpin_oe(g, GFalse);
 	
 	/* The start pulse should remain low for the duration of the row. */
-	setpin_sph(g, FALSE);
+	setpin_sph(g, GFalse);
 }
 
 /* Write data to the horizontal row. */
@@ -217,13 +217,13 @@ static void hscan_write(GDisplay *g, const uint8_t *data, int count)
 static void hscan_stop(GDisplay *g)
 {
 	/* End the scan */
-	setpin_sph(g, TRUE);
+	setpin_sph(g, GTrue);
 	hclock(g);
 	
 	/* Latch the new data */
-	setpin_le(g, TRUE);
+	setpin_le(g, GTrue);
 	clockdelay();
-	setpin_le(g, FALSE);
+	setpin_le(g, GFalse);
 }
 
 /* Turn on the power to the E-Ink panel, observing proper power sequencing. */
@@ -232,25 +232,25 @@ static void power_on(GDisplay *g)
 	unsigned i;
 	
 	/* First the digital power supply and signal levels. */
-	setpower_vdd(g, TRUE);
-	setpin_le(g, FALSE);
-	setpin_oe(g, FALSE);
-	setpin_cl(g, FALSE);
-	setpin_sph(g, TRUE);
+	setpower_vdd(g, GTrue);
+	setpin_le(g, GFalse);
+	setpin_oe(g, GFalse);
+	setpin_cl(g, GFalse);
+	setpin_sph(g, GTrue);
 	setpins_data(g, 0);
-	setpin_ckv(g, FALSE);
-	setpin_gmode(g, FALSE);
-	setpin_spv(g, TRUE);
+	setpin_ckv(g, GFalse);
+	setpin_gmode(g, GFalse);
+	setpin_spv(g, GTrue);
 	
 	/* Min. 100 microsecond delay after digital supply */
 	gfxSleepMicroseconds(100);
 	
 	/* Then negative voltages and min. 1000 microsecond delay. */
-	setpower_vneg(g, TRUE);
+	setpower_vneg(g, GTrue);
 	gfxSleepMicroseconds(1000);
 	
 	/* Finally the positive voltages. */
-	setpower_vpos(g, TRUE);
+	setpower_vpos(g, GTrue);
 	
 	/* Clear the vscan shift register */
 	vscan_start(g);
@@ -263,22 +263,22 @@ static void power_on(GDisplay *g)
 static void power_off(GDisplay *g)
 {
 	/* First the high voltages */
-	setpower_vpos(g, FALSE);
-	setpower_vneg(g, FALSE);
+	setpower_vpos(g, GFalse);
+	setpower_vneg(g, GFalse);
 	
 	/* Wait for any capacitors to drain */
 	gfxSleepMilliseconds(100);
 	
 	/* Then put all signals and digital supply to ground. */
-	setpin_le(g, FALSE);
-	setpin_oe(g, FALSE);
-	setpin_cl(g, FALSE);
-	setpin_sph(g, FALSE);
+	setpin_le(g, GFalse);
+	setpin_oe(g, GFalse);
+	setpin_cl(g, GFalse);
+	setpin_sph(g, GFalse);
 	setpins_data(g, 0);
-	setpin_ckv(g, FALSE);
-	setpin_gmode(g, FALSE);
-	setpin_spv(g, FALSE);
-	setpower_vdd(g, FALSE);
+	setpin_ckv(g, GFalse);
+	setpin_gmode(g, GFalse);
+	setpin_spv(g, GFalse);
+	setpower_vdd(g, GFalse);
 }
 
 /* ====================================
@@ -339,10 +339,10 @@ static bool_t blocks_on_row(GDisplay *g, unsigned by)
 	{
 		if (PRIV(g)->g_blockmap[by][bx] != 0)
 		{
-			return TRUE;
+			return GTrue;
 		}
 	}
-	return FALSE;
+	return GFalse;
 }
 
 /* Write out a block row. */
@@ -452,7 +452,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 	g->g.Powermode = powerOn;
 	g->g.Backlight = 100;
 	g->g.Contrast = 100;
-	return TRUE;
+	return GTrue;
 }
 
 #if GDISP_HARDWARE_FLUSH
@@ -593,12 +593,12 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 		}
 		hscan_stop(g);
 
-		setpin_oe(g, TRUE);
+		setpin_oe(g, GTrue);
 		vscan_start(g);
 		for (y = 0; y < GDISP_SCREEN_HEIGHT; y++)
 			vscan_bulkwrite(g);
 		vscan_stop(g);
-		setpin_oe(g, FALSE);
+		setpin_oe(g, GFalse);
 	}
 	
 	void gdisp_lld_clear(GDisplay *g) {

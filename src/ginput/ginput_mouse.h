@@ -137,7 +137,7 @@ extern "C" {
 	 * @param[in] instance	The ID of the mouse input instance
 	 * @param[in] pmouse	The mouse event
 	 *
-	 * @return	FALSE on an error (eg. invalid instance)
+	 * @return	GFalse on an error (eg. invalid instance)
 	 */
 	bool_t ginputGetMouseStatus(unsigned instance, GEventMouse *pmouse);
 
@@ -167,7 +167,7 @@ extern "C" {
 
     /**
      * @brief   Save a set of mouse calibration data
-     * @return  TRUE if the save operation was successful.
+     * @return  GTrue if the save operation was successful.
      *
 	 * @param[in] instance		The mouse input instance number
 	 * @param[in] data          The data to save

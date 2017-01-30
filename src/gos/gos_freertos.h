@@ -44,6 +44,8 @@
  * size_t
  * are already defined by FreeRTOS
  */
+	#define GFalse						0
+	#define GTrue						((bool_t)-1)
 #define TIME_IMMEDIATE		0
 #define TIME_INFINITE		((delaytime_t)-1)
 typedef int8_t				bool_t;

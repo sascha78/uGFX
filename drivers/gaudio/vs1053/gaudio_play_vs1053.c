@@ -246,14 +246,14 @@ bool_t gaudio_play_lld_init(uint16_t channel, uint32_t frequency, ArrayDataForma
 	};
 
 	if (format != ARRAY_DATA_8BITUNSIGNED && format != ARRAY_DATA_16BITSIGNED && format != ARRAY_DATA_UNKNOWN)
-		return FALSE;
+		return GFalse;
 	if (frequency > VS1053_MAX_SAMPLE_RATE)
-		return FALSE;
+		return GFalse;
 
 	// Reset the chip if needed
 	if (!vs1053_isinit) {
 		vs1053_hard_reset();
-		vs1053_isinit = TRUE;
+		vs1053_isinit = GTrue;
 	}
 
 	// Setup
@@ -274,7 +274,7 @@ bool_t gaudio_play_lld_init(uint16_t channel, uint32_t frequency, ArrayDataForma
 		buf[0] = gfxSampleFormatBits(format);				buf[1] = 0;								data_write(buf, 2);
 		data_write(hdr2, sizeof(hdr2));
 	}
-	return TRUE;
+	return GTrue;
 }
 
 bool_t gaudio_play_lld_set_volume(uint8_t vol) {
@@ -291,7 +291,7 @@ bool_t gaudio_play_lld_set_volume(uint8_t vol) {
 
 	cmd_write(SCI_VOL, tmp);
 
-	return TRUE;
+	return GTrue;
 }
 
 void gaudio_play_lld_start(void) {
@@ -310,7 +310,7 @@ void gaudio_play_lld_start(void) {
 
 	// Start the playing by starting the timer and executing FeedData immediately just to get things started
 	// We really should set the timer to be equivalent to half the available data but that is just too hard to calculate.
-	gtimerStart(&playTimer, FeedData, 0, TRUE, VS1053_POLL_RATE);
+	gtimerStart(&playTimer, FeedData, 0, GTrue, VS1053_POLL_RATE);
 	FeedData(0);
 }
 

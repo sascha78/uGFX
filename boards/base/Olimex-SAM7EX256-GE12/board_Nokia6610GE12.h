@@ -57,7 +57,7 @@ static const PWMConfig pwmcfg = {
   },
 };
 
-static bool_t pwmRunning = FALSE;
+static bool_t pwmRunning = GFalse;
 
 /**
  * @brief   Initialise the board for the display.
@@ -123,7 +123,7 @@ static GFXINLINE void init_board(GDisplay *g) {
 		pSPI->SPI_CSR[0]  = 0x01010311;			//9bit, CPOL=1, ClockPhase=0, SCLK = 48Mhz/3 = 16MHz
 
 		/* Display backlight control at 100% */
-		pwmRunning = FALSE;
+		pwmRunning = GFalse;
 		palSetPad(IOPORT2, PIOB_LCD_BL);
 		break;
 	}
@@ -147,21 +147,21 @@ static GFXINLINE void set_backlight(GDisplay *g, uint8_t percent) {
 		/* Turn the pin on - No PWM */
 		if (pwmRunning) {
 			pwmStop(&PWMD2);
-			pwmRunning = FALSE;
+			pwmRunning = GFalse;
 		}
 		palSetPad(IOPORT2, PIOB_LCD_BL);
 	} else if (percent == 0) {
 		/* Turn the pin off - No PWM */
 		if (pwmRunning) {
 			pwmStop(&PWMD2);
-			pwmRunning = FALSE;
+			pwmRunning = GFalse;
 		}
 		palClearPad(IOPORT2, PIOB_LCD_BL);
 	} else {
 		/* Use the PWM */
 		if (!pwmRunning) {
 			pwmStart(&PWMD2, &pwmcfg);
-			pwmRunning = TRUE;
+			pwmRunning = GTrue;
 		}
 		pwmEnableChannel(&PWMD2, 0, PWM_VALUE(percent));
 	}

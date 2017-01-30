@@ -92,7 +92,7 @@ GHandle gwinGCheckboxCreate(GDisplay *g, GCheckboxObject *gb, const GWidgetInit 
  * @brief	Set the state of a checkbox
  *
  * @param[in] gh		The window handle (must be a checkbox window)
- * @param[in] isChecked	TRUE to set the check, FALSE to uncheck.
+ * @param[in] isChecked	GTrue to set the check, GFalse to uncheck.
  *
  * @api
  */
@@ -100,7 +100,7 @@ void gwinCheckboxCheck(GHandle gh, bool_t isChecked);
 
 /**
  * @brief	Get the state of a checkbox
- * @return	TRUE if the checkbox is currently checked
+ * @return	GTrue if the checkbox is currently checked
  *
  * @param[in] gh	The window handle (must be a checkbox window)
  *

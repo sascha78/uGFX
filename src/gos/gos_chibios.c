@@ -117,13 +117,13 @@ bool_t gfxSemWait(gfxSem *psem, delaytime_t ms)
 	#if CH_KERNEL_MAJOR == 2
 		switch(ms) {
 		case TIME_IMMEDIATE:	return chSemWaitTimeout(&psem->sem, TIME_IMMEDIATE) != RDY_TIMEOUT;
-		case TIME_INFINITE:		chSemWait(&psem->sem);	return TRUE;
+		case TIME_INFINITE:		chSemWait(&psem->sem);	return GTrue;
 		default:				return chSemWaitTimeout(&psem->sem, MS2ST(ms)) != RDY_TIMEOUT;
 		}
 	#elif (CH_KERNEL_MAJOR == 3) || (CH_KERNEL_MAJOR == 4)
 		switch(ms) {
 		case TIME_IMMEDIATE:	return chSemWaitTimeout(&psem->sem, TIME_IMMEDIATE) != MSG_TIMEOUT;
-		case TIME_INFINITE:		chSemWait(&psem->sem);	return TRUE;
+		case TIME_INFINITE:		chSemWait(&psem->sem);	return GTrue;
 		default:				return chSemWaitTimeout(&psem->sem, MS2ST(ms)) != MSG_TIMEOUT;
 		}
 	#endif
@@ -132,9 +132,9 @@ bool_t gfxSemWait(gfxSem *psem, delaytime_t ms)
 bool_t gfxSemWaitI(gfxSem *psem)
 {
 	if (chSemGetCounterI(&psem->sem) <= 0)
-		return FALSE;
+		return GFalse;
 	chSemFastWaitI(&psem->sem);
-	return TRUE;
+	return GTrue;
 }
 
 void gfxSemSignal(gfxSem *psem)

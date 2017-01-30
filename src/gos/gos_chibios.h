@@ -46,6 +46,8 @@
 #if (CH_KERNEL_MAJOR == 3) || (CH_KERNEL_MAJOR == 4)
 	typedef char	bool_t;
 #endif
+	#define GFalse						0
+	#define GTrue						((bool_t)-1)
 
 typedef systime_t	delaytime_t;
 typedef systime_t	systemticks_t;

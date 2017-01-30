@@ -114,6 +114,6 @@ theend:
 	if (errmsg)
 		gdispDrawString(0, gdispGetHeight()/2, errmsg, font, Red);
 
-	while(TRUE)
+	while(GTrue)
 		gfxSleepMilliseconds(1000);
 }

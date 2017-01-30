@@ -58,38 +58,38 @@ typedef struct petitfsList {
 } petitfsList;
 
 // optimize these later on. Use an array to have multiple
-static bool_t petitfs_mounted = FALSE;
+static bool_t petitfs_mounted = GFalse;
 static FATFS petitfs_fs;
 
 static bool_t petitfsExists(const char* fname)
 {
 	// Mount first
 	if (!petitfs_mounted && pf_mount(&petitfs_fs) != FR_OK)
-		return FALSE;
+		return GFalse;
 
 	// Open
 	if (pf_open(fname) != FR_OK)
-		return FALSE;
+		return GFalse;
 
-	return TRUE;
+	return GTrue;
 }
 
 static bool_t petitfsOpen(GFILE* f, const char* fname)
 {
 	// No writing
 	if ((f->flags & GFILEFLG_WRITE))
-		return FALSE;
+		return GFalse;
 
 	// Mount first
 	if (!petitfs_mounted && pf_mount(&petitfs_fs) != FR_OK)
-		return FALSE;
+		return GFalse;
 
 	// Open
 	if (pf_open(fname) != FR_OK)
-		return FALSE;
+		return GFalse;
 
 	f->obj = &petitfs_fs;
-	return TRUE;	
+	return GTrue;	
 }
 
 static int petitfsRead(GFILE* f, void* buf, int size)

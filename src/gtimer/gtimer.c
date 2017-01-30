@@ -206,7 +206,7 @@ void gtimerStop(GTimer *pt) {
 }
 
 bool_t gtimerIsActive(GTimer *pt) {
-	return (pt->flags & GTIMER_FLG_SCHEDULED) ? TRUE : FALSE;
+	return (pt->flags & GTIMER_FLG_SCHEDULED) ? GTrue : GFalse;
 }
 
 void gtimerJab(GTimer *pt) {

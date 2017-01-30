@@ -355,7 +355,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	#define gwinShow(gh)		gwinSetVisible(gh, TRUE)
+	#define gwinShow(gh)		gwinSetVisible(gh, GTrue)
 
 	/**
 	 * @brief	Makes a widget become invisible
@@ -364,14 +364,14 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	#define gwinHide(gh)		gwinSetVisible(gh, FALSE)
+	#define gwinHide(gh)		gwinSetVisible(gh, GFalse)
 
 	/**
 	 * @brief	Gets the visibility of a window
-	 * @return	TRUE if visible
+	 * @return	GTrue if visible
 	 *
 	 * @note	It is possible for a child to be marked as visible by @p gwinSetVisible()
-	 * 			but for this call to return FALSE if one of its parents are not visible.
+	 * 			but for this call to return GFalse if one of its parents are not visible.
 	 *
 	 * @param[in] gh		The window
 	 *
@@ -401,7 +401,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	#define gwinEnable(gh)		gwinSetEnabled(gh, TRUE)
+	#define gwinEnable(gh)		gwinSetEnabled(gh, GTrue)
 
 	/**
 	 * @brief	Disables a widget
@@ -410,14 +410,14 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	#define gwinDisable(gh)		gwinSetEnabled(gh, FALSE)
+	#define gwinDisable(gh)		gwinSetEnabled(gh, GFalse)
 
 	/**
 	 * @brief	Gets the enabled state of a window
-	 * @return	TRUE if enabled
+	 * @return	GTrue if enabled
 	 *
 	 * @note	It is possible for a child to be marked as enabled by @p gwinSetEnabled()
-	 * 			but for this call to return FALSE if one of its parents are not enabled.
+	 * 			but for this call to return GFalse if one of its parents are not enabled.
 	 *
 	 * @param[in] gh		The window
 	 *
@@ -578,7 +578,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		#define gwinFlash(gh)		gwinSetFlashing(gh, TRUE)
+		#define gwinFlash(gh)		gwinSetFlashing(gh, GTrue)
 
 		/**
 		 * @brief	Disables a widget
@@ -587,7 +587,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		#define gwinNoFlash(gh)		gwinSetFlashing(gh, FALSE)
+		#define gwinNoFlash(gh)		gwinSetFlashing(gh, GFalse)
 	#endif
 
 	#if GDISP_NEED_TEXT || defined(__DOXYGEN__)

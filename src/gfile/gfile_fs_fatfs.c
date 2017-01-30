@@ -75,7 +75,7 @@ typedef struct fatfsList {
 } fatfsList;
 
 // optimize these later on. Use an array to have multiple FatFS
-static bool_t fatfs_mounted = FALSE;
+static bool_t fatfs_mounted = GFalse;
 static FATFS fatfs_fs;
 
 static BYTE fatfs_flags2mode(GFILE* f)
@@ -101,9 +101,9 @@ static bool_t fatfsDel(const char* fname)
 
 	ferr = f_unlink( (const TCHAR*)fname );
 	if (ferr != FR_OK)
-		return FALSE;
+		return GFalse;
 
-	return TRUE;
+	return GTrue;
 }
 
 static bool_t fatfsExists(const char* fname)
@@ -113,9 +113,9 @@ static bool_t fatfsExists(const char* fname)
 
 	ferr = f_stat( (const TCHAR*)fname, &fno);
 	if (ferr != FR_OK)
-		return FALSE;
+		return GFalse;
 
-	return TRUE;
+	return GTrue;
 }
 
 static long int fatfsFileSize(const char* fname)
@@ -136,9 +136,9 @@ static bool_t fatfsRename(const char* oldname, const char* newname)
 
 	ferr = f_rename( (const TCHAR*)oldname, (const TCHAR*)newname );
 	if (ferr != FR_OK)
-		return FALSE;
+		return GFalse;
 
-	return TRUE;
+	return GTrue;
 }
 
 static bool_t fatfsOpen(GFILE* f, const char* fname)
@@ -147,17 +147,17 @@ static bool_t fatfsOpen(GFILE* f, const char* fname)
 
 	#if !GFILE_NEED_NOAUTOMOUNT
 		if (!fatfs_mounted && !fatfsMount(""))
-			return FALSE;
+			return GFalse;
 	#endif
 
 	if (!(fd = gfxAlloc(sizeof(FIL))))
-		return FALSE;
+		return GFalse;
 
 	if (f_open(fd, fname, fatfs_flags2mode(f)) != FR_OK) {
 		gfxFree(fd);
 		f->obj = 0;
 
-		return FALSE;
+		return GFalse;
 	}
 
 	f->obj = (void*)fd;
@@ -169,7 +169,7 @@ static bool_t fatfsOpen(GFILE* f, const char* fname)
 		}
 	#endif
 
-	return TRUE;	
+	return GTrue;	
 }
 
 static void fatfsClose(GFILE* f)
@@ -207,9 +207,9 @@ static bool_t fatfsSetPos(GFILE* f, long int pos)
 
 	ferr = f_lseek( (FIL*)f->obj, (DWORD)pos );
 	if (ferr != FR_OK)
-		return FALSE;
+		return GFalse;
 
-	return TRUE;
+	return GTrue;
 }
 
 static long int fatfsGetSize(GFILE* f)
@@ -220,9 +220,9 @@ static long int fatfsGetSize(GFILE* f)
 static bool_t fatfsEOF(GFILE* f)
 {
 	if ( f_eof( (FIL*)f->obj ) != 0)
-		return TRUE;
+		return GTrue;
 	else
-		return FALSE;
+		return GFalse;
 }
 
 static bool_t fatfsMount(const char* drive)
@@ -232,12 +232,12 @@ static bool_t fatfsMount(const char* drive)
 	if (!fatfs_mounted) {
 		ferr = f_mount(&fatfs_fs, drive, 1);
 		if (ferr !=  FR_OK)
-			return FALSE;
-		fatfs_mounted = TRUE;
-		return TRUE;
+			return GFalse;
+		fatfs_mounted = GTrue;
+		return GTrue;
 	}
 
-	return FALSE;
+	return GFalse;
 }
 
 static bool_t fatfsUnmount(const char* drive)
@@ -246,11 +246,11 @@ static bool_t fatfsUnmount(const char* drive)
 
 	if (fatfs_mounted) {
 		// FatFS does not provide an unmount routine.
-		fatfs_mounted = FALSE;
-		return TRUE;
+		fatfs_mounted = GFalse;
+		return GTrue;
 	}
 
-	return FALSE;
+	return GFalse;
 }
 
 static bool_t fatfsSync(GFILE *f)
@@ -259,10 +259,10 @@ static bool_t fatfsSync(GFILE *f)
 
 	ferr = f_sync( (FIL*)f->obj );
 	if (ferr != FR_OK) {
-		return FALSE;
+		return GFalse;
 	}
 
-	return TRUE;
+	return GTrue;
 }
 
 #if GFILE_NEED_FILELISTS && _FS_MINIMIZE <= 1

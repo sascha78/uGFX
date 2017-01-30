@@ -30,7 +30,7 @@ static bool_t init_board(GMouse* m, unsigned instance)
 	(void)m;
 	(void)instance;
 
-	return TRUE;
+	return GTrue;
 }
 
 static void write_reg(GMouse* m, uint8_t reg, uint8_t val)

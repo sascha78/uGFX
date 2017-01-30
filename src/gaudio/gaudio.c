@@ -80,9 +80,9 @@ void _gaudioDeinit(void)
 		gaudioPlayStop();
 		playFlags &= ~PLAYFLG_ISINIT;
 		if (!gaudio_play_lld_init(channel, frequency, format))
-			return FALSE;
+			return GFalse;
 		playFlags |= PLAYFLG_ISINIT;
-		return TRUE;
+		return GTrue;
 	}
 
 	void gaudioPlay(GDataBuffer *pd) {
@@ -121,7 +121,7 @@ void _gaudioDeinit(void)
 
 	bool_t gaudioPlayWait(delaytime_t ms) {
 		if (!(playFlags & PLAYFLG_PLAYING))
-			return TRUE;
+			return GTrue;
 		return gfxSemWait(&playComplete, ms);
 	}
 
@@ -152,7 +152,7 @@ void _gaudioDeinit(void)
 
 		GSourceHandle gaudioPlayGetSource(void) {
 			if (!gtimerIsActive(&playTimer))
-				gtimerStart(&playTimer, PlayTimerCallback, 0, TRUE, TIME_INFINITE);
+				gtimerStart(&playTimer, PlayTimerCallback, 0, GTrue, TIME_INFINITE);
 			playFlags |= PLAYFLG_USEEVENTS;
 			return (GSourceHandle)&playTimer;
 		}
@@ -189,9 +189,9 @@ void _gaudioDeinit(void)
 		gaudioRecordStop();
 		recordFlags &= ~RECORDFLG_ISINIT;
 		if (!gaudio_record_lld_init(channel, frequency, format))
-			return FALSE;
+			return GFalse;
 		recordFlags |= RECORDFLG_ISINIT;
-		return TRUE;
+		return GTrue;
 	}
 
 	void gaudioRecordStart(void) {
@@ -245,7 +245,7 @@ void _gaudioDeinit(void)
 
 		GSourceHandle gaudioRecordGetSource(void) {
 			if (!gtimerIsActive(&recordTimer))
-				gtimerStart(&recordTimer, RecordTimerCallback, 0, TRUE, TIME_INFINITE);
+				gtimerStart(&recordTimer, RecordTimerCallback, 0, GTrue, TIME_INFINITE);
 			recordFlags |= RECORDFLG_USEEVENTS;
 			return (GSourceHandle)&recordTimer;
 		}

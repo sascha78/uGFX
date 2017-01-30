@@ -196,7 +196,7 @@ extern "C" {
 		 * @param[in] instance	The ID of the keyboard input instance
 		 * @param[in] pkeyboard	The keyboard event struct
 		 *
-		 * @return Returns FALSE on an error (eg invalid instance)
+		 * @return Returns GFalse on an error (eg invalid instance)
 		 */
 		bool_t ginputGetKeyboardStatus(unsigned instance, GEventKeyboard *pkeyboard);
 
@@ -207,7 +207,7 @@ extern "C" {
 			 * @param[in] instance	The ID of the keyboard input instance
 			 * @param[in] pLayout	The keyboard layout micro-code. Passing NULL defaults to the driver's default layout.
 			 *
-			 * @return Returns FALSE on an error (eg invalid instance)
+			 * @return Returns GFalse on an error (eg invalid instance)
 			 */
 			bool_t ginputSetKeyboardLayout(unsigned instance, const void *pLayout);
 		#endif

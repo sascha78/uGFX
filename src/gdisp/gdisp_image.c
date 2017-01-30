@@ -196,8 +196,8 @@ color_t gdispImageGetPalette(gdispImage *img, uint16_t index) {
 }
 
 bool_t gdispImageAdjustPalette(gdispImage *img, uint16_t index, color_t newColor) {
-	if (!img->fns) return FALSE;
-	if (!img->fns->adjustPalette) return FALSE;
+	if (!img->fns) return GFalse;
+	if (!img->fns->adjustPalette) return GFalse;
 	return img->fns->adjustPalette(img, index, newColor);
 }
 

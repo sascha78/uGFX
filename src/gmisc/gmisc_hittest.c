@@ -80,7 +80,7 @@ bool_t gmiscHittestPoly(const point *pntarray, unsigned cnt, const point *p) {
 
         /* Point on the edge of the polygon */
         if (crossResult == 0) {
-            return TRUE;
+            return GTrue;
         }
         /* Point crossing the polygon */
         else if(crossResult == 1) {
@@ -98,18 +98,18 @@ bool_t gmiscHittestPoly(const point *pntarray, unsigned cnt, const point *p) {
     }
 
     if (crossResult == 0) {
-        return TRUE;
+        return GTrue;
     } else if(crossResult == 1) {
         nbrIntersection++;
     }
 
     /* If we cross an even pair of segments, we are outside */
     if (nbrIntersection % 2 == 0) {
-        return FALSE;
+        return GFalse;
     }
     
     /* Else we are inside the polygon */
-    return TRUE;
+    return GTrue;
 }
 
 #endif // GMISC_NEED_HITTEST_POLY

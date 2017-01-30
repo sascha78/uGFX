@@ -96,9 +96,9 @@ static bool_t ROMOpen(GFILE *f, const char *fname)
 {
 	const ROMFS_DIRENTRY *p;
 
-	if (!(p = ROMFindFile(fname))) return FALSE;
+	if (!(p = ROMFindFile(fname))) return GFalse;
 	f->obj = (void *)p;
-	return TRUE;
+	return GTrue;
 }
 
 static void ROMClose(GFILE *f)

@@ -23,7 +23,7 @@ static void ISR_CompleteI(ADCDriver *adcp, adcsample_t *buffer, size_t n);
 static void ISR_ErrorI(ADCDriver *adcp, adcerror_t err);
 
 static ADCConversionGroup acg = {
-		FALSE,					// circular
+		0,						// circular
 		1,						// num_channels
 		ISR_CompleteI,			// end_cb
 		ISR_ErrorI,				// error_cb

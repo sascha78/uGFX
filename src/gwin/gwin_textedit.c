@@ -35,7 +35,7 @@ static bool_t resizeText(GWidgetObject* gw, size_t pos, int32_t diff) {
 	if (diff < 0)
 		memcpy(p+pos, p+pos-diff, sz-pos+diff);
 	if (!(p = gfxRealloc(p, sz, sz+diff)))
-		return FALSE;
+		return GFalse;
 	gw->text = p;
 	if (diff > 0) {
 		q = p + sz;
@@ -43,7 +43,7 @@ static bool_t resizeText(GWidgetObject* gw, size_t pos, int32_t diff) {
 		while(--q >= p)
 			q[diff] = q[0];
 	}
-	return TRUE;
+	return GTrue;
 }
 
 // Function that allows to set the cursor to any position in the string

@@ -88,8 +88,8 @@
 	 * @note	Your platform may use slightly different definitions to these
 	 * @{
 	 */
-	#define FALSE						0
-	#define TRUE						1
+	#define GFalse						0
+	#define GTrue						((bool_t)-1)
 	#define TIME_IMMEDIATE				0
 	#define TIME_INFINITE				((delaytime_t)-1)
 	#define MAX_SEMAPHORE_COUNT			((semcount_t)(((unsigned long)((semcount_t)(-1))) >> 1))
@@ -356,7 +356,7 @@
 	 * @brief	Wait on a semaphore
 	 * @details	The semaphore counter is decreased and if the result becomes negative the thread waits for it to become
 	 * 				non-negative again
-	 * @return	FALSE if the wait timeout occurred otherwise TRUE
+	 * @return	GFalse if the wait timeout occurred otherwise GTrue
 	 *
 	 * @param[in] psem		A pointer to the semaphore
 	 * @param[in] ms		The maximum time to wait for the semaphore
@@ -368,7 +368,7 @@
 	/**
 	 * @brief	Test if a wait on a semaphore can be satisfied immediately
 	 * @details	Equivalent to @p gfxSemWait(psem, TIME_IMMEDIATE) except it can be called at interrupt level
-	 * @return	FALSE if the wait would occur occurred otherwise TRUE
+	 * @return	GFalse if the wait would occur occurred otherwise GTrue
 	 *
 	 * @param[in] psem		A pointer to the semaphore
 	 *

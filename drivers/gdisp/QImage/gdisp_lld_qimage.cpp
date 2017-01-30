@@ -7,13 +7,13 @@ bool_t qimage_init(GDisplay* g, coord_t width, coord_t height)
 {
     QImage* qimage = new QImage(width, height, QImage::Format_RGB888);
     if (!qimage) {
-        return FALSE;
+        return GFalse;
     }
     qimage->fill(Qt::gray);
 
     g->priv = qimage;
 
-    return TRUE;
+    return GTrue;
 }
 
 void qimage_setPixel(GDisplay* g)

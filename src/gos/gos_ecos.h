@@ -19,6 +19,8 @@
 /*===========================================================================*/
 
 typedef cyg_bool_t			bool_t;
+	#define GFalse						0
+	#define GTrue						((bool_t)-1)
 typedef cyg_int8			int8_t;
 typedef cyg_uint8	 		uint8_t;
 typedef cyg_int16	 		int16_t;

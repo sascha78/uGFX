@@ -98,7 +98,7 @@ extern "C" {
 	 * @param[in] instance	The ID of the dial input instance
 	 * @param[in] pdial		The dial event struct
 	 *
-	 * @return	Returns FALSE on an error (eg invalid instance)
+	 * @return	Returns GFalse on an error (eg invalid instance)
 	 */
 	bool_t ginputGetDialStatus(uint16_t instance, GEventDial *pdial);
 

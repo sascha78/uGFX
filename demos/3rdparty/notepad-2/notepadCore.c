@@ -204,7 +204,7 @@ void ncoreSpawnDrawThread(GHandle drawingArea, GHandle statusConsole) {
 
   ncoreDrawingArea = drawingArea;
   nStatusConsole = statusConsole;
-  doExit = FALSE;
+  doExit = GFalse;
 
   nThd = gfxThreadCreate(waDrawThread,
                            sizeof(waDrawThread),
@@ -216,7 +216,7 @@ void ncoreSpawnDrawThread(GHandle drawingArea, GHandle statusConsole) {
 
 /* Terminate the core thread, wait for control release */
 void ncoreTerminateDrawThread(void) {
-  doExit = TRUE;
+  doExit = GTrue;
   gfxThreadWait(nThd);
   nThd = 0;
 }

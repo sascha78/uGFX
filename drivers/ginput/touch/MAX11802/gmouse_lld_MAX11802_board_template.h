@@ -22,7 +22,7 @@
 /**
  *	Init the board
  *
- *	Returns TRUE on success, FALSE on failure
+ *	Returns GTrue on success, GFalse on failure
  */
 static GFXINLINE bool_t init_board(GMouse* m, unsigned driverinstance) {
 

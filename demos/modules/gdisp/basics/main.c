@@ -48,7 +48,7 @@ int main(void) {
 	for(i = 5, j = 0; i < width && j < height; i += 7, j += i/20)
     	gdispDrawPixel(i, j, White);
 
-    while(TRUE) {
+    while(GTrue) {
     	gfxSleepMilliseconds(500);
     }   
 }

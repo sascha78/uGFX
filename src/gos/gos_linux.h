@@ -27,6 +27,8 @@
 /* Already defined int8_t, uint8_t, int16_t, uint16_t, int32_t, uint32_t, size_t */
 
 typedef int8_t				bool_t;
+	#define GFalse						0
+	#define GTrue						((bool_t)-1)
 typedef unsigned long		systemticks_t;
 typedef void *				threadreturn_t;
 typedef unsigned long		delaytime_t;

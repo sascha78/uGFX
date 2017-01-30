@@ -147,9 +147,9 @@ void _gqueueDeinit(void)
 
 		for(pi = pqueue->head; pi; pi = pi->next) {
 			if (pi == pitem)
-				return TRUE;
+				return GTrue;
 		}
-		return FALSE;
+		return GFalse;
 	}
 #endif
 
@@ -285,9 +285,9 @@ void _gqueueDeinit(void)
 
 		for(pi = pqueue->head; pi; pi = pi->next) {
 			if (pi == pitem)
-				return TRUE;
+				return GTrue;
 		}
-		return FALSE;
+		return GFalse;
 	}
 #endif
 
@@ -423,9 +423,9 @@ void _gqueueDeinit(void)
 
 		for(pi = pqueue->head; pi; pi = pi->next) {
 			if (pi == pitem)
-				return TRUE;
+				return GTrue;
 		}
-		return FALSE;
+		return GFalse;
 	}
 #endif
 
@@ -434,14 +434,14 @@ void _gqueueDeinit(void)
 		GDataBuffer *pd;
 
 		if (num < 1)
-			return FALSE;
+			return GFalse;
 
 		// Round up to a multiple of 4 to prevent problems with structure alignment
 		size = (size + 3) & ~0x03;
 
 		// Allocate the memory
 		if (!(pd = gfxAlloc((size+sizeof(GDataBuffer)) * num)))
-			return FALSE;
+			return GFalse;
 
 		// Add each of them to our free list
 		for(;num--; pd = (GDataBuffer *)((char *)(pd+1)+size)) {
@@ -449,7 +449,7 @@ void _gqueueDeinit(void)
 			gfxBufferRelease(pd);
 		}
 
-		return TRUE;
+		return GTrue;
 	}
 
 	void gfxBufferRelease(GDataBuffer *pd)		{ gfxQueueGSyncPut(&bufferFreeList, (gfxQueueGSyncItem *)pd); }

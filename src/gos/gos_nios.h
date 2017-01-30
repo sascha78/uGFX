@@ -18,6 +18,8 @@
 typedef alt_u32 systemticks_t;
 typedef alt_u32 delaytime_t;
 typedef unsigned char bool_t;
+	#define GFalse						0
+	#define GTrue						((bool_t)-1)
 
 #ifdef __cplusplus
 extern "C" {

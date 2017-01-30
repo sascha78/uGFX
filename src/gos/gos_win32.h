@@ -33,6 +33,8 @@
  * are already defined by Win32
  */
 typedef __int8				bool_t;
+	#define GFalse						0
+	#define GTrue						((bool_t)-1)
 typedef __int8				int8_t;
 typedef unsigned __int8		uint8_t;
 typedef __int16				int16_t;

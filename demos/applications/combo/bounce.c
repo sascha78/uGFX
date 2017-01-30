@@ -151,11 +151,11 @@ static DECLARE_THREAD_FUNCTION(task, param) {
 
 void doBounce(GHandle parent, bool_t start) {
 	if (start) {
-		run = TRUE;
+		run = GTrue;
 		gh = parent;
 		thread = gfxThreadCreate(0, 0x200, LOW_PRIORITY, task, 0);
 	} else if (run) {
-		run = FALSE;
+		run = GFalse;
 		gfxThreadWait(thread);
 		gfxYield();
 	}

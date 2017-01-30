@@ -121,7 +121,7 @@ void _gwinDestroy(GHandle gh, GRedrawMethod how) {
 		return;
 
 	// Make the window invisible
-	gwinSetVisible(gh, FALSE);
+	gwinSetVisible(gh, GFalse);
 
 	// Make sure it is flushed first - must be REDRAW_WAIT or REDRAW_INSESSION
 	_gwinFlushRedraws(how);
@@ -210,11 +210,11 @@ const char *gwinGetClassName(GHandle gh) {
 }
 
 bool_t gwinGetVisible(GHandle gh) {
-	return (gh->flags & GWIN_FLG_SYSVISIBLE) ? TRUE : FALSE;
+	return (gh->flags & GWIN_FLG_SYSVISIBLE) ? GTrue : GFalse;
 }
 
 bool_t gwinGetEnabled(GHandle gh) {
-	return (gh->flags & GWIN_FLG_SYSENABLED) ? TRUE : FALSE;
+	return (gh->flags & GWIN_FLG_SYSENABLED) ? GTrue : GFalse;
 }
 
 #if GDISP_NEED_TEXT

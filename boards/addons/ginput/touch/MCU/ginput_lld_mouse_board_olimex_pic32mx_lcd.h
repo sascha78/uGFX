@@ -48,13 +48,13 @@ static struct ADCDriver ADCD;
 #define YPOS 11 // D
 
 static const ADCConversionGroup ADC_X_CG = {
-  .circular = FALSE,
+  .circular = 0,
   .num_channels = 1,
   .channels = 1 << XNEG,
 };
 
 static const ADCConversionGroup ADC_Y_CG = {
-  .circular = FALSE,
+  .circular = 0,
   .num_channels = 1,
   .channels = 1 << YPOS,
 };
@@ -63,11 +63,11 @@ static bool_t init_board(GMouse *m, unsigned driverinstance) {
 	(void)	m;
 
 	if (driverinstance)
-		return FALSE;
+		return GFalse;
 
 	adcObjectInit(&ADCD);
 	adcStart(&ADCD, &ADCC);
-	return TRUE;
+	return GTrue;
 }
 
 static bool_t read_xyz(GMouse *m, GMouseReading *prd) {
@@ -89,7 +89,7 @@ static bool_t read_xyz(GMouse *m, GMouseReading *prd) {
 
 	// Shortcut - no need to read X or Y if the touch is off.
 	if (pdr->z < GMOUSE_MCU_Z_TOUCHON)
-		return TRUE;
+		return GTrue;
 
 	// Read X
 	palSetPadMode(IOPORTB, XPOS, PAL_MODE_OUTPUT);
@@ -111,7 +111,7 @@ static bool_t read_xyz(GMouse *m, GMouseReading *prd) {
 	adcConvert(&ADCD, &ADC_X_CG, &samples[0], 1);
 	pdr->y = ADC_MAX - samples[0];
 
-	return TRUE;
+	return GTrue;
 }
 
 #endif /* _GINPUT_LLD_MOUSE_BOARD_H */
