@@ -19,7 +19,7 @@
 #endif
 #ifndef GDISP_WIN32_USE_INDIRECT_UPDATE
 	/**
-	 * Setting this to TRUE delays updating the screen
+	 * Setting this to GFXON delays updating the screen
 	 * to the windows paint routine. Due to the
 	 * drawing lock this does not add as much speed
 	 * as might be expected but it is still faster in
@@ -31,20 +31,20 @@
 	 * if you are debugging drawing and want to see each
 	 * pixel as it is set.
 	 */
-	#define GDISP_WIN32_USE_INDIRECT_UPDATE		TRUE
+	#define GDISP_WIN32_USE_INDIRECT_UPDATE		GFXON
 #endif
 #ifndef GKEYBOARD_WIN32_NO_LAYOUT
 	/**
-	 * Setting this to TRUE turns off the layout engine.
+	 * Setting this to GFXON turns off the layout engine.
 	 * In this situation "cooked" characters are returned but
 	 * shift states etc are lost.
 	 * As only a limited number of keyboard layouts are currently
 	 * defined for Win32 in uGFX (currently only US English), setting this
-	 * to TRUE enables the windows keyboard mapping to be pass non-English
+	 * to GFXON enables the windows keyboard mapping to be pass non-English
 	 * characters to uGFX or to handle non-standard keyboard layouts at
 	 * the expense of losing special function keys etc.
 	 */
-	#define GKEYBOARD_WIN32_NO_LAYOUT			FALSE
+	#define GKEYBOARD_WIN32_NO_LAYOUT			GFXOFF
 #endif
 #ifndef GKEYBOARD_WIN32_DEFAULT_LAYOUT
 	#define GKEYBOARD_WIN32_DEFAULT_LAYOUT		KeyboardLayout_Win32_US
@@ -126,7 +126,7 @@
 
 	#if !GKEYBOARD_WIN32_NO_LAYOUT
 		#if GKEYBOARD_LAYOUT_OFF
-			#error "The Win32 keyboard driver is using the layout engine. Please set GKEYBOARD_LAYOUT_OFF=FALSE or GKEYBOARD_WIN32_NO_LAYOUT=TRUE."
+			#error "The Win32 keyboard driver is using the layout engine. Please set GKEYBOARD_LAYOUT_OFF=GFXOFF or GKEYBOARD_WIN32_NO_LAYOUT=GFXON."
 		#endif
 
 		#include "../../../src/ginput/ginput_keyboard_microcode.h"
@@ -370,7 +370,7 @@
 			KMC_RECORDSTART, 0
 		};
 	#elif !GKEYBOARD_LAYOUT_OFF
-		#warning "The WIN32 keyboard driver is not using the layout engine. If no other keyboard is using it consider defining GKEYBOARD_LAYOUT_OFF=TRUE to save code size."
+		#warning "The WIN32 keyboard driver is not using the layout engine. If no other keyboard is using it consider defining GKEYBOARD_LAYOUT_OFF=GFXON to save code size."
 	#endif
 
 	// Forward definitions

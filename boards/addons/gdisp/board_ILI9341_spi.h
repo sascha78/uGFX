@@ -90,7 +90,7 @@ static GFXINLINE void post_init_board(GDisplay *g) {
 static GFXINLINE void setpin_reset(GDisplay *g, bool_t state) {
 	(void) g;
 
-	if (state == TRUE) {
+	if (state) {
 		palClearPad(LCD_PORT, LCD_RES);
 	} else {
 		palSetPad(LCD_PORT, LCD_RES);

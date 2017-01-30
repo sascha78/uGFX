@@ -30,7 +30,6 @@
 
 /**
  * size_t
- * TRUE, FALSE
  * are already defined by Win32
  */
 typedef __int8				bool_t;

@@ -25,7 +25,7 @@
 	 * @note	This is most useful for displays such as remote network displays.
 	 */
 	#ifndef GDISP_HARDWARE_DYNAMIC
-		#define GDISP_HARDWARE_DYNAMIC		FALSE
+		#define GDISP_HARDWARE_DYNAMIC		GFXOFF
 	#endif
 
 	/**
@@ -34,7 +34,7 @@
 	 * @note	This is most useful for displays such as remote network displays and other dynamic displays.
 	 */
 	#ifndef GDISP_HARDWARE_DEINIT
-		#define GDISP_HARDWARE_DEINIT		FALSE
+		#define GDISP_HARDWARE_DEINIT		GFXOFF
 	#endif
 
 	/**
@@ -42,14 +42,14 @@
 	 * @note	Some controllers ** require ** the application to flush
 	 */
 	#ifndef GDISP_HARDWARE_FLUSH
-		#define GDISP_HARDWARE_FLUSH		FALSE
+		#define GDISP_HARDWARE_FLUSH		GFXOFF
 	#endif
 
 	/**
 	 * @brief   Reading of the display surface is supported.
 	 */
 	#ifndef GDISP_HARDWARE_READ
-		#define GDISP_HARDWARE_READ			FALSE
+		#define GDISP_HARDWARE_READ			GFXOFF
 	#endif
 
 	/**
@@ -59,7 +59,7 @@
 	 * 			a new window.
 	 */
 	#ifndef GDISP_HARDWARE_SETPOS
-		#define GDISP_HARDWARE_SETPOS		FALSE
+		#define GDISP_HARDWARE_SETPOS		GFXOFF
 	#endif
 
 	/**
@@ -67,14 +67,14 @@
 	 * @note	This is typically used for accelerated scrolling.
 	 */
 	#ifndef GDISP_HARDWARE_MOVE
-		#define GDISP_HARDWARE_MOVE			FALSE
+		#define GDISP_HARDWARE_MOVE			GFXOFF
 	#endif
 
 	/**
 	 * @brief   The driver supports one or more control commands.
 	 */
 	#ifndef GDISP_HARDWARE_IOCTL
-		#define GDISP_HARDWARE_IOCTL		FALSE
+		#define GDISP_HARDWARE_IOCTL		GFXOFF
 	#endif
 
 /** @} */

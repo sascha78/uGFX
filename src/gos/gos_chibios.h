@@ -10,10 +10,12 @@
 
 #if GFX_USE_OS_CHIBIOS
 
-// This shouldn't be needed but some people are complaining
-// about TRUE/FALSE redefinition so we fix it here.
-#undef TRUE
-#undef FALSE
+#if GFX_COMPAT_V2
+	// This shouldn't be needed but some people are complaining
+	// about TRUE/FALSE redefinition so we fix it here.
+	#undef TRUE
+	#undef FALSE
+#endif
 
 #include "ch.h"
 #include "hal.h"
@@ -28,17 +30,19 @@
  * int16_t, uint16_t,
  * int32_t, uint32_t,
  * size_t
- * TRUE, FALSE
  * TIME_IMMEDIATE, TIME_INFINITE
  * are already defined by ChibiOS
  */
 
-#if !defined(FALSE)
-	#define FALSE       0
+#if GFX_COMPAT_V2
+	#if !defined(FALSE)
+		#define FALSE       0
+	#endif
+	#if !defined(TRUE)
+		#define TRUE        -1
+	#endif
 #endif
-#if !defined(TRUE)
-	#define TRUE        -1
-#endif
+
 #if (CH_KERNEL_MAJOR == 3) || (CH_KERNEL_MAJOR == 4)
 	typedef char	bool_t;
 #endif

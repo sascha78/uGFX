@@ -24,31 +24,47 @@
  * turn module definitions off and on.
  */
 
-/**
- * @brief   Generic 'false' boolean constant.
- */
-#if !defined(FALSE) || defined(__DOXYGEN__)
-	#define FALSE       0
-#endif
-
-/**
- * @brief   Generic 'true' boolean constant.
- */
-#if !defined(TRUE) || defined(__DOXYGEN__)
-	#define TRUE        -1
-#endif
-
-// Macro concatination and strify - not API documented
-#define GFXCATX(a, b)	GFXCAT(a, b)
-#define GFXCAT(a, b)	a ## b
-#define GFXSTRX(a)		GFXSTR(a)
-#define GFXSTR(a)		#a
+#define GFXOFF		(0)
+#define GFXON		(-1)
 
 /* gfxconf.h is the user's project configuration for the GFX system. */
 #include "gfxconf.h"
 
-/* Include Compiler and CPU support */
-#include "src/gfx_compilers.h"
+/**
+ * @name    GFX compatibility options
+ * @{
+ */
+	/**
+	 * @brief   Include the uGFX V2.x API
+	 * @details	Defaults to GFXON
+	 */
+	#ifndef GFX_COMPAT_V2
+		#define GFX_COMPAT_V2				GFXON
+	#endif
+	/**
+	 * @brief   Include the uGFX V2.x Old Colors
+	 * @details	Defaults to GFXON
+	 * @pre		Requires GFX_COMPAT_V2 to be GFXON
+	 * @note	The old color definitions (particularly Red, Green & Blue) can
+	 *			cause symbol conflicts with many platforms eg Win32, STM32 HAL etc.
+	 *			Although officially these symbols are part of the V2.x API, this
+	 *			option allows them to be turned off even when the rest of the V2.x
+	 *			API is turned on.
+	 */
+	#ifndef GFX_COMPAT_OLDCOLORS
+		#define GFX_COMPAT_OLDCOLORS		GFXON
+	#endif
+/** @} */
+
+#if GFX_COMPAT_V2
+	// These need to be defined here for compatibility with V2.x config files
+	#if !defined(FALSE)
+		#define FALSE       0
+	#endif
+	#if !defined(TRUE)
+		#define TRUE        -1
+	#endif
+#endif
 
 /**
  * @name    GFX sub-systems that can be turned on
@@ -56,58 +72,58 @@
  */
 	/**
 	 * @brief   GFX Driver API
-	 * @details	Defaults to TRUE
+	 * @details	Defaults to GFXON
 	 * @note	Not much useful can be done without a driver
 	 */
 	#ifndef GFX_USE_GDRIVER
-		#define GFX_USE_GDRIVER	TRUE
+		#define GFX_USE_GDRIVER	GFXON
 	#endif
 	/**
 	 * @brief   GFX Graphics Display Basic API
-	 * @details	Defaults to FALSE
+	 * @details	Defaults to GFXOFF
 	 * @note	Also add the specific hardware driver to your makefile.
 	 * 			Eg.  include $(GFXLIB)/drivers/gdisp/Nokia6610/driver.mk
 	 */
 	#ifndef GFX_USE_GDISP
-		#define GFX_USE_GDISP	FALSE
+		#define GFX_USE_GDISP	GFXOFF
 	#endif
 	/**
 	 * @brief   GFX Graphics Windowing API
-	 * @details	Defaults to FALSE
+	 * @details	Defaults to GFXOFF
 	 * @details	Extends the GDISP API to add the concept of graphic windows.
 	 * @note	Also supports high-level "window" objects such as console windows,
 	 * 			buttons, graphing etc
 	 */
 	#ifndef GFX_USE_GWIN
-		#define GFX_USE_GWIN	FALSE
+		#define GFX_USE_GWIN	GFXOFF
 	#endif
 	/**
 	 * @brief   GFX Event API
-	 * @details	Defaults to FALSE
+	 * @details	Defaults to GFXOFF
 	 * @details	Defines the concept of a "Source" that can send "Events" to "Listeners".
 	 */
 	#ifndef GFX_USE_GEVENT
-		#define GFX_USE_GEVENT	FALSE
+		#define GFX_USE_GEVENT	GFXOFF
 	#endif
 	/**
 	 * @brief   GFX Timer API
-	 * @details	Defaults to FALSE
+	 * @details	Defaults to GFXOFF
 	 * @details	Provides thread context timers - both one-shot and periodic.
 	 */
 	#ifndef GFX_USE_GTIMER
-		#define GFX_USE_GTIMER	FALSE
+		#define GFX_USE_GTIMER	GFXOFF
 	#endif
 	/**
 	 * @brief   GFX Queue API
-	 * @details	Defaults to FALSE
+	 * @details	Defaults to GFXOFF
 	 * @details	Provides queue management.
 	 */
 	#ifndef GFX_USE_GQUEUE
-		#define GFX_USE_GQUEUE	FALSE
+		#define GFX_USE_GQUEUE	GFXOFF
 	#endif
 	/**
 	 * @brief   GFX Input Device API
-	 * @details	Defaults to FALSE
+	 * @details	Defaults to GFXOFF
 	 * @note	Also add the specific hardware drivers to your makefile.
 	 * 			Eg.
 	 * 				include $(GFXLIB)/drivers/ginput/toggle/Pal/driver.mk
@@ -115,50 +131,60 @@
 	 * 				include $(GFXLIB)/drivers/ginput/touch/MCU/driver.mk
 	 */
 	#ifndef GFX_USE_GINPUT
-		#define GFX_USE_GINPUT	FALSE
+		#define GFX_USE_GINPUT	GFXOFF
 	#endif
 	/**
 	 * @brief   GFX Generic Periodic ADC API
-	 * @details	Defaults to FALSE
+	 * @details	Defaults to GFXOFF
 	 */
 	#ifndef GFX_USE_GADC
-		#define GFX_USE_GADC	FALSE
+		#define GFX_USE_GADC	GFXOFF
 	#endif
 	/**
 	 * @brief   GFX Audio API
-	 * @details	Defaults to FALSE
+	 * @details	Defaults to GFXOFF
 	 * @note	Also add the specific hardware drivers to your makefile.
 	 * 			Eg.
 	 * 				include $(GFXLIB)/drivers/gaudio/GADC/driver.mk
 	 */
 	#ifndef GFX_USE_GAUDIO
-		#define GFX_USE_GAUDIO	FALSE
+		#define GFX_USE_GAUDIO	GFXOFF
 	#endif
 	/**
 	 * @brief   GFX Miscellaneous Routines API
-	 * @details	Defaults to FALSE
+	 * @details	Defaults to GFXOFF
 	 * @note	Turning this on without turning on any GMISC_NEED_xxx macros will result
 	 * 			in no extra code being compiled in. GMISC is made up from the sum of its
 	 * 			parts.
 	 */
 	#ifndef GFX_USE_GMISC
-		#define GFX_USE_GMISC	FALSE
+		#define GFX_USE_GMISC	GFXOFF
 	#endif
 	/**
 	 * @brief   GFX File API
-	 * @details	Defaults to FALSE
+	 * @details	Defaults to GFXOFF
 	 */
 	#ifndef GFX_USE_GFILE
-		#define GFX_USE_GFILE	FALSE
+		#define GFX_USE_GFILE	GFXOFF
 	#endif
 	/**
 	 * @brief   GFX Translation Support API
-	 * @details	Defaults to FALSE
+	 * @details	Defaults to GFXOFF
 	 */
 	#ifndef GFX_USE_GTRANS
-		#define GFX_USE_GTRANS	FALSE
+		#define GFX_USE_GTRANS	GFXOFF
 	#endif
 /** @} */
+
+// Macro concatination and strify - not API documented
+#define GFXCATX(a, b)	GFXCAT(a, b)
+#define GFXCAT(a, b)	a ## b
+#define GFXSTRX(a)		GFXSTR(a)
+#define GFXSTR(a)		#a
+
+/* Include Compiler and CPU support */
+#include "src/gfx_compilers.h"
+
 
 /**
  * Get all the options for each sub-system.
@@ -184,7 +210,7 @@
  *
  */
 #ifndef GFX_DISPLAY_RULE_WARNINGS
-	#define GFX_DISPLAY_RULE_WARNINGS	FALSE
+	#define GFX_DISPLAY_RULE_WARNINGS	GFXOFF
 #endif
 #include "src/gwin/gwin_rules.h"
 #include "src/ginput/ginput_rules.h"
@@ -227,7 +253,7 @@ extern "C" {
 	 * @note	This will initialise each sub-system that has been turned on.
 	 * 			For example, if GFX_USE_GDISP is defined then display will be initialised
 	 * 			and cleared to black.
-	 * @note	If you define GFX_OS_NO_INIT as TRUE in your gfxconf.h file then ugfx doesn't try to
+	 * @note	If you define GFX_OS_NO_INIT as GFXON in your gfxconf.h file then ugfx doesn't try to
 	 * 			initialise the operating system for you when you call @p gfxInit().
 	 * @note	If you define GFX_OS_EXTRA_INIT_FUNCTION in your gfxconf.h file the macro is the
 	 * 			name of a void function with no parameters that is called immediately after

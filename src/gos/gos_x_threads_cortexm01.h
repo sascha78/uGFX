@@ -12,8 +12,8 @@
  * The context is saved at the current stack location and a pointer is maintained in the thread structure.
  */
 
-#if CORTEX_USE_FPU
-	#warning "GOS Threads: You have specified GFX_CPU=GFX_CPU_CORTX_M? with no hardware floating point support but CORTEX_USE_FPU is TRUE. Try using GFX_CPU_GFX_CPU_CORTEX_M?_FP instead"
+#if defined(CORTEX_USE_FPU) && CORTEX_USE_FPU
+	#warning "GOS Threads: You have specified GFX_CPU=GFX_CPU_CORTX_M? with no hardware floating point support but CORTEX_USE_FPU is set. Try using GFX_CPU_GFX_CPU_CORTEX_M?_FP instead"
 #endif
 
 #if GFX_COMPILER == GFX_COMPILER_GCC || GFX_COMPILER == GFX_COMPILER_CYGWIN || GFX_COMPILER == GFX_COMPILER_MINGW32 || GFX_COMPILER == GFX_COMPILER_MINGW64

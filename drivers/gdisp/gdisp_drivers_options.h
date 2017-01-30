@@ -22,10 +22,10 @@
 	 */
 		/**
 		 * @brief   Should the Win32 driver be included.
-		 * @details	Defaults to FALSE
+		 * @details	Defaults to GFXOFF
 		 */
 	#ifndef GDISP_DRIVER_WIN32
-		#define GDISP_DRIVER_WIN32	FALSE
+		#define GDISP_DRIVER_WIN32	GFXOFF
 	#endif
 
 #endif

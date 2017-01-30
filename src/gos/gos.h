@@ -193,7 +193,7 @@
 	 * @api
 	 */
 	#ifndef GFX_EMULATE_MALLOC
-		#define GFX_EMULATE_MALLOC			FALSE
+		#define GFX_EMULATE_MALLOC			GFXOFF
 	#endif
 
 	/**

@@ -13,7 +13,7 @@
 #define _GDISP_DRIVERS_H
 
 #undef GDISP_DRIVER_NAME
-#define GDISP_MULTIPLE_DRIVERS	FALSE
+#define GDISP_MULTIPLE_DRIVERS	GFXOFF
 
 // Work out what hardware support is available accross all drivers
 #if  GDISP_DRIVER_WIN32

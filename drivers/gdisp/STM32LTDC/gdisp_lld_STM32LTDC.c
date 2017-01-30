@@ -19,7 +19,7 @@
 #endif
 
 #ifndef LTDC_USE_DMA2D
- 	#define LTDC_USE_DMA2D FALSE
+ 	#define LTDC_USE_DMA2D GFXOFF
 #endif
 
 #define GDISP_DRIVER_VMT			GDISPVMT_STM32LTDC
