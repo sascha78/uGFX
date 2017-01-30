@@ -32,8 +32,8 @@
 // This function draws a thick arc and a non-thick arc together
 static void _drawCombinedArc(int x, int y, int angle1, int angle2)
 {
-	gdispDrawThickArc(x, y, 40, 60, angle1, angle2, Red);
-	gdispDrawArc(x, y, 50, angle1, angle2, White);
+	gdispDrawThickArc(x, y, 40, 60, angle1, angle2, GFXRED);
+	gdispDrawArc(x, y, 50, angle1, angle2, GFXWHITE);
 }
 
 int main(void)
@@ -45,7 +45,7 @@ int main(void)
 
 	while(GTrue) {
 		// Clear the entire screen
-		gdispClear(Black);
+		gdispClear(GFXBLACK);
 
 		// Draw some thick arcs with an outline
 		_drawCombinedArc(150, 150, (i / 360) * 15 + 55, 55+i);

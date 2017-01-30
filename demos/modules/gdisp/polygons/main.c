@@ -81,7 +81,7 @@ int main(void) {
 
     // Initialize and clear the display
     gfxInit();
-    gdispClear(White);
+    gdispClear(GFXWHITE);
 
     // Get the screen size
     width = gdispGetWidth();
@@ -136,16 +136,16 @@ int main(void) {
 		#endif
 
 	    // Clear the old shape
-    	gdispDrawPoly(0, 0, oldresult, NUM_POINTS, White);
-    	gdispFillConvexPoly(0, 0, oldresult, NUM_POINTS, White);
+    	gdispDrawPoly(0, 0, oldresult, NUM_POINTS, GFXWHITE);
+    	gdispFillConvexPoly(0, 0, oldresult, NUM_POINTS, GFXWHITE);
 
     	// Play the new shape position
     	// NOTE: Because our shape is not a true convex polygon, we get some frames
     	//			where the line outline and the filled shape don't match. This is
     	//			expected due to the shapes non-convex nature and was left in the
     	//			demo to demonstrate this exact point.
-    	gdispFillConvexPoly(0, 0, result, NUM_POINTS, Red);
-    	gdispDrawPoly(0, 0, result, NUM_POINTS, Blue);
+    	gdispFillConvexPoly(0, 0, result, NUM_POINTS, GFXRED);
+    	gdispDrawPoly(0, 0, result, NUM_POINTS, GFXBLUE);
 
     	// Make sure the display is updated
     	gdispFlush();

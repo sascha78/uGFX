@@ -80,11 +80,11 @@ int main(void)
 {
 	gfxInit();
 
-	gdispClear(Silver);
+	gdispClear(GFXSILVER);
 	gwinSetDefaultFont(gdispOpenFont("DejaVuSans16"));
 	gwinSetDefaultStyle(&WhiteWidgetStyle, GFalse);
-	gwinSetDefaultColor(Black);
-	gwinSetDefaultBgColor(White);
+	gwinSetDefaultColor(GFXBLACK);
+	gwinSetDefaultBgColor(GFXWHITE);
 
 	geventListenerInit(&gl);
 	geventAttachSource(&gl, ginputGetKeyboard(0), 0);

@@ -116,21 +116,21 @@
 	static color_t ESCPrintColor(GConsoleObject *gcw) {
 		switch(gcw->currattr & (ESC_REDBIT|ESC_GREENBIT|ESC_BLUEBIT|ESC_USECOLOR)) {
 		case (ESC_USECOLOR):
-			return Black;
+			return RGBBLACK;
 		case (ESC_USECOLOR|ESC_REDBIT):
-			return Red;
+			return GFXRED;
 		case (ESC_USECOLOR|ESC_GREENBIT):
-			return Green;
+			return GFXGREEN;
 		case (ESC_USECOLOR|ESC_REDBIT|ESC_GREENBIT):
-			return Yellow;
+			return RGBYELLOW;
 		case (ESC_USECOLOR|ESC_BLUEBIT):
-			return Blue;
+			return GFXBLUE;
 		case (ESC_USECOLOR|ESC_REDBIT|ESC_BLUEBIT):
-			return Magenta;
+			return GFXMAGENTA;
 		case (ESC_USECOLOR|ESC_GREENBIT|ESC_BLUEBIT):
-			return Cyan;
+			return GFXCYAN;
 		case (ESC_USECOLOR|ESC_REDBIT|ESC_GREENBIT|ESC_BLUEBIT):
-			return White;
+			return GFXWHITE;
 		default:
 			return gcw->g.color;
 		}

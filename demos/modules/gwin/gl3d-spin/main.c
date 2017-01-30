@@ -134,7 +134,7 @@ static void spin( void )
 int main(void) {
     /* Initialize and clear the display */
     gfxInit();
-    gdispClear(White);
+    gdispClear(GFXWHITE);
 
     /* Create the 3D window */
     {

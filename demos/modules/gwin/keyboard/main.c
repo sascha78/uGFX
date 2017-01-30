@@ -47,7 +47,7 @@ static void createWidgets(void) {
 	wi.g.x = 0; wi.g.y = 0;
 	wi.g.width = gdispGetWidth(); wi.g.height = gdispGetHeight()/2;
 	ghConsole = gwinConsoleCreate(0, &wi.g);
-	gwinSetColor(ghConsole, Black);
+	gwinSetColor(ghConsole, GFXBLACK);
 	gwinSetBgColor(ghConsole, HTML2COLOR(0xF0F0F0));
 	gwinShow(ghConsole);
 	gwinClear(ghConsole);
@@ -71,7 +71,7 @@ int main(void) {
 	font = gdispOpenFont("*");			// Get the first defined font.
 	gwinSetDefaultFont(font);
 	gwinSetDefaultStyle(&WhiteWidgetStyle, GFalse);
-	gdispClear(White);
+	gdispClear(GFXWHITE);
 
 	// Create the gwin windows/widgets
 	createWidgets();

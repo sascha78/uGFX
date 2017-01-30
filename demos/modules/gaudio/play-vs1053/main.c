@@ -79,7 +79,7 @@ repeatplay:
 	}
 
 	// Play the file
-	gdispDrawString(0, gdispGetHeight()/2, "Playing...", font, Yellow);
+	gdispDrawString(0, gdispGetHeight()/2, "Playing...", font, GFXYELLOW);
 	toplay = gfileGetSize(f);
 	while(toplay) {
 		// Get a buffer to put the data into
@@ -102,17 +102,17 @@ repeatplay:
 
 	// Wait for the play to finish
 	gaudioPlayWait(TIME_INFINITE);
-	gdispDrawString(0, gdispGetHeight()/2+10, "Done", font, Green);
+	gdispDrawString(0, gdispGetHeight()/2+10, "Done", font, GFXGREEN);
 
 	// Repeat the whole thing
 	gfxSleepMilliseconds(1500);
-	gdispClear(Black);
+	gdispClear(GFXBLACK);
 	goto repeatplay;
 
 	// The end
 theend:
 	if (errmsg)
-		gdispDrawString(0, gdispGetHeight()/2, errmsg, font, Red);
+		gdispDrawString(0, gdispGetHeight()/2, errmsg, font, GFXRED);
 
 	while(GTrue)
 		gfxSleepMilliseconds(1000);

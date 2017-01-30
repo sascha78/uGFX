@@ -51,7 +51,7 @@ int main(void)
     minesShowSplash();
 #else
     font = gdispOpenFont("DejaVuSans16");
-    gdispDrawString((gdispGetWidth()-gdispGetStringWidth("Touch to start!", font))/2, gdispGetHeight()-25, "Touch to start!", font, White);
+    gdispDrawString((gdispGetWidth()-gdispGetStringWidth("Touch to start!", font))/2, gdispGetHeight()-25, "Touch to start!", font, GFXWHITE);
     gdispCloseFont(font);
 #endif
 

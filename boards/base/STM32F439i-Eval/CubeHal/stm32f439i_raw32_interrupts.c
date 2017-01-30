@@ -38,9 +38,6 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
-#undef Red
-#undef Green
-#undef Blue
 #include "stm32f4xx_hal_conf.h"
 #include "stm32f4xx_hal.h"
 

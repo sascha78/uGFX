@@ -160,7 +160,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 			y = g->p.y;
 		#endif
 
-		if (g->p.color != Black) {
+		if (g->p.color != GFXBLACK) {
 			RAM(g)[xyaddr(x, y)] |= xybit(y);
 		} else {
 			RAM(g)[xyaddr(x, y)] &= ~xybit(y);
@@ -193,7 +193,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 			y = g->p.x;
 			break;
 		}
-		return (RAM(g)[xyaddr(x, y)] & xybit(y)) ? White : Black;
+		return (RAM(g)[xyaddr(x, y)] & xybit(y)) ? GFXWHITE : GFXBLACK;
 	}
 #endif
 

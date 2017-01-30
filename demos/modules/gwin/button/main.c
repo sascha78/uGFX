@@ -65,7 +65,7 @@ int main(void) {
 	// Set the widget defaults
 	gwinSetDefaultFont(gdispOpenFont("UI2"));
 	gwinSetDefaultStyle(&WhiteWidgetStyle, GFalse);
-	gdispClear(White);
+	gdispClear(GFXWHITE);
 
 	// create the widget
 	createWidgets();
@@ -89,7 +89,7 @@ int main(void) {
 					// GWIN windows. In this case however we know that the button is in the top-left
 					// corner which should translate safely into any orientation.
 					gdispSetOrientation(orients[which]);
-					gdispClear(White);
+					gdispClear(GFXWHITE);
 					gwinRedrawDisplay(GDISP, GFalse);
 				}
 				break;

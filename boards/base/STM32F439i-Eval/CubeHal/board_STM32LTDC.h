@@ -8,11 +8,6 @@
 #ifndef _GDISP_LLD_BOARD_H
 #define _GDISP_LLD_BOARD_H
 
-// Avoid naming collisions with CubeHAL
-#undef Red
-#undef Green
-#undef Blue
-
 // Include CubeHAL
 #include "stm32f4xx_hal.h"
 #include "stm324x9i_eval_sdram.h"

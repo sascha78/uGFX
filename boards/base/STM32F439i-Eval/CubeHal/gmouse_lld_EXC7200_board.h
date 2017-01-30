@@ -14,11 +14,6 @@
 #ifndef _GINPUT_LLD_MOUSE_BOARD_H
 #define _GINPUT_LLD_MOUSE_BOARD_H
 
-// Avoid naming collisions with CubeHAL
-#undef Red
-#undef Green
-#undef Blue
-
 // Include CubeHAL
 #include "stm32f4xx_hal.h"
 

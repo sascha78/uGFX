@@ -79,8 +79,8 @@ int main(void) {
 		wi.width = swidth; wi.height = sheight;
 		ghScope = gwinScopeCreate(&gScopeWindow, &wi, MY_AUDIO_CHANNEL, MY_AUDIO_FREQUENCY, MY_AUDIO_FORMAT);
 	}
-	gwinSetBgColor(ghScope, White);
-	gwinSetColor(ghScope, Red);
+	gwinSetBgColor(ghScope, GFXWHITE);
+	gwinSetColor(ghScope, GFXRED);
 	gwinClear(ghScope);
 
 	/* Just keep displaying the scope traces */

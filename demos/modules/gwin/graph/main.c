@@ -41,24 +41,24 @@ static const point data[5] = {
 
 // A graph styling
 static GGraphStyle GraphStyle1 = {
-    { GGRAPH_POINT_DOT, 0, Blue },          // Point
-    { GGRAPH_LINE_NONE, 2, Gray },          // Line
-    { GGRAPH_LINE_SOLID, 0, White },        // X axis
-    { GGRAPH_LINE_SOLID, 0, White },        // Y axis
-    { GGRAPH_LINE_DASH, 5, Gray, 50 },      // X grid
-    { GGRAPH_LINE_DOT, 7, Yellow, 50 },     // Y grid
-    GWIN_GRAPH_STYLE_POSITIVE_AXIS_ARROWS   // Flags
+    { GGRAPH_POINT_DOT, 0, GFXBLUE },          // Point
+    { GGRAPH_LINE_NONE, 2, GFXGRAY },          // Line
+    { GGRAPH_LINE_SOLID, 0, GFXWHITE },        // X axis
+    { GGRAPH_LINE_SOLID, 0, GFXWHITE },        // Y axis
+    { GGRAPH_LINE_DASH, 5, GFXGRAY, 50 },      // X grid
+    { GGRAPH_LINE_DOT, 7, GFXYELLOW, 50 },     // Y grid
+    GWIN_GRAPH_STYLE_POSITIVE_AXIS_ARROWS		// Flags
 };
 
 // Another graph styling 
 static const GGraphStyle GraphStyle2 = {
-    { GGRAPH_POINT_SQUARE, 5, Red },        // Point
-    { GGRAPH_LINE_DOT, 2, Pink },           // Line
-    { GGRAPH_LINE_SOLID, 0, White },        // X axis
-    { GGRAPH_LINE_SOLID, 0, White },        // Y axis
-    { GGRAPH_LINE_DASH, 5, Gray, 50 },      // X grid
-    { GGRAPH_LINE_DOT, 7, Yellow, 50 },     // Y grid
-    GWIN_GRAPH_STYLE_POSITIVE_AXIS_ARROWS   // Flags
+    { GGRAPH_POINT_SQUARE, 5, GFXRED },        // Point
+    { GGRAPH_LINE_DOT, 2, GFXPINK },           // Line
+    { GGRAPH_LINE_SOLID, 0, GFXWHITE },        // X axis
+    { GGRAPH_LINE_SOLID, 0, GFXWHITE },        // Y axis
+    { GGRAPH_LINE_DASH, 5, GFXGRAY, 50 },      // X grid
+    { GGRAPH_LINE_DOT, 7, GFXYELLOW, 50 },     // Y grid
+    GWIN_GRAPH_STYLE_POSITIVE_AXIS_ARROWS   	// Flags
 };
  
 int main(void) {
@@ -90,7 +90,7 @@ int main(void) {
  
     // Modify the style
     gwinGraphStartSet(gh);
-    GraphStyle1.point.color = Green;
+    GraphStyle1.point.color = GFXGREEN;
     gwinGraphSetStyle(gh, &GraphStyle1);
  
     // Draw a different sine wave

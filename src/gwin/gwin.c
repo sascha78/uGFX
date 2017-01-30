@@ -30,8 +30,8 @@ static const gwinVMT basegwinVMT = {
 		0,						// The after-clear routine
 };
 
-static color_t	defaultFgColor = White;
-static color_t	defaultBgColor = Black;
+static color_t	defaultFgColor = GFXWHITE;
+static color_t	defaultBgColor = GFXBLACK;
 #if GDISP_NEED_TEXT
 	static font_t	defaultFont;
 #endif

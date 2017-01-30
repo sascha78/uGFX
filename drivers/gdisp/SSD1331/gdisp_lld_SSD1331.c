@@ -160,7 +160,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 
 		acquire_bus(g);
 
-		if (g->p.color == Black) {
+		if (g->p.color == GFXBLACK) {
 			// Use clear window command
 			write_cmd(g, SSD1331_DRAW_CLEAR);
 			write_cmd(g, g->p.x);

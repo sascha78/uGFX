@@ -38,7 +38,7 @@
 
 const NColorScheme schemeDefault = {
   .titleBarColor = HTML2COLOR(0x3064D8),
-  .titleTextColor = White,
+  .titleTextColor = GFXWHITE,
 
   .winBgColor = HTML2COLOR(0xFFECB0),
   .drawingWinBorder = HTML2COLOR(0xCEBA77),
@@ -53,7 +53,7 @@ const NColorScheme schemeDefault = {
 
 const NColorScheme schemeDefault2 = {
   .titleBarColor = HTML2COLOR(0x3064D8),
-  .titleTextColor = White,
+  .titleTextColor = GFXWHITE,
 
   .winBgColor = HTML2COLOR(0xC8D8F8),
   .drawingWinBorder = HTML2COLOR(0x8098E0),
@@ -91,9 +91,9 @@ int main(void) {
 	gfxThreadWait(nLaunchNotepadApp());
 
 	gdispSetClip(0, 0, gdispGetWidth(), gdispGetHeight());
-	gdispClear(Black);
-	gdispDrawString(3, 3, "Notepad Terminated.", font, White);
-	gdispDrawString(3, 20, "Relaunching Notepad App...", font, White);
+	gdispClear(GFXBLACK);
+	gdispDrawString(3, 3, "Notepad Terminated.", font, GFXWHITE);
+	gdispDrawString(3, 20, "Relaunching Notepad App...", font, GFXWHITE);
 
 	gfxSleepMilliseconds(1000);
   }

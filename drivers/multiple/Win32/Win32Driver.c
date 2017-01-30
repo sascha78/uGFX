@@ -54,11 +54,6 @@
 #define DISPLAY_X_OFFSET		50
 #define DISPLAY_Y_OFFSET		50
 
-// Oops - name clashes with Win32 symbols
-#undef Red
-#undef Green
-#undef Blue
-
 #define WIN32_LEAN_AND_MEAN
 #include <stdio.h>
 #include <string.h>

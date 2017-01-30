@@ -1,9 +1,5 @@
 #include "../../../gfx.h"
 
-#undef Red
-#undef Green
-#undef Blue
-
 #include "stm32f4xx_hal.h"
 
 #if GFX_USE_OS_RAW32

@@ -85,21 +85,21 @@ int main(void) {
 				gdispImageCache(&myImage);
 			#endif
 			if (gdispImageDraw(&myImage, 0, 0, myImage.width, myImage.height, 0, 0) != GDISP_IMAGE_ERR_OK) {
-				SHOW_ERROR(Orange);
+				SHOW_ERROR(GFXORANGE);
 				break;
 			}
 			delay = gdispImageNext(&myImage);
 			if (delay == TIME_INFINITE) {
-				SHOW_ERROR(Green);
+				SHOW_ERROR(GFXGREEN);
 				break;
 			}
-			SHOW_ERROR(Yellow);
+			SHOW_ERROR(GFXYELLOW);
 			if (delay != TIME_IMMEDIATE)
 				gfxSleepMilliseconds(delay);
 		}
 		gdispImageClose(&myImage);
 	} else
-		SHOW_ERROR(Red);
+		SHOW_ERROR(GFXRED);
 
 	while(1) {
 		gfxSleepMilliseconds(1000);
