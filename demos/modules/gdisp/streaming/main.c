@@ -57,10 +57,10 @@
 #define SHADOWALPHA		(255-255*0.2)
 
 int main(void) {
-	coord_t		width, height, x, y, radius, ballx, bally, dx, floor;
-	coord_t		minx, miny, maxx, maxy;
-	coord_t		ballcx, ballcy;
-	color_t		colour;
+	gCoord		width, height, x, y, radius, ballx, bally, dx, floor;
+	gCoord		minx, miny, maxx, maxy;
+	gCoord		ballcx, ballcy;
+	gColor		colour;
 	float		ii, spin, dy, spinspeed, h, f, g;
 
 	gfxInit();

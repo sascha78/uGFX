@@ -6,9 +6,9 @@
 extern "C" {
 #endif
 
-bool_t qimage_init(GDisplay* g, coord_t width, coord_t height);
+bool_t qimage_init(GDisplay* g, gCoord width, gCoord height);
 void qimage_setPixel(GDisplay* g);
-color_t qimage_getPixel(GDisplay* g);
+gColor qimage_getPixel(GDisplay* g);
 
 #ifdef __cplusplus
 }

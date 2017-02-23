@@ -152,7 +152,7 @@ static bool_t read_xyz(GMouse* m, GMouseReading* pdr)
     	return GTrue;
     }
 
-    // Strip the tags (we need to take care because coord_t is signed - and sign bit gets extended on shift!)
+    // Strip the tags (we need to take care because gCoord is signed - and sign bit gets extended on shift!)
     pdr->x = (uint16_t)(pdr->x) >> 4;
     pdr->y = (uint16_t)(pdr->y) >> 4;
    	pdr->z = Z_MAX;

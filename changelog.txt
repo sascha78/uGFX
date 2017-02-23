@@ -3,13 +3,17 @@
 *****************************************************************************
 
 *** Release 3.0 ***
-FEATURE:	GFXON and GFXOFF replaces TRUE/FALSE for configuration options
-FEATURE:	GTrue and GFalse replaces TRUE/FALSE for the bool_t type
 FEATURE:	Added GFX_COMPAT_V2 configuration option (set to GFXON by default)
 FEATURE:	Added GFX_COMPAT_OLDCOLORS configuration option (set to GFXON by default)
-FEATURE:	Added new color definitions GFXBLACK, GFXWHITE, GFXRED etc
+FEATURE:	Whereever possible use the Single-File-Make mechanism to speed up compilation
+FEATURE:	Added new GDISP types gRect and gArea
+CHANGE:		GFXON and GFXOFF replaces TRUE/FALSE for configuration options
+CHANGE:		GTrue and GFalse replaces TRUE/FALSE for the bool_t type
+CHANGE:		GFXBLACK, GFXWHITE, GFXRED etc replace the old color definitions Black, White, Red etc
+CHANGE:		gColor, gPixel & gPoint replace old types color_t, pixel_t, point & point_t
 DEPRECATED:	Deprecated TRUE/FALSE macro constants [still available with GFX_COMPAT_V2]
-DEPRECATED:	Deprecated old macro constants eg Red, Green [still available with GFX_COMPAT_V2 && GFX_COMPAT_OLDCOLORS]
+DEPRECATED:	Deprecated color constants Red, Green etc [still available with GFX_COMPAT_V2 && GFX_COMPAT_OLDCOLORS]
+DEPRECATED:	Deprecated types color_t, pixel_t, point, point_t [still available with GFX_COMPAT_V2]
 
 
 *** Changes after 2.7 ***
@@ -27,7 +31,6 @@ FEATURE:	Added GDISP_IMAGE_GIF_BLIT_BUFFER_SIZE configuration option
 FIX:		Fixed extra dots when drawing anti-aliased fonts with wordwrap
 FEATURE:	Increase non-UTF8 font support to 0 to 255 rather than just the true ascii set
 FEATURE:	Added Fb24bpp driver for RGB888 and BGR888 packed framebuffer displays
-FEATURE:	Added UC8173 driver
 
 
 *** Release 2.7 ***

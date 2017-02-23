@@ -20,6 +20,13 @@
 #define _GFX_H
 
 /**
+ * Are we in the uGFX library implementation itself?
+ */
+#ifndef GFX_IN_IMPLEMENTATION
+	#define GFX_IN_IMPLEMENTATION	GFXOFF
+#endif
+
+/**
  * These two definitions below are required before anything else so that we can
  * turn module definitions off and on.
  */
@@ -230,7 +237,9 @@
  *  Include the sub-system header files
  */
 #include "src/gos/gos.h"
-//#include "src/gdriver/gdriver.h"			// This module is only included by source that needs it.
+#if GFX_IN_IMPLEMENTATION
+	#include "src/gdriver/gdriver.h"
+#endif
 #include "src/gfile/gfile.h"
 #include "src/gmisc/gmisc.h"
 #include "src/gtrans/gtrans.h"

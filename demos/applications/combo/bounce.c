@@ -63,10 +63,10 @@ static gfxThreadHandle	thread;
 #define SHADOWALPHA		(255-255*0.2)
 
 static DECLARE_THREAD_FUNCTION(task, param) {
-	coord_t		width, height, x, y, radius, ballx, bally, dx, floor;
-	coord_t		minx, miny, maxx, maxy, winx, winy;
-	coord_t		ballcx, ballcy;
-	color_t		colour;
+	gCoord		width, height, x, y, radius, ballx, bally, dx, floor;
+	gCoord		minx, miny, maxx, maxy, winx, winy;
+	gCoord		ballcx, ballcy;
+	gColor		colour;
 	float		ii, spin, dy, spinspeed, h, f, g;
 	(void)		param;
 

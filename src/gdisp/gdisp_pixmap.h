@@ -41,7 +41,7 @@ extern "C" {
 	 * @note	Because the RAM for the display area is allocated, on small micros only very small pixmaps should be considered.
 	 * 			For example a 100x100 at 16 bits per pixel would be 20K of RAM (plus some overheads).
 	 */
-	GDisplay *gdispPixmapCreate(coord_t width, coord_t height);
+	GDisplay *gdispPixmapCreate(gCoord width, gCoord height);
 
 	/**
 	 * @brief	Destroy an off-screen pixmap
@@ -63,7 +63,7 @@ extern "C" {
 	 * 			(although different pixmaps will have different pixel pointers). Once a pixmap is deleted, the pixel pointer
 	 * 			should not be used by the application.
 	 */
-	pixel_t	*gdispPixmapGetBits(GDisplay *g);
+	gPixel	*gdispPixmapGetBits(GDisplay *g);
 
 	#if GDISP_NEED_PIXMAP_IMAGE || defined(__DOXYGEN__)
 		/**

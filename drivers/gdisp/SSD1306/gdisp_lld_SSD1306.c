@@ -169,9 +169,9 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 
 #if GDISP_HARDWARE_FILLS
 	LLDSPEC void gdisp_lld_fill_area(GDisplay *g) {
-		coord_t		sy, ey;
-		coord_t		sx, ex;
-		coord_t		col;
+		gCoord		sy, ey;
+		gCoord		sx, ex;
+		gCoord		col;
 		unsigned	spage, zpages;
 		uint8_t *	base;
 		uint8_t		mask;
@@ -236,7 +236,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 
 #if GDISP_HARDWARE_DRAWPIXEL
 	LLDSPEC void gdisp_lld_draw_pixel(GDisplay *g) {
-		coord_t		x, y;
+		gCoord		x, y;
 
 		switch(g->g.Orientation) {
 		default:
@@ -266,8 +266,8 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 #endif
 
 #if GDISP_HARDWARE_PIXELREAD
-	LLDSPEC color_t gdisp_lld_get_pixel_color(GDisplay *g) {
-		coord_t		x, y;
+	LLDSPEC gColor gdisp_lld_get_pixel_color(GDisplay *g) {
+		gCoord		x, y;
 
 		switch(g->g.Orientation) {
 		default:

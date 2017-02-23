@@ -284,7 +284,7 @@
 
 /* Verify information for packed pixels and define a non-packed pixel macro */
 #if !GDISP_PACKED_PIXELS
-	#define gdispPackPixels(buf,cx,x,y,c)	{ ((color_t *)(buf))[(y)*(cx)+(x)] = (c); }
+	#define gdispPackPixels(buf,cx,x,y,c)	{ ((gColor *)(buf))[(y)*(cx)+(x)] = (c); }
 #elif !GDISP_HARDWARE_BITFILLS
 	#error "GDISP: packed pixel formats are only supported for hardware accelerated drivers."
 #elif GDISP_PIXELFORMAT != GDISP_PIXELFORMAT_RGB888 \
@@ -308,7 +308,7 @@
 	 *
 	 * @api
 	 */
-	void gdispPackPixels(const pixel_t *buf, coord_t cx, coord_t x, coord_t y, color_t color);
+	void gdispPackPixels(const gPixel *buf, gCoord cx, gCoord x, gCoord y, gColor color);
 #endif
 
 //------------------------------------------------------------------------------------------------------------
@@ -318,8 +318,8 @@ struct GDisplay {
 		#define gvmt(g)		((const GDISPVMT const *)((g)->d.vmt))	// For ease of access to the vmt member
 
 	struct GDISPControl {
-		coord_t					Width;
-		coord_t					Height;
+		gCoord					Width;
+		gCoord					Height;
 		orientation_t			Orientation;
 		powermode_t				Powermode;
 		uint8_t					Backlight;
@@ -343,17 +343,17 @@ struct GDisplay {
 
 	// Software clipping
 	#if GDISP_HARDWARE_CLIP != GFXON && (GDISP_NEED_CLIP || GDISP_NEED_VALIDATION)
-		coord_t					clipx0, clipy0;
-		coord_t					clipx1, clipy1;		/* not inclusive */
+		gCoord					clipx0, clipy0;
+		gCoord					clipx1, clipy1;		/* not inclusive */
 	#endif
 
 	// Driver call parameters
 	struct {
-		coord_t			x, y;
-		coord_t			cx, cy;
-		coord_t			x1, y1;
-		coord_t			x2, y2;
-		color_t			color;
+		gCoord			x, y;
+		gCoord			cx, cy;
+		gCoord			x1, y1;
+		gCoord			x2, y2;
+		gColor			color;
 		void			*ptr;
 	} p;
 
@@ -363,15 +363,15 @@ struct GDisplay {
 		// Text rendering parameters
 		struct {
 			font_t		font;
-			color_t		color;
-			color_t		bgcolor;
-			coord_t		clipx0, clipy0;
-			coord_t		clipx1, clipy1;
+			gColor		color;
+			gColor		bgcolor;
+			gCoord		clipx0, clipy0;
+			gCoord		clipx1, clipy1;
 		} t;
 	#endif
 	#if GDISP_LINEBUF_SIZE != 0 && ((GDISP_NEED_SCROLL && !GDISP_HARDWARE_SCROLL) || (!GDISP_HARDWARE_STREAM_WRITE && GDISP_HARDWARE_BITFILLS))
 		// A pixel line buffer
-		color_t		linebuf[GDISP_LINEBUF_SIZE];
+		gColor		linebuf[GDISP_LINEBUF_SIZE];
 	#endif
 };
 
@@ -386,13 +386,13 @@ typedef struct GDISPVMT {
 	void (*writecolor)(GDisplay *g);				// Uses p.color
 	void (*writestop)(GDisplay *g);					// Uses no parameters
 	void (*readstart)(GDisplay *g);					// Uses p.x,p.y  p.cx,p.cy
-	color_t (*readcolor)(GDisplay *g);				// Uses no parameters
+	gColor (*readcolor)(GDisplay *g);				// Uses no parameters
 	void (*readstop)(GDisplay *g);					// Uses no parameters
 	void (*pixel)(GDisplay *g);						// Uses p.x,p.y  p.color
 	void (*clear)(GDisplay *g);						// Uses p.color
 	void (*fill)(GDisplay *g);						// Uses p.x,p.y  p.cx,p.cy  p.color
 	void (*blit)(GDisplay *g);						// Uses p.x,p.y  p.cx,p.cy  p.x1,p.y1 (=srcx,srcy)  p.x2 (=srccx), p.ptr (=buffer)
-	color_t (*get)(GDisplay *g);					// Uses p.x,p.y
+	gColor (*get)(GDisplay *g);					// Uses p.x,p.y
 	void (*vscroll)(GDisplay *g);					// Uses p.x,p.y  p.cx,p.cy, p.y1 (=lines) p.color
 	void (*control)(GDisplay *g);					// Uses p.x (=what)  p.ptr (=value)
 	void *(*query)(GDisplay *g);					// Uses p.x (=what);
@@ -522,7 +522,7 @@ typedef struct GDISPVMT {
 		 *
 		 * @note		The parameter variables must not be altered by the driver.
 		 */
-		LLDSPEC	color_t gdisp_lld_read_color(GDisplay *g);
+		LLDSPEC	gColor gdisp_lld_read_color(GDisplay *g);
 
 		/**
 		 * @brief   End the current streaming operation
@@ -605,7 +605,7 @@ typedef struct GDISPVMT {
 		 *
 		 * @note		The parameter variables must not be altered by the driver.
 		 */
-		LLDSPEC	color_t gdisp_lld_get_pixel_color(GDisplay *g);
+		LLDSPEC	gColor gdisp_lld_get_pixel_color(GDisplay *g);
 	#endif
 
 	#if (GDISP_HARDWARE_SCROLL && GDISP_NEED_SCROLL) || defined(__DOXYGEN__)

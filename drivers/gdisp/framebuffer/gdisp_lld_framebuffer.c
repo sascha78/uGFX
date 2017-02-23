@@ -15,7 +15,7 @@
 
 typedef struct fbInfo {
 	void *			pixels;			// The pixel buffer
-	coord_t			linelen;		// The number of bytes per display line
+	gCoord			linelen;		// The number of bytes per display line
 	} fbInfo;
 
 #include "board_framebuffer.h"
@@ -84,7 +84,7 @@ LLDSPEC void gdisp_lld_draw_pixel(GDisplay *g) {
 		PIXEL_ADDR(g, pos)[0] = gdispColor2Native(g->p.color);
 }
 
-LLDSPEC	color_t gdisp_lld_get_pixel_color(GDisplay *g) {
+LLDSPEC	gColor gdisp_lld_get_pixel_color(GDisplay *g) {
 	unsigned		pos;
 	LLDCOLOR_TYPE	color;
 
@@ -135,7 +135,7 @@ LLDSPEC	color_t gdisp_lld_get_pixel_color(GDisplay *g) {
 				case GDISP_ROTATE_0:
 				case GDISP_ROTATE_180:
 					if (g->g.Orientation == GDISP_ROTATE_90 || g->g.Orientation == GDISP_ROTATE_270) {
-						coord_t		tmp;
+						gCoord		tmp;
 
 						tmp = g->g.Width;
 						g->g.Width = g->g.Height;
@@ -145,7 +145,7 @@ LLDSPEC	color_t gdisp_lld_get_pixel_color(GDisplay *g) {
 				case GDISP_ROTATE_90:
 				case GDISP_ROTATE_270:
 					if (g->g.Orientation == GDISP_ROTATE_0 || g->g.Orientation == GDISP_ROTATE_180) {
-						coord_t		tmp;
+						gCoord		tmp;
 
 						tmp = g->g.Width;
 						g->g.Width = g->g.Height;

@@ -36,7 +36,11 @@
 /**
  * @brief   The type for a coordinate or length on the screen.
  */
-typedef int16_t	coord_t;
+typedef int16_t	gCoord;
+
+#if GFX_COMPAT_V2
+	#define	gCoord gCoord
+#endif
 
 #if GFX_USE_GDISP || defined(__DOXYGEN__)
 
@@ -45,13 +49,39 @@ typedef int16_t	coord_t;
 /*===========================================================================*/
 
 /**
- * @struct point
- * @brief   Type for a 2D point on the screen.
+ * @struct gPoint
+ * @brief   A 2D point.
  */
-typedef struct point {
-	coord_t x;		/**< The x coordinate of the point. */
-	coord_t y;		/**< The y coordinate of the point. */
-} point, point_t;
+typedef struct gPoint {
+	gCoord x;		/**< The x coordinate of the point. */
+	gCoord y;		/**< The y coordinate of the point. */
+	} gPoint;
+
+#if GFX_COMPAT_V2
+	#define point	gPoint
+	#define	point_t	gPoint
+#endif
+
+/**
+ * @struct gRect
+ * @brief   A rectangle.
+ * @note	The rectangle is normalised if p1.x, p1.y are <= p2.x, p2.y
+ */
+typedef struct gRect {
+	gPoint p1;		/**< The top left corner of the rectangle. */
+	gPoint p2;		/**< The bottom right corner of the rectangle. */
+	} gRect;
+
+/**
+ * @struct gArea
+ * @brief   A rectangular area.
+ * @note	The area is normalised if w and h are >= 0
+ */
+typedef struct gArea {
+	gPoint p1;		/**< The top left corner of the area. */
+	gCoord w;		/**< The width of the area. */
+	gCoord h;		/**< The height of the area. */
+	} gArea;
 
 /**
  * @enum justify
@@ -149,12 +179,14 @@ extern GDisplay	*GDISP;
 /* Defines relating to the display hardware									 */
 /*===========================================================================*/
 
+#include "../../drivers/gdisp/gdisp_drivers.h"
+
 #if !defined(GDISP_DRIVER_LIST)
 	// Pull in the default hardware configuration for a single controller.
 	// If we have multiple controllers the settings must be set in the
 	// users gfxconf.h file.
 	// Use the compiler include path to find it
-	#include "gdisp_lld_config.h"
+//	#include "gdisp_lld_config.h"
 
 	// Unless the user has specified a specific pixel format, use
 	// the native format for the controller.
@@ -214,7 +246,11 @@ extern GDisplay	*GDISP;
 /**
  * @brief   The type of a pixel.
  */
-typedef color_t		pixel_t;
+typedef gColor		gPixel;
+
+#if GFX_COMPAT_V2
+	#define pixel_t	gPixel
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -232,7 +268,7 @@ extern "C" {
  *
  * @api
  */
-color_t gdispBlendColor(color_t fg, color_t bg, uint8_t alpha);
+gColor gdispBlendColor(gColor fg, gColor bg, uint8_t alpha);
 
 /**
  * @brief   Find a contrasting color
@@ -242,7 +278,7 @@ color_t gdispBlendColor(color_t fg, color_t bg, uint8_t alpha);
  *
  * @api
  */
-color_t gdispContrastColor(color_t color);
+gColor gdispContrastColor(gColor color);
 
 /* Base Functions */
 
@@ -293,7 +329,7 @@ unsigned gdispGetDisplayCount(void);
  *
  * @api
  */
-coord_t gdispGGetWidth(GDisplay *g);
+gCoord gdispGGetWidth(GDisplay *g);
 #define gdispGetWidth()								gdispGGetWidth(GDISP)
 
 /**
@@ -305,7 +341,7 @@ coord_t gdispGGetWidth(GDisplay *g);
  *
  * @api
  */
-coord_t gdispGGetHeight(GDisplay *g);
+gCoord gdispGGetHeight(GDisplay *g);
 #define gdispGetHeight()							gdispGGetHeight(GDISP)
 
 /**
@@ -387,7 +423,7 @@ void gdispGFlush(GDisplay *g);
  *
  * @api
  */
-void gdispGClear(GDisplay *g, color_t color);
+void gdispGClear(GDisplay *g, gColor color);
 #define gdispClear(c)									gdispGClear(GDISP, c)
 
 /**
@@ -399,7 +435,7 @@ void gdispGClear(GDisplay *g, color_t color);
  *
  * @api
  */
-void gdispGDrawPixel(GDisplay *g, coord_t x, coord_t y, color_t color);
+void gdispGDrawPixel(GDisplay *g, gCoord x, gCoord y, gColor color);
 #define gdispDrawPixel(x,y,c)							gdispGDrawPixel(GDISP,x,y,c)
 
 /**
@@ -412,7 +448,7 @@ void gdispGDrawPixel(GDisplay *g, coord_t x, coord_t y, color_t color);
  *
  * @api
  */
-void gdispGDrawLine(GDisplay *g, coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color);
+void gdispGDrawLine(GDisplay *g, gCoord x0, gCoord y0, gCoord x1, gCoord y1, gColor color);
 #define gdispDrawLine(x0,y0,x1,y1,c)					gdispGDrawLine(GDISP,x0,y0,x1,y1,c)
 
 /**
@@ -425,7 +461,7 @@ void gdispGDrawLine(GDisplay *g, coord_t x0, coord_t y0, coord_t x1, coord_t y1,
  *
  * @api
  */
-void gdispGFillArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
+void gdispGFillArea(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gColor color);
 #define gdispFillArea(x,y,cx,cy,c)						gdispGFillArea(GDISP,x,y,cx,cy,c)
 
 /**
@@ -444,7 +480,7 @@ void gdispGFillArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
  *
  * @api
  */
-void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer);
+void gdispGBlitArea(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoord srcx, gCoord srcy, gCoord srccx, const gPixel *buffer);
 #define gdispBlitAreaEx(x,y,cx,cy,sx,sy,rx,b)			gdispGBlitArea(GDISP,x,y,cx,cy,sx,sy,rx,b)
 
 /**
@@ -457,7 +493,7 @@ void gdispGBlitArea(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, c
  *
  * @api
  */
-void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, color_t color);
+void gdispGDrawBox(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gColor color);
 #define gdispDrawBox(x,y,cx,cy,c)						gdispGDrawBox(GDISP,x,y,cx,cy,c)
 
 /* Streaming Functions */
@@ -487,7 +523,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	void gdispGStreamStart(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy);
+	void gdispGStreamStart(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy);
 	#define gdispStreamStart(x,y,cx,cy)						gdispGStreamStart(GDISP,x,y,cx,cy)
 
 	/**
@@ -503,7 +539,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	void gdispGStreamColor(GDisplay *g, color_t color);
+	void gdispGStreamColor(GDisplay *g, gColor color);
 	#define gdispStreamColor(c)								gdispGStreamColor(GDISP,c)
 
 	/**
@@ -535,7 +571,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	void gdispGSetClip(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy);
+	void gdispGSetClip(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy);
 	#define gdispSetClip(x,y,cx,cy)							gdispGSetClip(GDISP,x,y,cx,cy)
 #endif
 
@@ -553,7 +589,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	void gdispGDrawCircle(GDisplay *g, coord_t x, coord_t y, coord_t radius, color_t color);
+	void gdispGDrawCircle(GDisplay *g, gCoord x, gCoord y, gCoord radius, gColor color);
 	#define gdispDrawCircle(x,y,r,c)						gdispGDrawCircle(GDISP,x,y,r,c)
 
 	/**
@@ -567,7 +603,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	void gdispGFillCircle(GDisplay *g, coord_t x, coord_t y, coord_t radius, color_t color);
+	void gdispGFillCircle(GDisplay *g, gCoord x, gCoord y, gCoord radius, gColor color);
 	#define gdispFillCircle(x,y,r,c)						gdispGFillCircle(GDISP,x,y,r,c)
 #endif
 
@@ -585,7 +621,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	void gdispGFillDualCircle(GDisplay *g, coord_t x, coord_t y, coord_t radius1, color_t color1, coord_t radius2, color_t color2);
+	void gdispGFillDualCircle(GDisplay *g, gCoord x, gCoord y, gCoord radius1, gColor color1, gCoord radius2, gColor color2);
 	#define gdispFillDualCircle(x,y,r1,c1,r2,c2)			gdispGFillDualCircle(GDISP,x,y,r1,c1,r2,c2)
 #endif
 
@@ -603,7 +639,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	void gdispGDrawEllipse(GDisplay *g, coord_t x, coord_t y, coord_t a, coord_t b, color_t color);
+	void gdispGDrawEllipse(GDisplay *g, gCoord x, gCoord y, gCoord a, gCoord b, gColor color);
 	#define gdispDrawEllipse(x,y,a,b,c)						gdispGDrawEllipse(GDISP,x,y,a,b,c)
 
 	/**
@@ -617,7 +653,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	void gdispGFillEllipse(GDisplay *g, coord_t x, coord_t y, coord_t a, coord_t b, color_t color);
+	void gdispGFillEllipse(GDisplay *g, gCoord x, gCoord y, gCoord a, gCoord b, gColor color);
 	#define gdispFillEllipse(x,y,a,b,c)						gdispGFillEllipse(GDISP,x,y,a,b,c)
 #endif
 
@@ -649,7 +685,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	void gdispGDrawArcSectors(GDisplay *g, coord_t x, coord_t y, coord_t radius, uint8_t sectors, color_t color);
+	void gdispGDrawArcSectors(GDisplay *g, gCoord x, gCoord y, gCoord radius, uint8_t sectors, gColor color);
 	#define gdispDrawArcSectors(x,y,r,s,c)						gdispGDrawArcSectors(GDISP,x,y,r,s,c)
 
 	/**
@@ -678,7 +714,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	void gdispGFillArcSectors(GDisplay *g, coord_t x, coord_t y, coord_t radius, uint8_t sectors, color_t color);
+	void gdispGFillArcSectors(GDisplay *g, gCoord x, gCoord y, gCoord radius, uint8_t sectors, gColor color);
 	#define gdispFillArcSectors(x,y,r,s,c)						gdispGFillArcSectors(GDISP,x,y,r,s,c)
 #endif
 
@@ -705,7 +741,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	void gdispGDrawArc(GDisplay *g, coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle, color_t color);
+	void gdispGDrawArc(GDisplay *g, gCoord x, gCoord y, gCoord radius, gCoord startangle, gCoord endangle, gColor color);
 	#define gdispDrawArc(x,y,r,s,e,c)						gdispGDrawArc(GDISP,x,y,r,s,e,c)
 
 	/**
@@ -730,7 +766,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	void gdispGDrawThickArc(GDisplay *g, coord_t xc, coord_t yc, coord_t startradius, coord_t endradius, coord_t startangle, coord_t endangle, color_t color);
+	void gdispGDrawThickArc(GDisplay *g, gCoord xc, gCoord yc, gCoord startradius, gCoord endradius, gCoord startangle, gCoord endangle, gColor color);
 	#define gdispDrawThickArc(x,y,rs,re,s,e,c)						gdispGDrawThickArc(GDISP,x,y,rs,re,s,e,c)
 	
 	/**
@@ -755,7 +791,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	void gdispGFillArc(GDisplay *g, coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle, color_t color);
+	void gdispGFillArc(GDisplay *g, gCoord x, gCoord y, gCoord radius, gCoord startangle, gCoord endangle, gColor color);
 	#define gdispFillArc(x,y,r,s,e,c)						gdispGFillArc(GDISP,x,y,r,s,e,c)
 #endif
 
@@ -772,7 +808,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	color_t gdispGGetPixelColor(GDisplay *g, coord_t x, coord_t y);
+	gColor gdispGGetPixelColor(GDisplay *g, gCoord x, gCoord y);
 	#define gdispGetPixelColor(x,y)							gdispGGetPixelColor(GDISP,x,y)
 #endif
 
@@ -793,7 +829,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	void gdispGVerticalScroll(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, int lines, color_t bgcolor);
+	void gdispGVerticalScroll(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, int lines, gColor bgcolor);
 	#define gdispVerticalScroll(x,y,cx,cy,l,b)				gdispGVerticalScroll(GDISP,x,y,cx,cy,l,b)
 #endif
 
@@ -847,7 +883,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	void gdispGDrawPoly(GDisplay *g, coord_t tx, coord_t ty, const point *pntarray, unsigned cnt, color_t color);
+	void gdispGDrawPoly(GDisplay *g, gCoord tx, gCoord ty, const gPoint *pntarray, unsigned cnt, gColor color);
 	#define gdispDrawPoly(x,y,p,i,c)						gdispGDrawPoly(GDISP,x,y,p,i,c)
 
 	/**
@@ -871,7 +907,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	void gdispGFillConvexPoly(GDisplay *g, coord_t tx, coord_t ty, const point *pntarray, unsigned cnt, color_t color);
+	void gdispGFillConvexPoly(GDisplay *g, gCoord tx, gCoord ty, const gPoint *pntarray, unsigned cnt, gColor color);
 	#define gdispFillConvexPoly(x,y,p,i,c)					gdispGFillConvexPoly(GDISP,x,y,p,i,c)
 
 	/**
@@ -890,7 +926,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	void gdispGDrawThickLine(GDisplay *g, coord_t x0, coord_t y0, coord_t x1, coord_t y1, color_t color, coord_t width, bool_t round);
+	void gdispGDrawThickLine(GDisplay *g, gCoord x0, gCoord y0, gCoord x1, gCoord y1, gColor color, gCoord width, bool_t round);
 	#define gdispDrawThickLine(x0,y0,x1,y1,c,w,r)			gdispGDrawThickLine(GDISP,x0,y0,x1,y1,c,w,r)
 #endif
 
@@ -909,7 +945,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	void gdispGDrawChar(GDisplay *g, coord_t x, coord_t y, uint16_t c, font_t font, color_t color);
+	void gdispGDrawChar(GDisplay *g, gCoord x, gCoord y, uint16_t c, font_t font, gColor color);
 	#define	gdispDrawChar(x,y,s,f,c)						gdispGDrawChar(GDISP,x,y,s,f,c)
 
 	/**
@@ -925,7 +961,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	void gdispGFillChar(GDisplay *g, coord_t x, coord_t y, uint16_t c, font_t font, color_t color, color_t bgcolor);
+	void gdispGFillChar(GDisplay *g, gCoord x, gCoord y, uint16_t c, font_t font, gColor color, gColor bgcolor);
 	#define	gdispFillChar(x,y,s,f,c,b)						gdispGFillChar(GDISP,x,y,s,f,c,b)
 
 	/**
@@ -940,7 +976,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	void gdispGDrawString(GDisplay *g, coord_t x, coord_t y, const char *str, font_t font, color_t color);
+	void gdispGDrawString(GDisplay *g, gCoord x, gCoord y, const char *str, font_t font, gColor color);
 	#define	gdispDrawString(x,y,s,f,c)						gdispGDrawString(GDISP,x,y,s,f,c)
 
 	/**
@@ -956,7 +992,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	void gdispGFillString(GDisplay *g, coord_t x, coord_t y, const char *str, font_t font, color_t color, color_t bgcolor);
+	void gdispGFillString(GDisplay *g, gCoord x, gCoord y, const char *str, font_t font, gColor color, gColor bgcolor);
 	#define	gdispFillString(x,y,s,f,c,b)					gdispGFillString(GDISP,x,y,s,f,c,b)
 
 	/**
@@ -973,7 +1009,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	void gdispGDrawStringBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, font_t font, color_t color, justify_t justify);
+	void gdispGDrawStringBox(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, const char* str, font_t font, gColor color, justify_t justify);
 	#define	gdispDrawStringBox(x,y,cx,cy,s,f,c,j)			gdispGDrawStringBox(GDISP,x,y,cx,cy,s,f,c,j)
 
 	/**
@@ -992,7 +1028,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	void gdispGFillStringBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, font_t font, color_t color, color_t bgColor, justify_t justify);
+	void gdispGFillStringBox(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, const char* str, font_t font, gColor color, gColor bgColor, justify_t justify);
 	#define	gdispFillStringBox(x,y,cx,cy,s,f,c,b,j)			gdispGFillStringBox(GDISP,x,y,cx,cy,s,f,c,b,j)
 
 	/**
@@ -1005,7 +1041,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	coord_t gdispGetFontMetric(font_t font, fontmetric_t metric);
+	gCoord gdispGetFontMetric(font_t font, fontmetric_t metric);
 
 	/**
 	 * @brief   Get the pixel width of a character.
@@ -1017,7 +1053,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	coord_t gdispGetCharWidth(char c, font_t font);
+	gCoord gdispGetCharWidth(char c, font_t font);
 
 	/**
 	 * @brief   Get the pixel width of a string of a given character length.
@@ -1032,7 +1068,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	coord_t gdispGetStringWidthCount(const char* str, font_t font, uint16_t count);
+	gCoord gdispGetStringWidthCount(const char* str, font_t font, uint16_t count);
 
 	/**
 	 * @brief   Get the pixel width of an entire string.
@@ -1044,7 +1080,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	coord_t gdispGetStringWidth(const char* str, font_t font);
+	gCoord gdispGetStringWidth(const char* str, font_t font);
 
 	/**
 	 * @brief	Find a font and return it.
@@ -1122,7 +1158,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	void gdispGDrawRoundedBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t radius, color_t color);
+	void gdispGDrawRoundedBox(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoord radius, gColor color);
 	#define gdispDrawRoundedBox(x,y,cx,cy,r,c)		gdispGDrawRoundedBox(GDISP,x,y,cx,cy,r,c)
 
 	/**
@@ -1137,7 +1173,7 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	 *
 	 * @api
 	 */
-	void gdispGFillRoundedBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t radius, color_t color);
+	void gdispGFillRoundedBox(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoord radius, gColor color);
 	#define gdispFillRoundedBox(x,y,cx,cy,r,c)		gdispGFillRoundedBox(GDISP,x,y,cx,cy,r,c)
 #endif
 
@@ -1224,6 +1260,107 @@ void gdispGDrawBox(GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, co
 	#include "gdisp_pixmap.h"
 #endif
 
+#if GFX_IN_IMPLEMENTATION
+	//------------------------------------------------------------------------------------------------------------
+	
+	/* Verify information for packed pixels and define a non-packed pixel macro */
+	#if !GDISP_PACKED_PIXELS
+		#define gdispPackPixels(buf,cx,x,y,c)	{ ((gColor *)(buf))[(y)*(cx)+(x)] = (c); }
+	#elif !GDISP_HARDWARE_BITFILLS
+		#error "GDISP: packed pixel formats are only supported for hardware accelerated drivers."
+	#elif GDISP_PIXELFORMAT != GDISP_PIXELFORMAT_RGB888 \
+			&& GDISP_PIXELFORMAT != GDISP_PIXELFORMAT_RGB444 \
+			&& GDISP_PIXELFORMAT != GDISP_PIXELFORMAT_RGB666 \
+			&& GDISP_PIXELFORMAT != GDISP_PIXELFORMAT_CUSTOM
+		#error "GDISP: A packed pixel format has been specified for an unsupported pixel format."
+	#endif
+	
+	/* Support routine for packed pixel formats */
+	#if !defined(gdispPackPixels) || defined(__DOXYGEN__)
+		/**
+		 * @brief   Pack a pixel into a pixel buffer.
+		 * @note    This function performs no buffer boundary checking
+		 *			regardless of whether GDISP_NEED_CLIP has been specified.
+		 *
+		 * @param[in] buf		The buffer to put the pixel in
+		 * @param[in] cx		The width of a pixel line
+		 * @param[in] x, y		The location of the pixel to place
+		 * @param[in] color		The color to put into the buffer
+		 *
+		 * @api
+		 */
+		void gdispPackPixels(const gPixel *buf, gCoord cx, gCoord x, gCoord y, gColor color);
+	#endif
+	
+	//------------------------------------------------------------------------------------------------------------
+
+	struct GDisplay {
+		struct GDriver				d;					// This must be the first element
+			#define gvmt(g)		((const GDISPVMT const *)((g)->d.vmt))	// For ease of access to the vmt member
+	
+		struct GDISPControl {
+			gCoord					Width;
+			gCoord					Height;
+			orientation_t			Orientation;
+			powermode_t				Powermode;
+			uint8_t					Backlight;
+			uint8_t					Contrast;
+		} g;
+	
+		void *						priv;				// A private area just for the drivers use.
+		void *						board;				// A private area just for the board interfaces use.
+	
+		uint8_t						systemdisplay;
+		uint8_t						controllerdisplay;
+		uint16_t					flags;
+			#define GDISP_FLG_INSTREAM		0x0001		// We are in a user based stream operation
+			#define GDISP_FLG_FLUSHREQ		0x0002		// The display currently needs flushing
+			#define GDISP_FLG_DRIVER		0x0004		// This flags and above are for use by the driver
+	
+		// Multithread Mutex
+		#if GDISP_NEED_MULTITHREAD
+			gfxMutex				mutex;
+		#endif
+	
+		// Software clipping
+		#if GDISP_NEED_CLIP || GDISP_NEED_VALIDATION
+			gRect		clip;							// Note p2 is NOT inclusive
+		#endif
+
+		// Current drawing window	
+		struct {
+			gRect	r;
+			gPoint	p;
+		} win;
+		
+		// Driver call parameters
+		struct {
+			gPoint		pos;
+			gColor		color;
+			union {
+				void		*ptr;
+				gPoint		pos2;
+				unsigned	cnt;	// Current drawing count
+			} e;
+		} p;
+
+		// In call working buffers
+	
+		#if GDISP_NEED_TEXT
+			// Text rendering parameters
+			struct {
+				font_t		font;
+				gColor		color;
+				gColor		bgcolor;
+				gRect		clip;
+			} t;
+		#endif
+		#if GDISP_LINEBUF_SIZE != 0 && (GDISP_NEED_SCROLL && !GDISP_HARDWARE_SCROLL)
+			// A pixel line buffer
+			gColor		linebuf[GDISP_LINEBUF_SIZE];
+		#endif
+	};
+#endif
 
 #endif /* GFX_USE_GDISP */
 

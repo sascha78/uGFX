@@ -155,7 +155,7 @@ typedef struct netPriv {
 	unsigned		databytes;				// How many bytes have been read
 	uint16_t		data[2];				// Buffer for storing data read.
 	#if GINPUT_NEED_MOUSE
-		coord_t		mousex, mousey;
+		gCoord		mousex, mousey;
 		uint16_t	mousebuttons;
 		GMouse *	mouse;
 	#endif
@@ -530,9 +530,9 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 #if GDISP_HARDWARE_BITFILLS
 	LLDSPEC void gdisp_lld_blit_area(GDisplay *g) {
 		netPriv	*	priv;
-		pixel_t	*	buffer;
+		gPixel	*	buffer;
 		uint16_t	buf[5];
-		coord_t		x, y;
+		gCoord		x, y;
 
 		#if GDISP_DONT_WAIT_FOR_NET_DISPLAY
 			if (!(g->flags & GDISP_FLG_CONNECTED))
@@ -566,10 +566,10 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay *g) {
 #endif
 
 #if GDISP_HARDWARE_PIXELREAD
-	LLDSPEC	color_t gdisp_lld_get_pixel_color(GDisplay *g) {
+	LLDSPEC	gColor gdisp_lld_get_pixel_color(GDisplay *g) {
 		netPriv	*	priv;
 		uint16_t	buf[3];
-		color_t		data;
+		gColor		data;
 
 		#if GDISP_DONT_WAIT_FOR_NET_DISPLAY
 			if (!(g->flags & GDISP_FLG_CONNECTED))

@@ -58,8 +58,8 @@ typedef uint16_t	gdispImageFlags;
 typedef struct gdispImage {
 	gdispImageType						type;				/* @< The image type */
 	gdispImageFlags						flags;				/* @< The image flags */
-	color_t								bgcolor;			/* @< The default background color */
-	coord_t								width, height;		/* @< The image dimensions */
+	gColor								bgcolor;			/* @< The default background color */
+	gCoord								width, height;		/* @< The image dimensions */
 	GFILE *								f;					/* @< The underlying GFILE */
 	#if GDISP_NEED_IMAGE_ACCOUNTING
 		uint32_t						memused;			/* @< How much RAM is currently allocated */
@@ -185,7 +185,7 @@ extern "C" {
 	 * @note	This color is only used when an image has to restore part of the background before
 	 * 			continuing with drawing that includes transparency eg some GIF animations.
 	 */
-	void gdispImageSetBgColor(gdispImage *img, color_t bgcolor);
+	void gdispImageSetBgColor(gdispImage *img, gColor bgcolor);
 	
 	/**
 	 * @brief	Cache the image
@@ -224,7 +224,7 @@ extern "C" {
 	 * 			is drawing. This may be significantly slower than if the image has been cached (but
 	 * 			uses a lot less RAM)
 	 */
-	gdispImageError gdispGImageDraw(GDisplay *g, gdispImage *img, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t sx, coord_t sy);
+	gdispImageError gdispGImageDraw(GDisplay *g, gdispImage *img, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoord sx, gCoord sy);
 	#define gdispImageDraw(img,x,y,cx,cy,sx,sy)		gdispGImageDraw(GDISP,img,x,y,cx,cy,sx,sy)
 
 	/**
@@ -269,7 +269,7 @@ extern "C" {
 	 *
 	 * @note	This function will return 0 if the index is out of bounds or if the image doesn't use a color palette.
 	 */
-	color_t gdispImageGetPalette(gdispImage *img, uint16_t index);
+	gColor gdispImageGetPalette(gdispImage *img, uint16_t index);
 	
 	/**
 	 * @brief	Modify an entry in the color palette.
@@ -282,7 +282,7 @@ extern "C" {
 	 * @pre		gdispImageOpen() must have returned successfully.
 	 * @note	This function will return @p GFalse if the index is out of bounds or if the image doesn't use a color palette.
 	 */
-	bool_t gdispImageAdjustPalette(gdispImage *img, uint16_t index, color_t newColor);
+	bool_t gdispImageAdjustPalette(gdispImage *img, uint16_t index, gColor newColor);
 	
 #ifdef __cplusplus
 }

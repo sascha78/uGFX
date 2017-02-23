@@ -48,7 +48,7 @@ static GHandle					gstatusConsole;	  // GConsole Handle to the Status Bar
 static GEventMouse				curPtr;           // Holder for current pointer location
 
 static font_t					font;
-static coord_t 					swidth, sheight;
+static gCoord 					swidth, sheight;
 
 // The toolbar buttons - Self-Explanatory
 static GButtonObject btnNew, btnOpen, btnSave;
@@ -63,9 +63,9 @@ static GButtonObject btnClose;
 // Image object
 static gdispImage toolbarImageFilmstrip;
 
-static color_t myColors[] = { GFXBLACK, GFXRED, GFXGREEN, GFXBLUE, GFXCYAN, GFXMAGENTA, GFXYELLOW, GFXWHITE };
+static gColor myColors[] = { GFXBLACK, GFXRED, GFXGREEN, GFXBLUE, GFXCYAN, GFXMAGENTA, GFXYELLOW, GFXWHITE };
 
-static color_t selColor = GFXBLACK;
+static gColor selColor = GFXBLACK;
 static int selColorIndex = 0, selPenWidth = 1, tbMode = 1;
 
 static NColorScheme nCurColorScheme;
@@ -156,7 +156,7 @@ static void nbtnColorBarSelDraw(GHandle gh, bool_t enabled, bool_t isdown, const
 #define ccs nCurColorScheme
 
   int i, j = 0, k;
-  color_t ca, cb;
+  gColor ca, cb;
   GEventMouse ptr;
 
   (void)txt;
@@ -218,7 +218,7 @@ static void nbtnColorBarSelDraw(GHandle gh, bool_t enabled, bool_t isdown, const
 static void nToolbarImageButtonDraw(GHandle gh, bool_t isenabled, bool_t isdown, const char *txt, const GButtonDrawStyle *pstyle, void *param) {
   (void)txt;  (void)pstyle; (void)isenabled;
 
-  color_t cl = isdown ? nCurColorScheme.toolbarBgActive : nCurColorScheme.toolbarBgUnsel;
+  gColor cl = isdown ? nCurColorScheme.toolbarBgActive : nCurColorScheme.toolbarBgUnsel;
 
   gdispImageSetBgColor(&toolbarImageFilmstrip, cl);
   gdispFillArea(gh->x, gh->y, gh->width, gh->height, cl);

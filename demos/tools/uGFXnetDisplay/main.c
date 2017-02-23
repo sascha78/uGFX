@@ -183,7 +183,7 @@ static bool_t sendpkt(uint16_t *pkt, int len) {
 		GEventMouse				*pem;
 		uint16_t				cmd[2];
 		uint16_t				lbuttons;
-		coord_t					lx, ly;
+		gCoord					lx, ly;
 		(void)					param;
 
 		// Initialize the mouse and the listener.

@@ -161,7 +161,7 @@ struct SDL_UGFXContext {
 	int16_t		need_redraw;
 	int		minx,miny,maxx,maxy;
 #if GINPUT_NEED_MOUSE
-	coord_t 	mousex, mousey;
+	gCoord 	mousex, mousey;
 	uint16_t 	buttons;
 #endif
 #if GINPUT_NEED_KEYBOARD
@@ -425,7 +425,7 @@ LLDSPEC void gdisp_lld_draw_pixel(GDisplay *g)
 #endif
 
 #if GDISP_HARDWARE_PIXELREAD
-	LLDSPEC color_t gdisp_lld_get_pixel_color(GDisplay *g) {
+	LLDSPEC gColor gdisp_lld_get_pixel_color(GDisplay *g) {
 		if (context)
 			return gdispNative2Color(context->framebuf[(g->p.y*GDISP_SCREEN_WIDTH)+g->p.x]);
 		return 0;

@@ -259,7 +259,7 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay* g) {
 		setreadmode(g);
 		dummy_read(g);
 	}
-	LLDSPEC color_t gdisp_lld_read_color(GDisplay* g) {
+	LLDSPEC gColor gdisp_lld_read_color(GDisplay* g) {
 		uint16_t	data;
 
 		data = read_data(g);
@@ -294,10 +294,10 @@ LLDSPEC bool_t gdisp_lld_init(GDisplay* g) {
 	#endif
 
 	LLDSPEC void gdisp_lld_blit_area(GDisplay* g) {
-		pixel_t*	buffer;
-		coord_t		ycnt;
+		gPixel*	buffer;
+		gCoord		ycnt;
 
-		buffer = (pixel_t*)g->p.ptr + g->p.x1 + g->p.y1 * g->p.x2;
+		buffer = (gPixel*)g->p.ptr + g->p.x1 + g->p.y1 * g->p.x2;
 
 		acquire_bus(g);
 		set_viewport(g);

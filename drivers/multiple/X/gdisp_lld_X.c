@@ -177,7 +177,7 @@ typedef struct xPriv {
 	GC 				gc;
 	Window			win;
 	#if GINPUT_NEED_MOUSE
-		coord_t		mousex, mousey;
+		gCoord		mousex, mousey;
 		uint16_t	buttons;
 		GMouse *	mouse;
 	#endif
@@ -439,7 +439,7 @@ LLDSPEC void gdisp_lld_draw_pixel(GDisplay *g)
 		// Start of Bitblit code
 
 		//XImage			bitmap;
-		//pixel_t			*bits;
+		//gPixel			*bits;
 		//	bits = malloc(vis.depth * GDISP_SCREEN_WIDTH * GDISP_SCREEN_HEIGHT);
 		//	bitmap = XCreateImage(dis, vis, vis.depth, ZPixmap,
 		//				0, bits, GDISP_SCREEN_WIDTH, GDISP_SCREEN_HEIGHT,
@@ -448,7 +448,7 @@ LLDSPEC void gdisp_lld_draw_pixel(GDisplay *g)
 #endif
 
 #if GDISP_HARDWARE_PIXELREAD
-	LLDSPEC	color_t gdisp_lld_get_pixel_color(GDisplay *g) {
+	LLDSPEC	gColor gdisp_lld_get_pixel_color(GDisplay *g) {
 		xPriv *	priv = (xPriv *)g->priv;
 		XColor	color;
 		XImage *img;

@@ -44,12 +44,12 @@ typedef struct GWindowObject {
 	#endif
 	const struct gwinVMT*	vmt;				/**< The VMT for this GWIN */
 	GDisplay *				display;			/**< The display this window is on */
-	coord_t					x;					/**< The position relative to the screen */
-	coord_t					y;					/**< The position relative to the screen */
-	coord_t					width;				/**< The width of this window */
-	coord_t					height;				/**< The height of this window */
-	color_t					color;				/**< The current foreground drawing color */
-	color_t					bgcolor;			/**< The current background drawing color */
+	gCoord					x;					/**< The position relative to the screen */
+	gCoord					y;					/**< The position relative to the screen */
+	gCoord					width;				/**< The width of this window */
+	gCoord					height;				/**< The height of this window */
+	gColor					color;				/**< The current foreground drawing color */
+	gColor					bgcolor;			/**< The current background drawing color */
 	uint32_t				flags;				/**< Window flags (the meaning is private to the GWIN class) */
 	#if GDISP_NEED_TEXT
 		font_t				font;				/**< The current font */
@@ -73,10 +73,10 @@ typedef struct GWindowObject {
  * @{
  */
 typedef struct GWindowInit {
-	coord_t			x;								/**< The initial position relative to its parent */
-	coord_t			y;								/**< The initial position relative to its parent */
-	coord_t			width;							/**< The width */
-	coord_t			height;							/**< The height */
+	gCoord			x;								/**< The initial position relative to its parent */
+	gCoord			y;								/**< The initial position relative to its parent */
+	gCoord			width;							/**< The width */
+	gCoord			height;							/**< The height */
 	bool_t			show;							/**< Should the window be visible initially */
 	#if GWIN_NEED_CONTAINERS
 		GHandle		parent;							/**< The parent - must be a container or NULL */
@@ -141,7 +141,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	void gwinSetDefaultColor(color_t clr);
+	void gwinSetDefaultColor(gColor clr);
 
 	/**
 	 * @brief	Get the default foreground color for all new GWIN windows
@@ -150,7 +150,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	color_t gwinGetDefaultColor(void);
+	gColor gwinGetDefaultColor(void);
 
 	/**
 	 * @brief	Set the default background color for all new GWIN windows
@@ -159,7 +159,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	void gwinSetDefaultBgColor(color_t bgclr);
+	void gwinSetDefaultBgColor(gColor bgclr);
 
 	/**
 	 * @brief	Get the default background color for all new GWIN windows
@@ -168,7 +168,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	color_t gwinGetDefaultBgColor(void);
+	gColor gwinGetDefaultBgColor(void);
 
 	#if GDISP_NEED_TEXT || defined(__DOXYGEN__)
 		/**
@@ -441,7 +441,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	void gwinMove(GHandle gh, coord_t x, coord_t y);
+	void gwinMove(GHandle gh, gCoord x, gCoord y);
 
 	/**
 	 * @brief	Resize a window
@@ -459,7 +459,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	void gwinResize(GHandle gh, coord_t width, coord_t height);
+	void gwinResize(GHandle gh, gCoord width, gCoord height);
 
 	/**
 	 * @brief	Redraw a window
@@ -626,7 +626,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	void gwinDrawPixel(GHandle gh, coord_t x, coord_t y);
+	void gwinDrawPixel(GHandle gh, gCoord x, gCoord y);
 
 	/**
 	 * @brief   Draw a line in the window
@@ -639,7 +639,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	void gwinDrawLine(GHandle gh, coord_t x0, coord_t y0, coord_t x1, coord_t y1);
+	void gwinDrawLine(GHandle gh, gCoord x0, gCoord y0, gCoord x1, gCoord y1);
 
 	/**
 	 * @brief   Draw a box in the window
@@ -652,7 +652,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	void gwinDrawBox(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy);
+	void gwinDrawBox(GHandle gh, gCoord x, gCoord y, gCoord cx, gCoord cy);
 
 	/**
 	 * @brief   Fill an rectangular area in the window
@@ -665,7 +665,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	void gwinFillArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy);
+	void gwinFillArea(GHandle gh, gCoord x, gCoord y, gCoord cx, gCoord cy);
 
 	/**
 	 * @brief   Fill an area in the window using the supplied bitmap.
@@ -681,7 +681,7 @@ extern "C" {
 	 *
 	 * @api
 	 */
-	void gwinBlitArea(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t srcx, coord_t srcy, coord_t srccx, const pixel_t *buffer);
+	void gwinBlitArea(GHandle gh, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoord srcx, gCoord srcy, gCoord srccx, const gPixel *buffer);
 
 /*-------------------------------------------------
  * Circle, ellipse, arc and arc-sectors functions
@@ -699,7 +699,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinDrawCircle(GHandle gh, coord_t x, coord_t y, coord_t radius);
+		void gwinDrawCircle(GHandle gh, gCoord x, gCoord y, gCoord radius);
 
 		/**
 		 * @brief   Draw a filled circle in the window.
@@ -712,7 +712,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinFillCircle(GHandle gh, coord_t x, coord_t y, coord_t radius);
+		void gwinFillCircle(GHandle gh, gCoord x, gCoord y, gCoord radius);
 	#endif
 
 	#if GDISP_NEED_DUALCIRCLE || defined(__DOXYGEN__)
@@ -730,7 +730,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinFillDualCircle(GHandle gh, coord_t x, coord_t y, coord_t radius1, coord_t radius2);
+		void gwinFillDualCircle(GHandle gh, gCoord x, gCoord y, gCoord radius1, gCoord radius2);
 	#endif
 
 	#if GDISP_NEED_ELLIPSE || defined(__DOXYGEN__)
@@ -745,7 +745,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinDrawEllipse(GHandle gh, coord_t x, coord_t y, coord_t a, coord_t b);
+		void gwinDrawEllipse(GHandle gh, gCoord x, gCoord y, gCoord a, gCoord b);
 
 		/**
 		 * @brief   Draw an filled ellipse.
@@ -758,7 +758,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinFillEllipse(GHandle gh, coord_t x, coord_t y, coord_t a, coord_t b);
+		void gwinFillEllipse(GHandle gh, gCoord x, gCoord y, gCoord a, gCoord b);
 	#endif
 
 	#if GDISP_NEED_ARC || defined(__DOXYGEN__)
@@ -775,7 +775,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinDrawArc(GHandle gh, coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle);
+		void gwinDrawArc(GHandle gh, gCoord x, gCoord y, gCoord radius, gCoord startangle, gCoord endangle);
 
 		/*
 		 * @brief	Draw a filled arc in the window.
@@ -790,7 +790,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinFillArc(GHandle gh, coord_t x, coord_t y, coord_t radius, coord_t startangle, coord_t endangle);
+		void gwinFillArc(GHandle gh, gCoord x, gCoord y, gCoord radius, gCoord startangle, gCoord endangle);
 
 		/*
 		 * @brief	Draw a thick arc in the window.
@@ -806,7 +806,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinDrawThickArc(GHandle gh, coord_t x, coord_t y, coord_t startradius, coord_t endradius, coord_t startangle, coord_t endangle);
+		void gwinDrawThickArc(GHandle gh, gCoord x, gCoord y, gCoord startradius, gCoord endradius, gCoord startangle, gCoord endangle);
 	#endif
 
 	#if GDISP_NEED_ARCSECTORS || defined(__DOXYGEN__)
@@ -831,7 +831,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinDrawArcSectors(GHandle gh, coord_t x, coord_t y, coord_t radius, uint8_t sectors);
+		void gwinDrawArcSectors(GHandle gh, gCoord x, gCoord y, gCoord radius, uint8_t sectors);
 
 		/*
 		 * @brief	Draw a filled selection of 45 degree arcs of a circle in the window.
@@ -854,7 +854,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinFillArcSectors(GHandle gh, coord_t x, coord_t y, coord_t radius, uint8_t sectors);
+		void gwinFillArcSectors(GHandle gh, gCoord x, gCoord y, gCoord radius, uint8_t sectors);
 	#endif
 
 /*-------------------------------------------------
@@ -872,7 +872,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		color_t gwinGetPixelColor(GHandle gh, coord_t x, coord_t y);
+		gColor gwinGetPixelColor(GHandle gh, gCoord x, gCoord y);
 	#endif
 
 /*-------------------------------------------------
@@ -892,7 +892,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinDrawChar(GHandle gh, coord_t x, coord_t y, char c);
+		void gwinDrawChar(GHandle gh, gCoord x, gCoord y, char c);
 
 		/**
 		 * @brief   Draw a text character with a filled background at the specified position in the window.
@@ -906,7 +906,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinFillChar(GHandle gh, coord_t x, coord_t y, char c);
+		void gwinFillChar(GHandle gh, gCoord x, gCoord y, char c);
 
 		/**
 		 * @brief   Draw a text string in the window
@@ -920,7 +920,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinDrawString(GHandle gh, coord_t x, coord_t y, const char *str);
+		void gwinDrawString(GHandle gh, gCoord x, gCoord y, const char *str);
 
 		/**
 		 * @brief   Draw a text string with a filled background in the window
@@ -934,7 +934,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinFillString(GHandle gh, coord_t x, coord_t y, const char *str);
+		void gwinFillString(GHandle gh, gCoord x, gCoord y, const char *str);
 
 		/**
 		 * @brief   Draw a text string verticly centered within the specified box.
@@ -951,7 +951,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinDrawStringBox(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, justify_t justify);
+		void gwinDrawStringBox(GHandle gh, gCoord x, gCoord y, gCoord cx, gCoord cy, const char* str, justify_t justify);
 
 		/**
 		 * @brief   Draw a text string verticly centered within the specified filled box.
@@ -968,7 +968,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinFillStringBox(GHandle gh, coord_t x, coord_t y, coord_t cx, coord_t cy, const char* str, justify_t justify);
+		void gwinFillStringBox(GHandle gh, gCoord x, gCoord y, gCoord cx, gCoord cy, const char* str, justify_t justify);
 	#endif
 
 /*-------------------------------------------------
@@ -988,7 +988,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinDrawPoly(GHandle gh, coord_t tx, coord_t ty, const point *pntarray, unsigned cnt);
+		void gwinDrawPoly(GHandle gh, gCoord tx, gCoord ty, const gPoint *pntarray, unsigned cnt);
 
 		/**
 		 * @brief   Fill a convex polygon
@@ -1011,7 +1011,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		void gwinFillConvexPoly(GHandle gh, coord_t tx, coord_t ty, const point *pntarray, unsigned cnt);
+		void gwinFillConvexPoly(GHandle gh, gCoord tx, gCoord ty, const gPoint *pntarray, unsigned cnt);
 	
 		/**
 		 * @brief	Draw a thick line in the window
@@ -1028,7 +1028,7 @@ extern "C" {
 		 * 
 		 * @api
 		 */
-		void gwinDrawThickLine(GHandle gh, coord_t x0, coord_t y0, coord_t x1, coord_t y1, coord_t width, bool_t round);
+		void gwinDrawThickLine(GHandle gh, gCoord x0, gCoord y0, gCoord x1, gCoord y1, gCoord width, bool_t round);
 	#endif
 
 /*-------------------------------------------------
@@ -1057,7 +1057,7 @@ extern "C" {
 		 *
 		 * @api
 		 */
-		gdispImageError gwinDrawImage(GHandle gh, gdispImage *img, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t sx, coord_t sy);
+		gdispImageError gwinDrawImage(GHandle gh, gdispImage *img, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoord sx, gCoord sy);
 	#endif
 
 #ifdef __cplusplus

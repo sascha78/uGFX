@@ -11,9 +11,20 @@
  */
 
 /* Display various warnings from gfx_rules.h */
+#define GFX_IN_IMPLEMENTATION		GFXON
 #define GFX_DISPLAY_RULE_WARNINGS	GFXON
 
 #include "../gfx.h"
+
+// Include the "Single File Make" compatible parts of uGFX
+#include "gos/gos_mk.c"
+#include "gdriver/gdriver_mk.c"
+#include "gqueue/gqueue_mk.c"
+#include "gevent/gevent_mk.c"
+#include "gtimer/gtimer_mk.c"
+#include "gwin/gwin_mk.c"
+#include "gmisc/gmisc_mk.c"
+#include "gtrans/gtrans_mk.c"
 
 static bool_t gfxInitDone = GFalse;
 

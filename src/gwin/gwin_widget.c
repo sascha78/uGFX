@@ -310,8 +310,8 @@ static void gwidgetEvent(void *param, GEvent *pe) {
 		_widgetInFocus = 0;
 	}
 
-	void _gwidgetDrawFocusRect(GWidgetObject *gx, coord_t x, coord_t y, coord_t cx, coord_t cy) {
-		coord_t i;
+	void _gwidgetDrawFocusRect(GWidgetObject *gx, gCoord x, gCoord y, gCoord cx, gCoord cy) {
+		gCoord i;
 		
 		// Don't do anything if we don't have the focus
 		if (&gx->g != _widgetInFocus)

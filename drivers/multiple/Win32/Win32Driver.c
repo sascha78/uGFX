@@ -421,18 +421,18 @@ typedef struct winPriv {
 	HBITMAP			dcBitmap;
 	HBITMAP 		dcOldBitmap;
 	#if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
-		coord_t		mousex, mousey;
+		gCoord		mousex, mousey;
 		uint16_t	mousebuttons;
 		GMouse		*mouse;
 		bool_t		mouseenabled;
-		void (*capfn)(HWND hWnd, GDisplay *g, uint16_t buttons, coord_t x, coord_t y);
+		void (*capfn)(HWND hWnd, GDisplay *g, uint16_t buttons, gCoord x, gCoord y);
 	#endif
 	#if GFX_USE_GINPUT && GINPUT_NEED_TOGGLE
 		uint8_t		toggles;
 	#endif
 	#if GDISP_HARDWARE_STREAM_WRITE || GDISP_HARDWARE_STREAM_READ
-		coord_t		x0, y0, x1, y1;
-		coord_t		x, y;
+		gCoord		x0, y0, x1, y1;
+		gCoord		x, y;
 	#endif
 } winPriv;
 
@@ -441,7 +441,7 @@ void gfxEmulatorSetParentWindow(void *hwnd) {
 }
 
 #if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
-	void gfxEmulatorMouseInject(GDisplay *g, uint16_t buttons, coord_t x, coord_t y) {
+	void gfxEmulatorMouseInject(GDisplay *g, uint16_t buttons, gCoord x, gCoord y) {
 		winPriv *		priv;
 		
 		priv = (winPriv *)g->priv;
@@ -454,7 +454,7 @@ void gfxEmulatorSetParentWindow(void *hwnd) {
 	void gfxEmulatorMouseEnable(GDisplay *g, bool_t enabled) {
 		((winPriv *)g->priv)->mouseenabled = enabled;
 	}
-	void gfxEmulatorMouseCapture(GDisplay *g, void (*capfn)(HWND hWnd, GDisplay *g, uint16_t buttons, coord_t x, coord_t y)) {
+	void gfxEmulatorMouseCapture(GDisplay *g, void (*capfn)(HWND hWnd, GDisplay *g, uint16_t buttons, gCoord x, gCoord y)) {
 		((winPriv *)g->priv)->capfn = capfn;
 	}
 #endif
@@ -474,7 +474,7 @@ static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPA
 		RECT		rect;
 		HGDIOBJ		old;
 		POINT 		p;
-		coord_t		pos;
+		gCoord		pos;
 		uint8_t		bit;
 	#endif
 
@@ -505,7 +505,7 @@ static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPA
 
 			// Handle mouse down on the window
 			#if GINPUT_NEED_MOUSE
-				if ((coord_t)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
+				if ((gCoord)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
 					btns = priv->mousebuttons;
 					btns |= GINPUT_MOUSE_BTN_LEFT;
 					goto mousemove;
@@ -514,8 +514,8 @@ static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPA
 
 			// Handle mouse down on the toggle area
 			#if GINPUT_NEED_TOGGLE
-				if ((coord_t)HIWORD(lParam) >= GDISP_WIN32_HEIGHT && (g->flags & GDISP_FLG_HASTOGGLE)) {
-					bit = 1 << ((coord_t)LOWORD(lParam)*8/g->g.Width);
+				if ((gCoord)HIWORD(lParam) >= GDISP_WIN32_HEIGHT && (g->flags & GDISP_FLG_HASTOGGLE)) {
+					bit = 1 << ((gCoord)LOWORD(lParam)*8/g->g.Width);
 					priv->toggles ^= bit;
 					rect.left = 0;
 					rect.right = GDISP_WIN32_WIDTH;
@@ -555,7 +555,7 @@ static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPA
 
 			// Handle mouse up on the window
 			#if GINPUT_NEED_MOUSE
-				if ((coord_t)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
+				if ((gCoord)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
 					btns = priv->mousebuttons;
 					btns &= ~GINPUT_MOUSE_BTN_LEFT;
 					goto mousemove;
@@ -568,7 +568,7 @@ static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPA
 		case WM_MBUTTONDOWN:
 			g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			priv = (winPriv *)g->priv;
-			if ((coord_t)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
+			if ((gCoord)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
 				btns = priv->mousebuttons;
 				btns |= GINPUT_MOUSE_BTN_MIDDLE;
 				goto mousemove;
@@ -577,7 +577,7 @@ static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPA
 		case WM_MBUTTONUP:
 			g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			priv = (winPriv *)g->priv;
-			if ((coord_t)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
+			if ((gCoord)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
 				btns = priv->mousebuttons;
 				btns &= ~GINPUT_MOUSE_BTN_MIDDLE;
 				goto mousemove;
@@ -586,7 +586,7 @@ static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPA
 		case WM_RBUTTONDOWN:
 			g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			priv = (winPriv *)g->priv;
-			if ((coord_t)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
+			if ((gCoord)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
 				btns = priv->mousebuttons;
 				btns |= GINPUT_MOUSE_BTN_RIGHT;
 				goto mousemove;
@@ -595,7 +595,7 @@ static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPA
 		case WM_RBUTTONUP:
 			g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			priv = (winPriv *)g->priv;
-			if ((coord_t)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
+			if ((gCoord)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
 				btns = priv->mousebuttons;
 				btns &= ~GINPUT_MOUSE_BTN_RIGHT;
 				goto mousemove;
@@ -604,17 +604,17 @@ static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPA
 		case WM_MOUSEMOVE:
 			g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
 			priv = (winPriv *)g->priv;
-			if ((coord_t)HIWORD(lParam) >= GDISP_WIN32_HEIGHT)
+			if ((gCoord)HIWORD(lParam) >= GDISP_WIN32_HEIGHT)
 				break;
 			btns = priv->mousebuttons;
 
 		mousemove:
 			if (priv->capfn)
-				priv->capfn(hWnd, g, btns, (coord_t)LOWORD(lParam), (coord_t)HIWORD(lParam));
+				priv->capfn(hWnd, g, btns, (gCoord)LOWORD(lParam), (gCoord)HIWORD(lParam));
 			if (priv->mouseenabled) {
 				priv->mousebuttons = btns;
-				priv->mousex = (coord_t)LOWORD(lParam);
-				priv->mousey = (coord_t)HIWORD(lParam);
+				priv->mousex = (gCoord)LOWORD(lParam);
+				priv->mousey = (gCoord)HIWORD(lParam);
 				if ((gmvmt(priv->mouse)->d.flags & GMOUSE_VFLG_NOPOLL))		// For normal setup this is always GTrue
 					_gmouseWakeup(priv->mouse);
 			}
@@ -982,7 +982,7 @@ LLDSPEC	void GDISPDRIVERID(write)(GDisplay *g) {
 #endif
 
 #if GDISP_HARDWARE_STREAM_READ
-	LLDSPEC	color_t GDISPDRIVERID(read)(GDisplay *g) {
+	LLDSPEC	gColor GDISPDRIVERID(read)(GDisplay *g) {
 		winPriv	*	priv;
 		COLORREF	color;
 
@@ -1029,16 +1029,16 @@ LLDSPEC	void GDISPDRIVERID(write)(GDisplay *g) {
 /* ---- Optional Routines ---- */
 
 #if GDISP_HARDWARE_BITFILLS && GDISP_NEED_CONTROL
-	static pixel_t *rotateimg(GDisplay *g, const pixel_t *buffer) {
-		pixel_t	*dstbuf;
-		pixel_t	*dst;
-		const pixel_t	*src;
+	static gPixel *rotateimg(GDisplay *g, const gPixel *buffer) {
+		gPixel	*dstbuf;
+		gPixel	*dst;
+		const gPixel	*src;
 		size_t	sz;
-		coord_t	i, j;
+		gCoord	i, j;
 
 		// Allocate the destination buffer
 		sz = (size_t)g->p.cx * (size_t)g->p.cy;
-		if (!(dstbuf = (pixel_t *)malloc(sz * sizeof(pixel_t))))
+		if (!(dstbuf = (gPixel *)malloc(sz * sizeof(gPixel))))
 			return 0;
 
 		// Copy the bits we need
@@ -1077,7 +1077,7 @@ LLDSPEC	void GDISPDRIVERID(write)(GDisplay *g) {
 
 	LLDSPEC void gdisp_lld_blit_area(GDisplay *g) {
 		winPriv	*		priv;
-		pixel_t	*		buffer;
+		gPixel	*		buffer;
 		RECT			rect;
 		BITMAPV4HEADER	bmpInfo;
 
@@ -1105,7 +1105,7 @@ LLDSPEC	void GDISPDRIVERID(write)(GDisplay *g) {
 			switch(g->g.Orientation) {
 			case GDISP_ROTATE_0:
 			default:
-				bmpInfo.bV4SizeImage = (g->p.cy*g->p.x2) * sizeof(pixel_t);
+				bmpInfo.bV4SizeImage = (g->p.cy*g->p.x2) * sizeof(gPixel);
 				bmpInfo.bV4Width = g->p.x2;
 				bmpInfo.bV4Height = -g->p.cy; /* top-down image */
 				rect.top = g->p.y;
@@ -1115,7 +1115,7 @@ LLDSPEC	void GDISPDRIVERID(write)(GDisplay *g) {
 				break;
 			case GDISP_ROTATE_90:
 				if (!(buffer = rotateimg(g, buffer))) return;
-				bmpInfo.bV4SizeImage = (g->p.cy*g->p.cx) * sizeof(pixel_t);
+				bmpInfo.bV4SizeImage = (g->p.cy*g->p.cx) * sizeof(gPixel);
 				bmpInfo.bV4Width = g->p.cy;
 				bmpInfo.bV4Height = -g->p.cx; /* top-down image */
 				rect.bottom = g->g.Width - g->p.x;
@@ -1125,7 +1125,7 @@ LLDSPEC	void GDISPDRIVERID(write)(GDisplay *g) {
 				break;
 			case GDISP_ROTATE_180:
 				if (!(buffer = rotateimg(g, buffer))) return;
-				bmpInfo.bV4SizeImage = (g->p.cy*g->p.cx) * sizeof(pixel_t);
+				bmpInfo.bV4SizeImage = (g->p.cy*g->p.cx) * sizeof(gPixel);
 				bmpInfo.bV4Width = g->p.cx;
 				bmpInfo.bV4Height = -g->p.cy; /* top-down image */
 				rect.bottom = g->g.Height-1 - g->p.y;
@@ -1135,7 +1135,7 @@ LLDSPEC	void GDISPDRIVERID(write)(GDisplay *g) {
 				break;
 			case GDISP_ROTATE_270:
 				if (!(buffer = rotateimg(g, buffer))) return;
-				bmpInfo.bV4SizeImage = (g->p.cy*g->p.cx) * sizeof(pixel_t);
+				bmpInfo.bV4SizeImage = (g->p.cy*g->p.cx) * sizeof(gPixel);
 				bmpInfo.bV4Width = g->p.cy;
 				bmpInfo.bV4Height = -g->p.cx; /* top-down image */
 				rect.top = g->p.x;
@@ -1145,7 +1145,7 @@ LLDSPEC	void GDISPDRIVERID(write)(GDisplay *g) {
 				break;
 			}
 		#else
-			bmpInfo.bV4SizeImage = (g->p.cy*g->p.x2) * sizeof(pixel_t);
+			bmpInfo.bV4SizeImage = (g->p.cy*g->p.x2) * sizeof(gPixel);
 			bmpInfo.bV4Width = g->p.x2;
 			bmpInfo.bV4Height = -g->p.cy; /* top-down image */
 			rect.top = g->p.y;
@@ -1170,7 +1170,7 @@ LLDSPEC	void GDISPDRIVERID(write)(GDisplay *g) {
 		#endif
 
 		#if GDISP_NEED_CONTROL
-			if (buffer != (pixel_t *)g->p.ptr)
+			if (buffer != (gPixel *)g->p.ptr)
 				free(buffer);
 		#endif
 	}
@@ -1180,7 +1180,7 @@ LLDSPEC	void GDISPDRIVERID(write)(GDisplay *g) {
 	LLDSPEC void gdisp_lld_vertical_scroll(GDisplay *g) {
 		winPriv	*	priv;
 		RECT		rect;
-		coord_t		lines;
+		gCoord		lines;
 
 		priv = g->priv;
 
@@ -1343,7 +1343,7 @@ LLDSPEC	void GDISPDRIVERID(write)(GDisplay *g) {
 		#if GDISP_NEED_CONTROL
 			// If the self-rotation has been set in the VMT then do that here (TESTING ONLY)
 			if ((gmvmt(m)->d.flags & GMOUSE_VFLG_SELFROTATION)) {		// For normal setup this is always False
-				coord_t		t;
+				gCoord		t;
 
 				switch(gdispGGetOrientation(m->display)) {
 					case GDISP_ROTATE_0:

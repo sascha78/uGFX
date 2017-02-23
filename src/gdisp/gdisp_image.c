@@ -12,46 +12,51 @@
 #include "gdisp_image_support.h"
 
 #if GDISP_NEED_IMAGE_NATIVE
-	extern gdispImageError gdispImageOpen_NATIVE(gdispImage *img);
-	extern void gdispImageClose_NATIVE(gdispImage *img);
-	extern gdispImageError gdispImageCache_NATIVE(gdispImage *img);
-	extern gdispImageError gdispGImageDraw_NATIVE(GDisplay *g, gdispImage *img, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t sx, coord_t sy);
-	extern delaytime_t gdispImageNext_NATIVE(gdispImage *img);
+	#include "gdisp_image_native.c"
+//	extern gdispImageError gdispImageOpen_NATIVE(gdispImage *img);
+//	extern void gdispImageClose_NATIVE(gdispImage *img);
+//	extern gdispImageError gdispImageCache_NATIVE(gdispImage *img);
+//	extern gdispImageError gdispGImageDraw_NATIVE(GDisplay *g, gdispImage *img, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoord sx, gCoord sy);
+//	extern delaytime_t gdispImageNext_NATIVE(gdispImage *img);
 #endif
 
 #if GDISP_NEED_IMAGE_GIF
-	extern gdispImageError gdispImageOpen_GIF(gdispImage *img);
-	extern void gdispImageClose_GIF(gdispImage *img);
-	extern gdispImageError gdispImageCache_GIF(gdispImage *img);
-	extern gdispImageError gdispGImageDraw_GIF(GDisplay *g, gdispImage *img, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t sx, coord_t sy);
-	extern delaytime_t gdispImageNext_GIF(gdispImage *img);
+	#include "gdisp_image_gif.c"
+//	extern gdispImageError gdispImageOpen_GIF(gdispImage *img);
+//	extern void gdispImageClose_GIF(gdispImage *img);
+//	extern gdispImageError gdispImageCache_GIF(gdispImage *img);
+//	extern gdispImageError gdispGImageDraw_GIF(GDisplay *g, gdispImage *img, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoord sx, gCoord sy);
+//	extern delaytime_t gdispImageNext_GIF(gdispImage *img);
 #endif
 
 #if GDISP_NEED_IMAGE_BMP
-	extern gdispImageError gdispImageOpen_BMP(gdispImage *img);
-	extern void gdispImageClose_BMP(gdispImage *img);
-	extern gdispImageError gdispImageCache_BMP(gdispImage *img);
-	extern gdispImageError gdispGImageDraw_BMP(GDisplay *g, gdispImage *img, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t sx, coord_t sy);
-	extern delaytime_t gdispImageNext_BMP(gdispImage *img);
-	extern uint16_t gdispImageGetPaletteSize_BMP(gdispImage *img);
-	extern color_t gdispImageGetPalette_BMP(gdispImage *img, uint16_t index);
-	extern bool_t gdispImageAdjustPalette_BMP(gdispImage *img, uint16_t index, color_t newColor);
+	#include "gdisp_image_bmp.c"
+//	extern gdispImageError gdispImageOpen_BMP(gdispImage *img);
+//	extern void gdispImageClose_BMP(gdispImage *img);
+//	extern gdispImageError gdispImageCache_BMP(gdispImage *img);
+//	extern gdispImageError gdispGImageDraw_BMP(GDisplay *g, gdispImage *img, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoord sx, gCoord sy);
+//	extern delaytime_t gdispImageNext_BMP(gdispImage *img);
+//	extern uint16_t gdispImageGetPaletteSize_BMP(gdispImage *img);
+//	extern gColor gdispImageGetPalette_BMP(gdispImage *img, uint16_t index);
+//	extern bool_t gdispImageAdjustPalette_BMP(gdispImage *img, uint16_t index, gColor newColor);
 #endif
 
 #if GDISP_NEED_IMAGE_JPG
-	extern gdispImageError gdispImageOpen_JPG(gdispImage *img);
-	extern void gdispImageClose_JPG(gdispImage *img);
-	extern gdispImageError gdispImageCache_JPG(gdispImage *img);
-	extern gdispImageError gdispGImageDraw_JPG(GDisplay *g, gdispImage *img, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t sx, coord_t sy);
-	extern delaytime_t gdispImageNext_JPG(gdispImage *img);
+	#include "gdisp_image_jpg.c"
+//	extern gdispImageError gdispImageOpen_JPG(gdispImage *img);
+//	extern void gdispImageClose_JPG(gdispImage *img);
+//	extern gdispImageError gdispImageCache_JPG(gdispImage *img);
+//	extern gdispImageError gdispGImageDraw_JPG(GDisplay *g, gdispImage *img, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoord sx, gCoord sy);
+//	extern delaytime_t gdispImageNext_JPG(gdispImage *img);
 #endif
 
 #if GDISP_NEED_IMAGE_PNG
-	extern gdispImageError gdispImageOpen_PNG(gdispImage *img);
-	extern void gdispImageClose_PNG(gdispImage *img);
-	extern gdispImageError gdispImageCache_PNG(gdispImage *img);
-	extern gdispImageError gdispGImageDraw_PNG(GDisplay *g, gdispImage *img, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t sx, coord_t sy);
-	extern delaytime_t gdispImageNext_PNG(gdispImage *img);
+	#include "gdisp_image_png.c"
+//	extern gdispImageError gdispImageOpen_PNG(gdispImage *img);
+//	extern void gdispImageClose_PNG(gdispImage *img);
+//	extern gdispImageError gdispImageCache_PNG(gdispImage *img);
+//	extern gdispImageError gdispGImageDraw_PNG(GDisplay *g, gdispImage *img, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoord sx, gCoord sy);
+//	extern delaytime_t gdispImageNext_PNG(gdispImage *img);
 #endif
 
 /* The structure defining the routines for image drawing */
@@ -61,13 +66,13 @@ typedef struct gdispImageHandlers {
 	gdispImageError	(*cache)(gdispImage *img);					/* The cache function */
 	gdispImageError	(*draw)(GDisplay *g,
 							gdispImage *img,
-							coord_t x, coord_t y,
-							coord_t cx, coord_t cy,
-							coord_t sx, coord_t sy);			/* The draw function */
+							gCoord x, gCoord y,
+							gCoord cx, gCoord cy,
+							gCoord sx, gCoord sy);			/* The draw function */
 	delaytime_t		(*next)(gdispImage *img);					/* The next frame function */
 	uint16_t		(*getPaletteSize)(gdispImage *img);			/* Retrieve the size of the palette (number of entries) */
-	color_t			(*getPalette)(gdispImage *img, uint16_t index);							/* Retrieve a specific color value of the palette */
-	bool_t			(*adjustPalette)(gdispImage *img, uint16_t index, color_t newColor);	/* Replace a color value in the palette */
+	gColor			(*getPalette)(gdispImage *img, uint16_t index);							/* Retrieve a specific color value of the palette */
+	bool_t			(*adjustPalette)(gdispImage *img, uint16_t index, gColor newColor);	/* Replace a color value in the palette */
 } gdispImageHandlers;
 
 static gdispImageHandlers ImageHandlers[] = {
@@ -154,7 +159,7 @@ bool_t gdispImageIsOpen(gdispImage *img) {
 	return img->type != GDISP_IMAGE_TYPE_UNKNOWN && img->fns != 0;
 }
 
-void gdispImageSetBgColor(gdispImage *img, color_t bgcolor) {
+void gdispImageSetBgColor(gdispImage *img, gColor bgcolor) {
 	img->bgcolor = bgcolor;
 }
 
@@ -163,7 +168,7 @@ gdispImageError gdispImageCache(gdispImage *img) {
 	return img->fns->cache(img);
 }
 
-gdispImageError gdispGImageDraw(GDisplay *g, gdispImage *img, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t sx, coord_t sy) {
+gdispImageError gdispGImageDraw(GDisplay *g, gdispImage *img, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoord sx, gCoord sy) {
 	if (!img->fns) return GDISP_IMAGE_ERR_BADFORMAT;
 
 	// Check on window
@@ -189,13 +194,13 @@ uint16_t gdispImageGetPaletteSize(gdispImage *img) {
 	return img->fns->getPaletteSize(img);
 }
 
-color_t gdispImageGetPalette(gdispImage *img, uint16_t index) {
+gColor gdispImageGetPalette(gdispImage *img, uint16_t index) {
 	if (!img->fns) return 0;
 	if (!img->fns->getPalette) return 0;
 	return img->fns->getPalette(img, index);
 }
 
-bool_t gdispImageAdjustPalette(gdispImage *img, uint16_t index, color_t newColor) {
+bool_t gdispImageAdjustPalette(gdispImage *img, uint16_t index, gColor newColor) {
 	if (!img->fns) return GFalse;
 	if (!img->fns->adjustPalette) return GFalse;
 	return img->fns->adjustPalette(img, index, newColor);

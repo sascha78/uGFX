@@ -6,16 +6,11 @@
  */
 
 /**
- * @file    src/gfx_mk.c
- * @brief   Single File Make.
+ * @file    src/gfx_mk.cpp
+ * @brief   Single File Make - Optional CPP components to uGFX.
  */
 
 // Include the "Single File Make" compatible parts of uGFX
-#include "gfx.c"
+#include "gfx.cpp"
 
 // Include the parts not garanteed to be fully compatible with single file make.
-#include "gdisp/gdisp_mk.c"
-#include "ginput/ginput_mk.c"
-#include "gadc/gadc_mk.c"
-#include "gaudio/gaudio_mk.c"
-#include "gfile/gfile_mk.c"

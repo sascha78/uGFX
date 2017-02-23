@@ -39,7 +39,7 @@ typedef struct PNG_info {
 	void 		(*out)(struct PNG_decode *);		// The scan line output function
 
 	#if GDISP_NEED_IMAGE_PNG_BACKGROUND
-		color_t		bg;								// The background color
+		gColor		bg;								// The background color
 	#endif
 	#if GDISP_NEED_IMAGE_PNG_TRANSPARENCY
 		uint16_t	trans_r;						// Red/grayscale component of the transparent color (PNG_COLORMODE_GRAY and PNG_COLORMODE_RGB only)
@@ -65,12 +65,12 @@ typedef struct PNG_input {
 // Handle the display output and windowing
 typedef struct PNG_output {
 	GDisplay	*g;
-	coord_t		x, y;
-	coord_t		cx, cy;
-	coord_t		sx, sy;
-	coord_t		ix, iy;
+	gCoord		x, y;
+	gCoord		cx, cy;
+	gCoord		sx, sy;
+	gCoord		ix, iy;
 	unsigned	cnt;
-	pixel_t		buf[GDISP_IMAGE_PNG_BLIT_BUFFER_SIZE];
+	gPixel		buf[GDISP_IMAGE_PNG_BLIT_BUFFER_SIZE];
 	} PNG_output;
 
 // Handle the PNG scan line filter
@@ -198,7 +198,7 @@ static uint8_t PNG_iGetByte(PNG_decode *d) {
  *---------------------------------------------------------------*/
 
 // Initialize the display output window
-static void PNG_oInit(PNG_output *o, GDisplay *g, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t sx, coord_t sy) {
+static void PNG_oInit(PNG_output *o, GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoord sx, gCoord sy) {
 	o->g = g;
 	o->x = x;
 	o->y = y;
@@ -222,7 +222,7 @@ static void PNG_oFlush(PNG_output *o) {
 }
 
 // Start a new image line
-static bool_t PNG_oStartY(PNG_output *o, coord_t y) {
+static bool_t PNG_oStartY(PNG_output *o, gCoord y) {
 	if (y < o->sy || y >= o->sy+o->cy)
 		return GFalse;
 	o->ix = 0;
@@ -231,9 +231,9 @@ static bool_t PNG_oStartY(PNG_output *o, coord_t y) {
 }
 
 // Feed a pixel color to the display buffer
-static void PNG_oColor(PNG_output *o, color_t c) {
+static void PNG_oColor(PNG_output *o, gColor c) {
 	// Is it in the window
-	if (o->ix+(coord_t)o->cnt < o->sx || o->ix+(coord_t)o->cnt >= o->sx+o->cx) {
+	if (o->ix+(gCoord)o->cnt < o->sx || o->ix+(gCoord)o->cnt >= o->sx+o->cx) {
 		// No - just skip the pixel
 		PNG_oFlush(o);
 		o->ix++;
@@ -1493,7 +1493,7 @@ exit_nonmem:
 	return GDISP_IMAGE_ERR_NOMEMORY;
 }
 
-gdispImageError gdispGImageDraw_PNG(GDisplay *g, gdispImage *img, coord_t x, coord_t y, coord_t cx, coord_t cy, coord_t sx, coord_t sy) {
+gdispImageError gdispGImageDraw_PNG(GDisplay *g, gdispImage *img, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoord sx, gCoord sy) {
 	PNG_info 	*pinfo;
 	PNG_decode	*d;
 
