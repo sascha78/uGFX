@@ -396,10 +396,12 @@ static void FlashOffFn(void *param) {
 }
 
 int main(void) {
-	GEvent *			pe;
-
-	// Initialize the display
 	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
+	GEvent *			pe;
 
 	// Set the widget defaults
 	font = gdispOpenFont("*");			// Get the first defined font.
@@ -525,6 +527,5 @@ int main(void) {
 			break;
 		}
 	}
-	return 0;
 }
 

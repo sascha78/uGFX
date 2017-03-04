@@ -22,6 +22,7 @@
 #ifndef _GFXCONF_H
 #define _GFXCONF_H
 
+#define GFX_COMPAT_V2			GFXOFF
 
 ///////////////////////////////////////////////////////////////////////////
 // GOS - One of these must be defined, preferably in your Makefile       //

@@ -44,7 +44,11 @@ void callback2(void* arg) {
 }
  
 int main(void) {
-    gfxInit();
+	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
  
     /* initialize the timers */
     gtimerInit(&GT1);
@@ -59,7 +63,5 @@ int main(void) {
 	while(GTrue) {
 		gfxSleepMilliseconds(500);
 	}
-
-	return 0;
 }
 

@@ -12,6 +12,7 @@ CHANGE:		GTrue and GFalse replaces TRUE/FALSE for the bool_t type
 CHANGE:		GFXBLACK, GFXWHITE, GFXRED etc replace the old color definitions Black, White, Red etc
 CHANGE:		gColor, gPixel & gPoint replace old types color_t, pixel_t, point & point_t
 CHANGE:		Config option GFX_OS_CALL_UGFXMAIN defaults to GFXON if GFX_COMPAT_V2 is not set
+CHANGE:		Update all demos to run without GFX_COMPAT_V2
 DEPRECATED:	Deprecated TRUE/FALSE macro constants [still available with GFX_COMPAT_V2]
 DEPRECATED:	Deprecated color constants Red, Green etc [still available with GFX_COMPAT_V2 && GFX_COMPAT_OLDCOLORS]
 DEPRECATED:	Deprecated types color_t, pixel_t, point, point_t [still available with GFX_COMPAT_V2]

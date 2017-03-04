@@ -51,12 +51,14 @@ static void createWidgets(void) {
 }
 
 int main(void) {
+	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
 	GEvent* pe;
 	static const orientation_t	orients[] = { GDISP_ROTATE_0, GDISP_ROTATE_90, GDISP_ROTATE_180, GDISP_ROTATE_270 };
 	unsigned which;
-
-	// Initialize the display
-	gfxInit();
 
 	// We are currently at GDISP_ROTATE_0
 	which = 0;
@@ -98,7 +100,5 @@ int main(void) {
 				break;
 		}
 	}
-
-	return 0;
 }
 

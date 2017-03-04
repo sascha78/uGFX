@@ -36,11 +36,13 @@ static GHandle GW;
 static GListener	gl;
 
 int main(void) {
+	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
 	GEventKeyboard *pk;
 	unsigned		i;
-
-	/* initialize and clear the display */
-	gfxInit();
 
 	/* Set a font */
 	gwinSetDefaultFont(gdispOpenFont("*"));

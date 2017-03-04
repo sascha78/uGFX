@@ -50,10 +50,13 @@ static GScopeObject			gScopeWindow;
  * Application entry point.
  */
 int main(void) {
+	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
 	GHandle					ghScope;
 	gCoord					swidth, sheight;
-
-	gfxInit();
 
 	/**
 	 * Allocate audio buffers - eg. 4 x 128 byte buffers.

@@ -85,6 +85,11 @@ static int CheckButtons(GEventMouse *pem) {
  * GINPUT Touch Driver Calibrator.                                        *
  *------------------------------------------------------------------------*/
 int main(void) {
+	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
 	GSourceHandle			gs;
 	GEventMouse				*pem;
 	bool_t					isFirstTime;
@@ -97,8 +102,6 @@ int main(void) {
 	GMouseVMT *				vmt;
 	GMouseJitter *			pjit;
 	uint32_t				calerr;
-
-	gfxInit();		// Initialize the display
 
 	// Get the display dimensions
 	swidth = gdispGetWidth();

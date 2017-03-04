@@ -43,10 +43,12 @@ static gCoord					swidth, sheight;
 #endif
 
 int main(void) {
-	GMouse*					m;
-
-	// Initialize everything
 	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
+	GMouse*					m;
 
 	// Get the display dimensions
 	swidth = gdispGetWidth();

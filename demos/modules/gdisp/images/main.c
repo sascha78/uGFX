@@ -39,10 +39,12 @@
 static gdispImage myImage;
 
 int main(void) {
-	gCoord			swidth, sheight;
-
-	// Initialize uGFX and the underlying system
 	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
+	gCoord			swidth, sheight;
 
 	// Get the display dimensions
 	swidth = gdispGetWidth();
@@ -56,7 +58,5 @@ int main(void) {
 	while(1) {
 		gfxSleepMilliseconds(1000);
 	}
-
-	return 0;
 }
 

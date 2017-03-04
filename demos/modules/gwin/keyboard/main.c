@@ -60,12 +60,14 @@ static void createWidgets(void) {
 }
 
 int main(void) {
+	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
 	GEvent *			pe;
 	GEventKeyboard *	pk;
 	unsigned			i;
-
-	// Initialize the display
-	gfxInit();
 
 	// Set the widget defaults
 	font = gdispOpenFont("*");			// Get the first defined font.
@@ -135,6 +137,5 @@ int main(void) {
 			break;
 		}
 	}
-	return 0;
 }
 

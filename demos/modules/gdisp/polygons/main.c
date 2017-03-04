@@ -69,6 +69,11 @@ static gPoint oldresult[NUM_POINTS];
 
 
 int main(void) {
+	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
 	gCoord		width, height;
 	mtype	scalex, scaley;
 	mtype	scaleincx, scaleincy;
@@ -80,7 +85,6 @@ int main(void) {
 	int		angleinc;
 
     // Initialize and clear the display
-    gfxInit();
     gdispClear(GFXWHITE);
 
     // Get the screen size

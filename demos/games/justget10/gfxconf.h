@@ -30,6 +30,8 @@
 #ifndef _GFXCONF_H
 #define _GFXCONF_H
 
+#define GFX_COMPAT_V2			GFXOFF
+
 /* GFX sub-systems to turn on */
 #define GFX_USE_GDISP			                GFXON
 #define GFX_USE_GEVENT			                GFXON

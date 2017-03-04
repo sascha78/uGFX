@@ -46,12 +46,15 @@ static gCoord					swidth, sheight;
  * GINPUT Touch Driver Calibrator.                                        *
  *------------------------------------------------------------------------*/
 int main(void) {
+	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
 	GSourceHandle			gs;
 	GEventMouse				*pem;
 	GMouse *				m;
 	GMouseVMT *				vmt;
-
-	gfxInit();		// Initialize the display
 
 	// Get the display dimensions
 	swidth = gdispGetWidth();

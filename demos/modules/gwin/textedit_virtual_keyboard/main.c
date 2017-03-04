@@ -76,9 +76,12 @@ static void guiCreate(void)
 	ghKeyboard = gwinKeyboardCreate(0, &wi);
 }
 
-int main(void)
-{
+int main(void) {
 	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
 
 	gdispClear(GFXSILVER);
 	gwinSetDefaultFont(gdispOpenFont("DejaVuSans16"));

@@ -1,14 +1,16 @@
 #include "gfx.h"
 #include "jg10.h"
 
-int main(void)
-{
+int main(void) {
+	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
 	GEventMouse ev;
 #if !JG10_SHOW_SPLASH
 	font_t font;
 #endif
-
-    gfxInit();
 
     ginputGetMouse(0);
     jg10Init();

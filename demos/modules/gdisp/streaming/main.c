@@ -57,13 +57,16 @@
 #define SHADOWALPHA		(255-255*0.2)
 
 int main(void) {
+	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
 	gCoord		width, height, x, y, radius, ballx, bally, dx, floor;
 	gCoord		minx, miny, maxx, maxy;
 	gCoord		ballcx, ballcy;
 	gColor		colour;
 	float		ii, spin, dy, spinspeed, h, f, g;
-
-	gfxInit();
 
 	width = gdispGetWidth();
 	height = gdispGetHeight();

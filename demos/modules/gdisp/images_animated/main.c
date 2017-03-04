@@ -54,10 +54,13 @@ static gdispImage myImage;
  * Orange	- Decoding a frame has produced an error.
  */
 int main(void) {
+	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
 	gCoord			swidth, sheight, errx, erry, errcx, errcy;
 	delaytime_t		delay;
-
-	gfxInit();		// Initialize the display
 
 	gdispClear(MY_BG_COLOR);
 
@@ -104,7 +107,5 @@ int main(void) {
 	while(1) {
 		gfxSleepMilliseconds(1000);
 	}
-
-	return 0;
 }
 

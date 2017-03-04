@@ -40,9 +40,12 @@ threadreturn_t heartbeat2(void* param)
     return (threadreturn_t)0;
 }
 
-int main(void)
-{
-    gfxInit();
+int main(void) {
+	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
 
     // Give this plenty of stack. Stack size optimisation should be a production change only
     gfxThreadCreate(0, 2048, NORMAL_PRIORITY, heartbeat1, 0);

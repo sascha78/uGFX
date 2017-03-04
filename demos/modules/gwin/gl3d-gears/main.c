@@ -261,8 +261,12 @@ static void init( void )
 }
 
 int main(void) {
-    /* Initialize and clear the display */
-    gfxInit();
+	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
+
     gdispClear(GFXWHITE);
 
     /* Create the 3D window */

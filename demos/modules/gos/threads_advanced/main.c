@@ -95,11 +95,13 @@ void timerCallback(void* param)
 /*
  * The main function
  */
-int main(void)
-{
-	bool_t exitThread = GFalse;
-
+int main(void) {
 	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
+	bool_t exitThread = GFalse;
 
 	/* Initialize the timer */
 	gtimerInit(&gt);

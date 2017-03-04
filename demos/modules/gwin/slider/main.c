@@ -61,11 +61,13 @@ static void createWidgets(void) {
 }
 
 int main(void) {
+	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
 	GEventGWinSlider *	pe;
 	const char *		sAction;
-
-	// Initialize the display
-	gfxInit();
 
 	// Set the widget defaults
 	gwinSetDefaultFont(gdispOpenFont("UI2"));
@@ -103,7 +105,5 @@ int main(void) {
 				break;
 		}
 	}
-
-	return 0;
 }
 

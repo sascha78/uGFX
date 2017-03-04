@@ -36,12 +36,13 @@ static void _drawCombinedArc(int x, int y, int angle1, int angle2)
 	gdispDrawArc(x, y, 50, angle1, angle2, GFXWHITE);
 }
 
-int main(void)
-{
-	int i = 35;
+int main(void) {
+	gfxInit();
+	return 0;
+}
 
-    // Initialize the uGFX library
-    gfxInit();
+void uGFXMain(void) {
+	int i = 35;
 
 	while(GTrue) {
 		// Clear the entire screen

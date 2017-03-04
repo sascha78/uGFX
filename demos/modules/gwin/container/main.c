@@ -34,8 +34,11 @@ static void createWidgets(void) {
 }
 
 int main(void) {
-    // Initialize the display
-    gfxInit();
+	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
 
     // Set the widget defaults
     gwinSetDefaultFont(gdispOpenFont("*"));
@@ -48,6 +51,4 @@ int main(void) {
     while(1) {
     	gfxSleepMilliseconds(1000);
     }
-
-    return 0;
 }

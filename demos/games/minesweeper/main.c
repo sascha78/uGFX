@@ -36,14 +36,17 @@
 #include "gfx.h"
 #include "mines.h"
 
-int main(void)
-{
+int main(void) {
+	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
 	GEventMouse ev;
 #if !MINES_SHOW_SPLASH
 	font_t font;
 #endif
 
-    gfxInit();
     ginputGetMouse(0);
     minesInit();
 

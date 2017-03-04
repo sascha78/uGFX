@@ -145,18 +145,13 @@ int16_t xyz[3][N];
 gColor col[N];
 
 
-int main (void)
-{
+int main(void) {
+	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
   int pass = 0;
-
-  gfxInit();
-
-  gfxSleepMilliseconds (10);
-  gdispClear (background); /* glitches.. */
-  gfxSleepMilliseconds (10);
-  gdispClear (background);  /* glitches.. */
-  gfxSleepMilliseconds (10);
-  gdispClear (background);  /* glitches.. */
 
   width = (uint16_t)gdispGetWidth();
   height = (uint16_t)gdispGetHeight();

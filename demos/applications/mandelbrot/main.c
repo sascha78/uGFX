@@ -63,10 +63,13 @@ void mandelbrot(float x1, float y1, float x2, float y2) {
 }
 
 int main(void) {
+	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
 	float cx, cy;
 	float zoom = 1.0f;
-
-	gfxInit();
 
 	/* where to zoom in */
 	cx = -0.086f;

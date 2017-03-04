@@ -133,14 +133,17 @@ static GTimer				lsTimer;
  * Application entry point.
  */
 int main(void) {
+	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
 	GHandle					ghScope;
 	gCoord					swidth, sheight;
 	#if defined(MY_DIAL_DEVICE) || defined(MY_TEMP_DEVICE)
 		GHandle					ghText;
 		font_t					font;
 	#endif
-
-	gfxInit();
 
 	/* Get the screen dimensions */
 	swidth = gdispGetWidth();

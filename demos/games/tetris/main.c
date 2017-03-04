@@ -37,9 +37,12 @@
 #include "gfx.h"
 #include "tetris.h"
 
-int main(void)
-{
+int main(void) {
 	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
 
 	tetrisInit();
 

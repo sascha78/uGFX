@@ -62,10 +62,13 @@ static const GGraphStyle GraphStyle2 = {
 };
  
 int main(void) {
+	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
     GHandle     gh;
     uint16_t    i;
- 
-    gfxInit();
  
     // Create the graph window
     {

@@ -42,12 +42,15 @@
 
 static gdispImage _imgHome;
 
-int main(void)
-{
+int main(void) {
+	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
 	int paletteSize = 0;
 
 	// Initialize everything
-	gfxInit();
 	gdispClear(GFXSILVER);
 
 	// Open the image file
@@ -99,6 +102,4 @@ int main(void)
 	while(1) {
         gfxSleepMilliseconds(500);
 	}
-
-	return 0;
 }

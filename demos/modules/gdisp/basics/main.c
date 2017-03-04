@@ -30,11 +30,13 @@
 #include "gfx.h"
 
 int main(void) {
+	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
 	gCoord		width, height;
 	gCoord		i, j;
-
-    // Initialize and clear the display
-    gfxInit();
 
     // Get the screen size
     width = gdispGetWidth();

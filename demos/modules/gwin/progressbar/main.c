@@ -14,6 +14,10 @@ static void _createWidget(void) {
 
 int main(void) {
 	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
 
 	gwinSetDefaultFont(gdispOpenFont("UI2"));
 	gwinSetDefaultStyle(&WhiteWidgetStyle, GFalse);
@@ -39,7 +43,5 @@ int main(void) {
 	while (1) {
 		gfxSleepMilliseconds(500);
 	}
-
-	return 0;
 }
 

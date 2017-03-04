@@ -43,16 +43,18 @@
 
 #define USE_METHOD_1		GFXOFF
 
+int main(void) {
+	gfxInit();
+	return 0;
+}
+
 #if USE_METHOD_1
-	int main(void) {
+	void uGFXMain(void) {
 		gCoord		width, height;
 		gCoord		display, i, j, cnt;
 		font_t		f;
 		GDisplay	*g;
 		char		buf[16];
-
-		/* Initialize and clear the display */
-		gfxInit();
 
 		/* Get a font to write with */
 		f = gdispOpenFont("*");
@@ -88,14 +90,11 @@
 		}
 	}
 #else
-	int main(void) {
+	void uGFXMain(void) {
 		gCoord		width, height;
 		gCoord		display, i, j, cnt;
 		font_t		f;
 		char		buf[16];
-
-		/* Initialize and clear the display */
-		gfxInit();
 
 		/* Get a font to write with */
 		f = gdispOpenFont("*");

@@ -78,10 +78,12 @@ void updateText()
     gdispFillStringBox(20, 140, width, height, buffer, font, COLOR_TEXT, COLOR_BACKGROUND, justifyLeft);
 }
 
-int main(void)
-{
-    // Initialize the uGFX library
-    gfxInit();
+int main(void) {
+	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
     gdispClear(COLOR_BACKGROUND);
 
     // Take the first font we find
@@ -107,6 +109,4 @@ int main(void)
         updateText();
         gfxSleepMilliseconds(1000);
     }
-
-    return 0;
 }

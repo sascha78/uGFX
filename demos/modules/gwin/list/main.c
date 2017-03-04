@@ -69,10 +69,12 @@ static void createWidgets(void) {
 }
 
 int main(void) {
-	GEvent* pe;
-
-	// Initialize the display
 	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
+	GEvent* pe;
 
 	// Set the widget defaults
 	gwinSetDefaultFont(gdispOpenFont("UI2"));
@@ -127,6 +129,4 @@ int main(void) {
 		pe = geventEventWait(&gl, TIME_INFINITE);
 
 	}
-
-	return 0;
 }

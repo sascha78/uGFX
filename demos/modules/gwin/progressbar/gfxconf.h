@@ -29,6 +29,8 @@
 #ifndef _GFXCONF_H
 #define _GFXCONF_H
 
+#define GFX_COMPAT_V2			GFXOFF
+
 //#define GFX_USE_OS_CHIBIOS		GFXON
 //#define GFX_USE_OS_WIN32		GFXON
 //#define GFX_USE_OS_LINUX		GFXON

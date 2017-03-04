@@ -30,10 +30,12 @@
 #include "gfx.h"
 
 int main(void) {
-	font_t font1;
+	gfxInit();
+	return 0;
+}
 
-    // Initialize uGFX and the underlying system
-    gfxInit();
+void uGFXMain(void) {
+	font_t font1;
 
     // Get the fonts we want to use
 	font1 = gdispOpenFont("Archangelsk Regular 12");

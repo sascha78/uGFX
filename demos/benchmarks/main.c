@@ -138,12 +138,13 @@ void benchmark(void) {
 
 int main(void) {
 	gfxInit();
-	
+	return 0;
+}
+
+void uGFXMain(void) {
 	benchmark();
     
 	while(GTrue) {
 		gfxSleepMilliseconds(500);
 	}
-
-	return 0;
 }

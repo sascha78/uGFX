@@ -97,10 +97,13 @@ static void guiCreate(void)
 }
 
 int main(void) {
+	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
 	GEventKeyboard* pk;
 	unsigned i;
-
-	gfxInit();
 
 	gdispClear(GFXSILVER);
 	gwinSetDefaultFont(gdispOpenFont("DejaVuSans16"));

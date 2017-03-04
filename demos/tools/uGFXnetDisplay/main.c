@@ -323,12 +323,15 @@ static SOCKET_TYPE doConnect(proto_args) {
  * There are two prototypes - one for systems with a command line and one for embedded systems without one.
  */
 int main(proto_args) {
+	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
 	uint16_t			cmd[5];
 	unsigned			cnt;
 
 
-	// Initialize and clear the display
-	gfxInit();
 	font = gdispOpenFont("UI2");
 
 	// Open the connection
@@ -423,5 +426,4 @@ int main(proto_args) {
 alldone:
 	closesocket(netfd);
 	gfxHalt("Connection closed");
-	return 0;
 }

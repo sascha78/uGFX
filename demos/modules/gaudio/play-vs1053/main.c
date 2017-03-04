@@ -43,6 +43,11 @@
  * Application entry point.
  */
 int main(void) {
+	gfxInit();
+	return 0;
+}
+
+void uGFXMain(void) {
 	font_t			font;
 	GFILE			*f;
 	char 			*errmsg;
@@ -51,7 +56,6 @@ int main(void) {
 	GDataBuffer		*pd;
 
 	// Initialise everything
-	gfxInit();
 	errmsg = 0;
 
 	// Any font will do

@@ -2,7 +2,7 @@
  * File: main.c
  *
  * This file is a part of the Notepad demo application for ChibiOS/GFX
- * Copyright © 2013, Kumar Abhishek [abhishek.kakkar@edaboard.com].
+ * Copyright ï¿½ 2013, Kumar Abhishek [abhishek.kakkar@edaboard.com].
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -74,11 +74,12 @@ const char *tsCalibRead(uint16_t instance) {
 }
 
 int main(void) {
+	gfxInit();
+	return 0;
+}
 
+void uGFXMain(void) {
   font_t font = gdispOpenFont("UI2");
-
-  /* initialize the hardware and the OS */
-  gfxInit();
 
   /* Calibrate the touchscreen */
   ginputSetMouseCalibrationRoutines(0, NULL, tsCalibRead, GFalse);
@@ -97,6 +98,4 @@ int main(void) {
 
 	gfxSleepMilliseconds(1000);
   }
-
-	return 0;
 }
