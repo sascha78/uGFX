@@ -21,6 +21,10 @@ void _gosInit(void)
 	/* No initialization of the operating system itself is needed */
 }
 
+void _gosPostInit(void)
+{
+}
+
 void _gosDeinit(void)
 {
 
