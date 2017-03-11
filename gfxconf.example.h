@@ -89,6 +89,8 @@
 //#define GDISP_NEED_STREAMING                         GFXOFF
 //#define GDISP_NEED_TEXT                              GFXOFF
 //    #define GDISP_NEED_TEXT_WORDWRAP                 GFXOFF
+//    #define GDISP_NEED_TEXT_BOXPADLR                 1
+//    #define GDISP_NEED_TEXT_BOXPADTB                 1
 //    #define GDISP_NEED_ANTIALIAS                     GFXOFF
 //    #define GDISP_NEED_UTF8                          GFXOFF
 //    #define GDISP_NEED_TEXT_KERNING                  GFXOFF
