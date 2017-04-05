@@ -144,7 +144,7 @@ void gfxInit(void)
 	#endif
 	_gosPostInit();
 	#if GFX_OS_CALL_UGFXMAIN
-		uGFXMain(0);
+		uGFXMain();
 	#endif
 }
 

@@ -6,7 +6,8 @@
  */
 
 // Include the "Single File Make" compatible parts of uGFX
+#include "gdisp.c"
+#include "../../drivers/gdisp/gdisp_drivers.c"
 
 // Include the parts not garanteed to be fully compatible with single file make.
-#include "gdisp.c"				// Broken if multiple drivers are included
 //#include "gdisp_pixmap.c"		// Definitely broken in Single file Make

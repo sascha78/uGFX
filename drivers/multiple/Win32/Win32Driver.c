@@ -5,10 +5,12 @@
  *              http://ugfx.org/license.html
  */
 
+// Macros for the higher level
+#define GDISP_DRIVER_BYTESDRIVER	sizeof(GDISPDRIVERID(DriverPrivateArea))
+#define GDISP_DRIVER_BYTESBOARD		0
+
 // We need to include stdio.h below. Turn off GFILE_NEED_STDIO just for this file to prevent conflicts
 #define GFILE_NEED_STDIO_MUST_BE_OFF
-
-#include "Win32Config_gdisp.h"
 
 // Configuration options for this driver
 #ifndef GDISP_WIN32_WIDTH
@@ -16,6 +18,9 @@
 #endif
 #ifndef GDISP_WIN32_HEIGHT
 	#define GDISP_WIN32_HEIGHT	480
+#endif
+#ifndef GDISP_WIN32_DISPLAYS
+	#define GDISP_WIN32_DISPLAYS	1
 #endif
 #ifndef GDISP_WIN32_USE_INDIRECT_UPDATE
 	/**
@@ -415,7 +420,7 @@ static HWND				hWndParent = 0;
 
 #define APP_NAME "uGFX"
 
-typedef struct winPriv {
+typedef struct {
 	HWND			hwnd;
 	HDC				dcBuffer;
 	HBITMAP			dcBitmap;
@@ -430,32 +435,28 @@ typedef struct winPriv {
 	#if GFX_USE_GINPUT && GINPUT_NEED_TOGGLE
 		uint8_t		toggles;
 	#endif
-	#if GDISP_HARDWARE_STREAM_WRITE || GDISP_HARDWARE_STREAM_READ
-		gCoord		x0, y0, x1, y1;
-		gCoord		x, y;
-	#endif
-} winPriv;
+} GDISPDRIVERID(DriverPrivateArea);
 
-void gfxEmulatorSetParentWindow(void *hwnd) {
+void gfxWin32SetParentWindow(void *hwnd) {
 	hWndParent = (HWND)hwnd;
 }
 
 #if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
-	void gfxEmulatorMouseInject(GDisplay *g, uint16_t buttons, gCoord x, gCoord y) {
-		winPriv *		priv;
+	void gfxWin32MouseInject(GDisplay *g, uint16_t buttons, gCoord x, gCoord y) {
+		GDISPDRIVERID(DriverPrivateArea) *		priv;
 		
-		priv = (winPriv *)g->priv;
+		priv = (GDISPDRIVERID(DriverPrivateArea) *)(g+1);
 		priv->mousebuttons = buttons;
 		priv->mousex = x;
 		priv->mousey = y;
 		if ((gmvmt(priv->mouse)->d.flags & GMOUSE_VFLG_NOPOLL))		// For normal setup this is always GTrue
 			_gmouseWakeup(priv->mouse);
 	}
-	void gfxEmulatorMouseEnable(GDisplay *g, bool_t enabled) {
-		((winPriv *)g->priv)->mouseenabled = enabled;
+	void gfxWin32MouseEnable(GDisplay *g, bool_t enabled) {
+		((GDISPDRIVERID(DriverPrivateArea) *)(g+1))->mouseenabled = enabled;
 	}
-	void gfxEmulatorMouseCapture(GDisplay *g, void (*capfn)(void * hWnd, GDisplay *g, uint16_t buttons, gCoord x, gCoord y)) {
-		((winPriv *)g->priv)->capfn = capfn;
+	void gfxWin32MouseCapture(GDisplay *g, void (*capfn)(void * hWnd, GDisplay *g, uint16_t buttons, gCoord x, gCoord y)) {
+		((GDISPDRIVERID(DriverPrivateArea) *)(g+1))->capfn = capfn;
 	}
 #endif
 
@@ -464,7 +465,7 @@ static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPA
 	HDC				dc;
 	PAINTSTRUCT		ps;
 	GDisplay *		g;
-	winPriv *		priv;
+	GDISPDRIVERID(DriverPrivateArea) *		priv;
 	#if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
 		uint16_t	btns;
 	#endif
@@ -482,7 +483,7 @@ static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPA
 	case WM_CREATE:
 		// Get our GDisplay structure and attach it to the window
 		g = (GDisplay *)((LPCREATESTRUCT)lParam)->lpCreateParams;
-		priv = (winPriv *)g->priv;
+		priv = (GDISPDRIVERID(DriverPrivateArea) *)(g+1);
 		SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)g);
 
 		// Fill in the private area
@@ -501,7 +502,7 @@ static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPA
 		case WM_LBUTTONDOWN:
 			// Get our GDisplay structure
 			g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			priv = (winPriv *)g->priv;
+			priv = (GDISPDRIVERID(DriverPrivateArea) *)(g+1);
 
 			// Handle mouse down on the window
 			#if GINPUT_NEED_MOUSE
@@ -533,7 +534,7 @@ static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPA
 		case WM_LBUTTONUP:
 			// Get our GDisplay structure
 			g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			priv = (winPriv *)g->priv;
+			priv = (GDISPDRIVERID(DriverPrivateArea) *)(g+1);
 
 			// Handle mouse up on the toggle area
 			#if GINPUT_NEED_TOGGLE
@@ -567,7 +568,7 @@ static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPA
 	#if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
 		case WM_MBUTTONDOWN:
 			g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			priv = (winPriv *)g->priv;
+			priv = (GDISPDRIVERID(DriverPrivateArea) *)(g+1);
 			if ((gCoord)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
 				btns = priv->mousebuttons;
 				btns |= GINPUT_MOUSE_BTN_MIDDLE;
@@ -576,7 +577,7 @@ static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPA
 			break;
 		case WM_MBUTTONUP:
 			g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			priv = (winPriv *)g->priv;
+			priv = (GDISPDRIVERID(DriverPrivateArea) *)(g+1);
 			if ((gCoord)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
 				btns = priv->mousebuttons;
 				btns &= ~GINPUT_MOUSE_BTN_MIDDLE;
@@ -585,7 +586,7 @@ static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPA
 			break;
 		case WM_RBUTTONDOWN:
 			g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			priv = (winPriv *)g->priv;
+			priv = (GDISPDRIVERID(DriverPrivateArea) *)(g+1);
 			if ((gCoord)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
 				btns = priv->mousebuttons;
 				btns |= GINPUT_MOUSE_BTN_RIGHT;
@@ -594,7 +595,7 @@ static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPA
 			break;
 		case WM_RBUTTONUP:
 			g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			priv = (winPriv *)g->priv;
+			priv = (GDISPDRIVERID(DriverPrivateArea) *)(g+1);
 			if ((gCoord)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
 				btns = priv->mousebuttons;
 				btns &= ~GINPUT_MOUSE_BTN_RIGHT;
@@ -603,7 +604,7 @@ static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPA
 			break;
 		case WM_MOUSEMOVE:
 			g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			priv = (winPriv *)g->priv;
+			priv = (GDISPDRIVERID(DriverPrivateArea) *)(g+1);
 			if ((gCoord)HIWORD(lParam) >= GDISP_WIN32_HEIGHT)
 				break;
 			btns = priv->mousebuttons;
@@ -668,7 +669,7 @@ static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPA
 	case WM_PAINT:
 		// Get our GDisplay structure
 		g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-		priv = (winPriv *)g->priv;
+		priv = (GDISPDRIVERID(DriverPrivateArea) *)(g+1);
 
 		// Paint the main window area
 		WaitForSingleObject(drawMutex, INFINITE);
@@ -710,15 +711,12 @@ static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPA
 	case WM_DESTROY:
 		// Get our GDisplay structure
 		g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-		priv = (winPriv *)g->priv;
+		priv = (GDISPDRIVERID(DriverPrivateArea) *)(g+1);
 
 		// Restore the window and free our bitmaps
 		SelectObject(priv->dcBuffer, priv->dcOldBitmap);
 		DeleteDC(priv->dcBuffer);
 		DeleteObject(priv->dcBitmap);
-
-		// Cleanup the private area
-		gfxFree(priv);
 
 		// Quit the application
 		PostQuitMessage(0);
@@ -804,8 +802,13 @@ static DWORD WINAPI GDISPDRIVERID(WindowThread)(void *param) {
 /* Driver exported functions.                                                */
 /*===========================================================================*/
 
-LLDSPEC bool_t GDISPDRIVERID(init)(GDisplay *g) {
-	winPriv	*	priv;
+static unsigned GDISPDRIVERID(count)(const struct GDISPVMT *vmt) {
+	(void) vmt;
+	return GDISP_WIN32_DISPLAYS;
+}
+
+static bool_t GDISPDRIVERID(init)(GDisplay *g) {
+	GDISPDRIVERID(DriverPrivateArea)	*	priv;
 	char		buf[132];
 
 	// Initialise the window thread and the window class (if it hasn't been done already)
@@ -844,11 +847,7 @@ LLDSPEC bool_t GDISPDRIVERID(init)(GDisplay *g) {
 	#endif
 
 	// Create a private area for this window
-	priv = gfxAlloc(sizeof(winPriv));
-	assert(priv != 0);
-	memset(priv, 0, sizeof(winPriv));
-	g->priv = priv;
-	g->board = 0;			// no board interface for this controller
+	priv = (GDISPDRIVERID(DriverPrivateArea) *)(g+1);
 
 	// Create the window in the message thread
 	PostThreadMessage(winThreadId, WM_USER, (WPARAM)g->controllerdisplay, (LPARAM)g);
@@ -871,11 +870,11 @@ LLDSPEC bool_t GDISPDRIVERID(init)(GDisplay *g) {
 	return GTrue;
 }
 
-#if GDISP_HARDWARE_FLUSH
-	LLDSPEC void GDISPDRIVERID(flush)(GDisplay *g) {
-		winPriv	*	priv;
+#if GDISP_DRIVER_FLUSH
+	static void GDISPDRIVERID(flush)(GDisplay *g) {
+		GDISPDRIVERID(DriverPrivateArea)	*	priv;
 
-		priv = g->priv;
+		priv = (GDISPDRIVERID(DriverPrivateArea))(g+1);
 		UpdateWindow(priv->hwnd);
 	}
 #endif
@@ -884,141 +883,119 @@ void BAD_PARAMETER(const char *msg) {
 	fprintf(stderr, "%s\n", msg);
 }
 
-LLDSPEC	void GDISPDRIVERID(start)(GDisplay *g) {
-	winPriv	*	priv;
-
-	if (g->p.cx <= 0 || g->p.cy <= 0 || g->p.x < 0 || g->p.y < 0 || g->p.x+g->p.cx > g->g.Width || g->p.y+g->p.cy > g->g.Height)
-		BAD_PARAMETER("write_start: bad window parameter");
-
-	priv = g->priv;
-	priv->x0 = g->p.x;	priv->x1 = g->p.x + g->p.cx - 1;
-	priv->y0 = g->p.y;	priv->y1 = g->p.y + g->p.cy - 1;
-	#if GDISP_HARDWARE_STREAM_POS
-		priv->x = g->p.x-1;			// Make sure these values are invalid (for testing)
-		priv->y = g->p.y-1;
+static	void GDISPDRIVERID(start)(GDisplay *g) {
+	#if GDISP_DRIVER_SETPOS
+		(void) g;
 	#else
-		priv->x = g->p.x;
-		priv->y = g->p.y;
+		g->win.p.x = g->win.r.p1.x;
+		g->win.p.y = g->win.r.p1.y;
 	#endif
 }
 
-LLDSPEC	void GDISPDRIVERID(write)(GDisplay *g) {
-	winPriv	*	priv;
-	int			x, y;
+static	void GDISPDRIVERID(write)(GDisplay *g) {
+	GDISPDRIVERID(DriverPrivateArea)	*	priv;
+	int			x, y, cnt;
 	COLORREF	color;
 
-	priv = g->priv;
+	priv = (GDISPDRIVERID(DriverPrivateArea) *)(g+1);
 	color = gdispColor2Native(g->p.color);
 
-	if (priv->x < priv->x0 || priv->x > priv->x1 || priv->y < priv->y0 || priv->y > priv->y1)
-		BAD_PARAMETER("write_color: cursor outside streaming area");
-
-	#if GDISP_NEED_CONTROL
-		switch(g->g.Orientation) {
-		case GDISP_ROTATE_0:
-		default:
-			x = priv->x;
-			y = priv->y;
-			break;
-		case GDISP_ROTATE_90:
-			x = priv->y;
-			y = g->g.Width - 1 - priv->x;
-			break;
-		case GDISP_ROTATE_180:
-			x = g->g.Width - 1 - priv->x;
-			y = g->g.Height - 1 - priv->y;
-			break;
-		case GDISP_ROTATE_270:
-			x = g->g.Height - 1 - priv->y;
-			y = priv->x;
-			break;
-		}
-	#else
-		x = priv->x;
-		y = priv->y;
-	#endif
-
-	// Draw the pixel on the screen and in the buffer.
-	WaitForSingleObject(drawMutex, INFINITE);
-	SetPixel(priv->dcBuffer, x, y, color);
-	#if GDISP_WIN32_USE_INDIRECT_UPDATE
-		ReleaseMutex(drawMutex);
-		{
-			RECT	r;
-			r.left = x; r.right = x+1;
-			r.top = y; r.bottom = y+1;
-			InvalidateRect(priv->hwnd, &r, FALSE);
-		}
-	#else
-		{
-			HDC		dc;
-			dc = GetDC(priv->hwnd);
-			SetPixel(dc, x, y, color);
-			ReleaseDC(priv->hwnd, dc);
-			ReleaseMutex(drawMutex);
-		}
-	#endif
-
-	// Update the cursor
-	if (++priv->x > priv->x1) {
-		priv->x = priv->x0;
-		if (++priv->y > priv->y1) {
-			priv->y = priv->y0;
-		}
-	}
-}
-
-#if GDISP_HARDWARE_STREAM_POS
-	LLDSPEC void GDISPDRIVERID(setpos)(GDisplay *g) {
-		winPriv	*	priv;
-
-		priv = g->priv;
-
-		if (g->p.x < priv->x0 || g->p.x > priv->x1 || g->p.y < priv->y0 || g->p.y > priv->y1)
-			BAD_PARAMETER("write_color: new cursor outside streaming area");
-		priv->x = g->p.x;
-		priv->y = g->p.y;
-	}
-#endif
-
-#if GDISP_HARDWARE_STREAM_READ
-	LLDSPEC	gColor GDISPDRIVERID(read)(GDisplay *g) {
-		winPriv	*	priv;
-		COLORREF	color;
-
-		priv = g->priv;
-
-		if (priv->x < priv->x0 || priv->x > priv->x1 || priv->y < priv->y0 || priv->y > priv->y1)
-			BAD_PARAMETER("read_color: cursor outside streaming area");
-
-		WaitForSingleObject(drawMutex, INFINITE);
-		#if GDISP_NEED_CONTROL
+	for (cnt = g->p.e.cnt; cnt; cnt--) {
+		#if GDISP_DRIVER_IOCTL
 			switch(g->g.Orientation) {
 			case GDISP_ROTATE_0:
 			default:
-				color = GetPixel(priv->dcBuffer, priv->x, priv->y);
+				x = g->win.p.x;
+				y = g->win.p.y;
 				break;
 			case GDISP_ROTATE_90:
-				color = GetPixel(priv->dcBuffer, priv->y, g->g.Width - 1 - priv->x);
+				x = g->win.p.y;
+				y = g->g.Width - 1 - g->win.p.x;
 				break;
 			case GDISP_ROTATE_180:
-				color = GetPixel(priv->dcBuffer, g->g.Width - 1 - priv->x, g->g.Height - 1 - priv->y);
+				x = g->g.Width - 1 - g->win.p.x;
+				y = g->g.Height - 1 - g->win.p.y;
 				break;
 			case GDISP_ROTATE_270:
-				color = GetPixel(priv->dcBuffer, g->g.Height - 1 - priv->y, priv->x);
+				x = g->g.Height - 1 - g->win.p.y;
+				y = g->win.p.x;
 				break;
 			}
 		#else
-			color = GetPixel(priv->dcBuffer, priv->x, priv->y);
+			x = g->win.p.x;
+			y = g->win.p.y;
+		#endif
+		
+		// Draw the pixel on the screen and in the buffer.
+		WaitForSingleObject(drawMutex, INFINITE);
+		SetPixel(priv->dcBuffer, x, y, color);
+		#if GDISP_WIN32_USE_INDIRECT_UPDATE
+			ReleaseMutex(drawMutex);
+			{
+				RECT	r;
+				r.left = x; r.right = x+1;
+				r.top = y; r.bottom = y+1;
+				InvalidateRect(priv->hwnd, &r, FALSE);
+			}
+		#else
+			{
+				HDC		dc;
+				dc = GetDC(priv->hwnd);
+				SetPixel(dc, x, y, color);
+				ReleaseDC(priv->hwnd, dc);
+				ReleaseMutex(drawMutex);
+			}
+		#endif
+	
+		// Update the cursor
+		if (++g->win.p.x > g->win.r.p2.x) {
+			g->win.p.x = g->win.r.p1.x;
+			if (++g->win.p.y > g->win.r.p2.y)
+				g->win.p.y = g->win.r.p1.y;
+		}
+	}
+}
+
+#if GDISP_DRIVER_SETPOS
+	static void GDISPDRIVERID(setpos)(GDisplay *g) {
+		(void) g;
+	}
+#endif
+
+#if GDISP_DRIVER_READ
+	static	gColor GDISPDRIVERID(read)(GDisplay *g) {
+		GDISPDRIVERID(DriverPrivateArea)	*	priv;
+		COLORREF	color;
+
+		priv = (GDISPDRIVERID(DriverPrivateArea))(g+1);
+
+		WaitForSingleObject(drawMutex, INFINITE);
+		#if GDISP_DRIVER_IOCTL
+			switch(g->g.Orientation) {
+			case GDISP_ROTATE_0:
+			default:
+				color = GetPixel(priv->dcBuffer, g->win.p.x, g->win.p.y);
+				break;
+			case GDISP_ROTATE_90:
+				color = GetPixel(priv->dcBuffer, g->win.p.y, g->g.Width - 1 - g->win.p.x);
+				break;
+			case GDISP_ROTATE_180:
+				color = GetPixel(priv->dcBuffer, g->g.Width - 1 - g->win.p.x, g->g.Height - 1 - g->win.p.y);
+				break;
+			case GDISP_ROTATE_270:
+				color = GetPixel(priv->dcBuffer, g->g.Height - 1 - g->win.p.y, g->win.p.x);
+				break;
+			}
+		#else
+			color = GetPixel(priv->dcBuffer, g->win.p.x, g->win.p.y);
 		#endif
 		ReleaseMutex(drawMutex);
 
 		// Update the cursor
-		if (++priv->x > priv->x1) {
-			priv->x = priv->x0;
-			if (++priv->y > priv->y1) {
-				priv->y = priv->y0;
-			}
+		if (++g->win.p.x > g->win.r.p2.x) {
+			g->win.p.x = g->win.r.p1.x;
+			if (++g->win.p.y > g->win.r.p2.y)
+				g->win.p.y = g->win.r.p1.y;
 		}
 
 		return gdispNative2Color(color);
@@ -1028,7 +1005,7 @@ LLDSPEC	void GDISPDRIVERID(write)(GDisplay *g) {
 
 /* ---- Optional Routines ---- */
 
-#if GDISP_HARDWARE_BITFILLS && GDISP_NEED_CONTROL
+#if GDISP_DRIVER_BITFILLS && GDISP_NEED_CONTROL
 	static gPixel *rotateimg(GDisplay *g, const gPixel *buffer) {
 		gPixel	*dstbuf;
 		gPixel	*dst;
@@ -1070,19 +1047,19 @@ LLDSPEC	void GDISPDRIVERID(write)(GDisplay *g) {
 	}
 #endif
 
-#if GDISP_HARDWARE_BITFILLS
+#if GDISP_DRIVER_BITFILLS
 	#if COLOR_SYSTEM != GDISP_COLORSYSTEM_TRUECOLOR || COLOR_TYPE_BITS <= 8
 		#error "GDISP Win32: This driver's bitblit currently only supports true-color with bit depths > 8 bits."
 	#endif
 
-	LLDSPEC void gdisp_lld_blit_area(GDisplay *g) {
-		winPriv	*		priv;
+	static void gdisp_lld_blit_area(GDisplay *g) {
+		GDISPDRIVERID(DriverPrivateArea)	*		priv;
 		gPixel	*		buffer;
 		RECT			rect;
 		BITMAPV4HEADER	bmpInfo;
 
 		// Make everything relative to the start of the line
-		priv = g->priv;
+		priv = (GDISPDRIVERID(DriverPrivateArea))(g+1);
 		buffer = g->p.ptr;
 		buffer += g->p.x2*g->p.y1;
 
@@ -1176,13 +1153,13 @@ LLDSPEC	void GDISPDRIVERID(write)(GDisplay *g) {
 	}
 #endif
 
-#if GDISP_NEED_SCROLL && GDISP_HARDWARE_SCROLL
-	LLDSPEC void gdisp_lld_vertical_scroll(GDisplay *g) {
-		winPriv	*	priv;
+#if GDISP_NEED_SCROLL && GDISP_DRIVER_SCROLL
+	static void gdisp_lld_vertical_scroll(GDisplay *g) {
+		GDISPDRIVERID(DriverPrivateArea)	*	priv;
 		RECT		rect;
 		gCoord		lines;
 
-		priv = g->priv;
+		priv = (GDISPDRIVERID(DriverPrivateArea))(g+1);
 
 		#if GDISP_NEED_CONTROL
 			switch(g->g.Orientation) {
@@ -1291,8 +1268,8 @@ LLDSPEC	void GDISPDRIVERID(write)(GDisplay *g) {
 	}
 #endif
 
-#if GDISP_NEED_CONTROL && GDISP_HARDWARE_CONTROL
-	LLDSPEC void gdisp_lld_control(GDisplay *g) {
+#if GDISP_NEED_CONTROL && GDISP_DRIVER_CONTROL
+	static void gdisp_lld_control(GDisplay *g) {
 		switch(g->p.x) {
 		case GDISP_CONTROL_ORIENTATION:
 			if (g->g.Orientation == (orientation_t)g->p.ptr)
@@ -1330,10 +1307,10 @@ LLDSPEC	void GDISPDRIVERID(write)(GDisplay *g) {
 	}
 	static bool_t Win32MouseRead(GMouse *m, GMouseReading *pt) {
 		GDisplay *	g;
-		winPriv	*	priv;
+		GDISPDRIVERID(DriverPrivateArea)	*	priv;
 
 		g = m->display;
-		priv = g->priv;
+		priv = (GDISPDRIVERID(DriverPrivateArea))(g+1);
 
 		pt->x = priv->mousex;
 		pt->y = priv->mousey;
@@ -1424,9 +1401,7 @@ LLDSPEC	void GDISPDRIVERID(write)(GDisplay *g) {
 		// This should use ID
 		if (!toggleWindow)
 			return 0;
-		return ((winPriv *)toggleWindow->priv)->toggles;
-		//return ((winPriv *)((GDisplay *)(ptc->id))->priv)->toggles;
+		return ((GDISPDRIVERID(DriverPrivateArea) *)(toggleWindow+1))->toggles;
+		//return ((GDISPDRIVERID(DriverPrivateArea) *)((GDisplay *)(ptc->id))+1)->toggles;
 	}
 #endif /* GINPUT_NEED_TOGGLE */
-
-#endif /* GFX_USE_GDISP */

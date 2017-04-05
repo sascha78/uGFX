@@ -188,19 +188,15 @@ extern GDisplay	*GDISP;
 /* Defines relating to the display hardware									 */
 /*===========================================================================*/
 
+// Pull in the hardware configuration for the drivers.
+// Also sets GDISP_PIXELFORMAT
 #include "../../drivers/gdisp/gdisp_drivers.h"
 
-#if !defined(GDISP_DRIVER_LIST)
-	// Pull in the default hardware configuration for a single controller.
-	// If we have multiple controllers the settings must be set in the
-	// users gfxconf.h file.
-	// Use the compiler include path to find it
-//	#include "gdisp_lld_config.h"
-
-	// Unless the user has specified a specific pixel format, use
-	// the native format for the controller.
-	#if !defined(GDISP_PIXELFORMAT) && defined(GDISP_LLD_PIXELFORMAT)
-		#define GDISP_PIXELFORMAT 			GDISP_LLD_PIXELFORMAT
+#ifndef GDISP_PIXELFORMAT
+	#ifdef GDISP_DRIVER_PIXELFORMAT
+		#define GDISP_PIXELFORMAT	GDISP_DRIVER_PIXELFORMAT
+	#else
+		#error "GDISP: You need to set GDISP_PIXELFORMAT in your gfxconf.h file as there is more than one GDISP driver"
 	#endif
 #endif
 
@@ -1305,7 +1301,7 @@ void gdispGDrawBox(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gColor
 
 	struct GDisplay {
 		struct GDriver				d;					// This must be the first element
-			#define gvmt(g)		((const GDISPVMT const *)((g)->d.vmt))	// For ease of access to the vmt member
+			#define gvmt(g)		((const GDISPVMT *)((g)->d.vmt))	// For ease of access to the vmt member
 	
 		struct GDISPControl {
 			gCoord					Width;
@@ -1315,9 +1311,6 @@ void gdispGDrawBox(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gColor
 			uint8_t					Backlight;
 			uint8_t					Contrast;
 		} g;
-	
-		void *						priv;				// A private area just for the drivers use.
-		void *						board;				// A private area just for the board interfaces use.
 	
 		uint8_t						systemdisplay;
 		uint8_t						controllerdisplay;
@@ -1362,6 +1355,10 @@ void gdispGDrawBox(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gColor
 				gColor		color;
 				gColor		bgcolor;
 				gRect		clip;
+				#if GDISP_NEED_TEXT_WORDWRAP
+					gPoint		wrap;
+					justify_t	lrj;
+				#endif
 			} t;
 		#endif
 		#if GDISP_LINEBUF_SIZE != 0 && (GDISP_NEED_SCROLL && !GDISP_HARDWARE_SCROLL)

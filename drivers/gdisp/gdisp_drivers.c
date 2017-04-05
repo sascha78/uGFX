@@ -6,33 +6,27 @@
  */
 
 /**
- * @file    src/gdisp/gdisp_drivers.c
- * @brief   GDISP sub-system drivers.
+ * @file    drivers/gdisp/gdisp_drivers.c
+ * @brief   GDISP drivers.
  */
-
-#include "gfx.h"
 
 #if GFX_USE_GDISP
 
-#include "gdisp_drivers.h"
+#include "gdisp_drivers_private.h"
 
-#define GDISP_VMT_CHAIN	0
+// Build each of the drivers
+#define GDISP_DRIVER_PROCESS	"gdisp_driver_build.h"
+#include "gdisp_drivers_list.h"
 
-#if GDISP_MULTIPLE_DRIVERS
-	#define GDISPLLD static
-#else
-	#define GDISPLLD
-#endif
-
-// Include each of the drivers
-#if  GDISP_DRIVER_WIN32
-	#include "../multiple/Win32/Win32Driver.c"
-	#include "gdisp_drivers_buildvmt.h"
-	#define GDISP_VMT_CHAIN		&Win32_VMTCHAIN
-#endif
-//... Other drivers here
-
-// The chain of GDISP VMT's
-GDriverVMTList const * _GDISP_VMT_CHAIN = GDISP_VMT_CHAIN;
+// Build the array of GDISP VMT's
+static const GDISPVMT * GDISP_DRIVER_LIST[] = {
+	#undef GDISP_DRIVER_NAME
+	#define GDISP_DRIVER_PROCESS	"gdisp_driver_add.h"
+	#include "gdisp_drivers_list.h"
+	
+	// One final NULL to take care of the comma left by the last driver
+	//	Only needed because some compilers don't like a trailing comma in an array definition
+	0
+};
 
 #endif	// GFX_USE_GDISP

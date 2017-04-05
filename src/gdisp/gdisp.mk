@@ -3,5 +3,5 @@
 #
 #              http://ugfx.org/license.html
 
-GFXSRC +=   $(GFXLIB)/src/gdisp/gdisp.c \
+GFXSRC +=   $(GFXLIB)/src/gdisp/gdisp_mk.c \
 			$(GFXLIB)/src/gdisp/gdisp_pixmap.c

@@ -1,0 +1,294 @@
+/*
+ * This file is subject to the terms of the GFX License. If a copy of
+ * the license was not distributed with this file, you can obtain one at:
+ *
+ *              http://ugfx.org/license.html
+ */
+
+/**
+ * @file    drivers/gdisp/gdisp_driver_colors.h
+ */
+
+/*
+ * We use this big mess of macros to calculate all the components
+ * to prevent user errors in the color definitions. It greatly simplifies
+ * the color definitions and ensures a consistent implementation.
+ *
+ * This will get included twice - once to define all the color definitions and once to clean them up
+ */
+
+#ifndef _GDISP_DRIVERS_COLORS_H
+#define _GDISP_DRIVERS_COLORS_H
+
+	//-------------------------
+	//	True-Color color system
+	//-------------------------
+	#if GDISP_DRIVER_PIXELFORMAT & GDISP_COLORSYSTEM_TRUECOLOR
+		#define GDISP_DRIVER_COLOR_SYSTEM			GDISP_COLORSYSTEM_TRUECOLOR
+	
+		// Calculate the number of bits
+		#define GDISP_DRIVER_COLOR_BITS_R			((GDISP_DRIVER_PIXELFORMAT>>8) & 0x0F)
+		#define GDISP_DRIVER_COLOR_BITS_G			((GDISP_DRIVER_PIXELFORMAT>>4) & 0x0F)
+		#define GDISP_DRIVER_COLOR_BITS_B			((GDISP_DRIVER_PIXELFORMAT>>0) & 0x0F)
+		#define GDISP_DRIVER_COLOR_BITS				(GDISP_DRIVER_COLOR_BITS_R + GDISP_DRIVER_COLOR_BITS_G + GDISP_DRIVER_COLOR_BITS_B)
+	
+		// From the number of bits determine GDISP_DRIVER_COLOR_TYPE, GDISP_DRIVER_COLOR_TYPE_BITS and masking
+		#if GDISP_DRIVER_COLOR_BITS <= 8
+			#define GDISP_DRIVER_COLOR_TYPE			uint8_t
+			#define GDISP_DRIVER_COLOR_TYPE_BITS	8
+		#elif GDISP_DRIVER_COLOR_BITS <= 16
+			#define GDISP_DRIVER_COLOR_TYPE			uint16_t
+			#define GDISP_DRIVER_COLOR_TYPE_BITS	16
+		#elif GDISP_DRIVER_COLOR_BITS <= 32
+			#define GDISP_DRIVER_COLOR_TYPE			uint32_t
+			#define GDISP_DRIVER_COLOR_TYPE_BITS	32
+		#else
+			#error "GDISP: Cannot define color types with more than 32 bits"
+		#endif
+		#if GDISP_DRIVER_COLOR_TYPE_BITS == GDISP_DRIVER_COLOR_BITS
+			#define GDISP_DRIVER_COLOR_NEEDS_MASK	GFXOFF
+		#else
+			#define GDISP_DRIVER_COLOR_NEEDS_MASK	GFXON
+		#endif
+		#define GDISP_DRIVER_COLOR_MASK()			((1 << GDISP_DRIVER_COLOR_BITS)-1)
+	
+		// Calculate the component bit shifts
+		#if (GDISP_DRIVER_PIXELFORMAT & GDISP_COLORSYSTEM_MASK) == GDISP_COLORSYSTEM_RGB
+			#define GDISP_DRIVER_COLOR_SHIFT_R		(GDISP_DRIVER_COLOR_BITS_B+GDISP_DRIVER_COLOR_BITS_G)
+			#define GDISP_DRIVER_COLOR_SHIFT_G		GDISP_DRIVER_COLOR_BITS_B
+			#define GDISP_DRIVER_COLOR_SHIFT_B		0
+		#else
+			#define GDISP_DRIVER_COLOR_SHIFT_B		(GDISP_DRIVER_COLOR_BITS_R+GDISP_DRIVER_COLOR_BITS_G)
+			#define GDISP_DRIVER_COLOR_SHIFT_G		GDISP_DRIVER_COLOR_BITS_R
+			#define GDISP_DRIVER_COLOR_SHIFT_R		0
+		#endif
+	
+		// Calculate GDISP_DRIVER_RED_OF, GDISP_DRIVER_GREEN_OF, GDISP_DRIVER_BLUE_OF and GDISP_DRIVER_RGB2COLOR
+		#if GDISP_DRIVER_COLOR_BITS_R + GDISP_DRIVER_COLOR_SHIFT_R == 8
+			#define GDISP_DRIVER_RED_OF(c)			((c) & (((1<<GDISP_DRIVER_COLOR_BITS_R)-1) << GDISP_DRIVER_COLOR_SHIFT_R))
+			#define GDISP_DRIVER_RGB2COLOR_R(r)		((GDISP_DRIVER_COLOR_TYPE)((r) & (0xFF & ~((1<<(8-GDISP_DRIVER_COLOR_BITS_R))-1))))
+		#elif GDISP_DRIVER_COLOR_BITS_R + GDISP_DRIVER_COLOR_SHIFT_R > 8
+			#define GDISP_DRIVER_RED_OF(c)			(((c) & (((1<<GDISP_DRIVER_COLOR_BITS_R)-1) << GDISP_DRIVER_COLOR_SHIFT_R)) >> (GDISP_DRIVER_COLOR_BITS_R+GDISP_DRIVER_COLOR_SHIFT_R-8))
+			#define GDISP_DRIVER_RGB2COLOR_R(r)		(((GDISP_DRIVER_COLOR_TYPE)((r) & (0xFF & ~((1<<(8-GDISP_DRIVER_COLOR_BITS_R))-1)))) << (GDISP_DRIVER_COLOR_BITS_R+GDISP_DRIVER_COLOR_SHIFT_R-8))
+		#else // GDISP_DRIVER_COLOR_BITS_R + GDISP_DRIVER_COLOR_SHIFT_R < 8
+			#define GDISP_DRIVER_RED_OF(c)			(((c) & (((1<<GDISP_DRIVER_COLOR_BITS_R)-1) << GDISP_DRIVER_COLOR_SHIFT_R)) << (8-(GDISP_DRIVER_COLOR_BITS_R+GDISP_DRIVER_COLOR_SHIFT_R)))
+			#define GDISP_DRIVER_RGB2COLOR_R(r)		(((GDISP_DRIVER_COLOR_TYPE)((r) & (0xFF & ~((1<<(8-GDISP_DRIVER_COLOR_BITS_R))-1)))) >> (8-(GDISP_DRIVER_COLOR_BITS_R+GDISP_DRIVER_COLOR_SHIFT_R)))
+		#endif
+		#if GDISP_DRIVER_COLOR_BITS_G + GDISP_DRIVER_COLOR_SHIFT_G == 8
+			#define GDISP_DRIVER_GREEN_OF(c)		((c) & (((1<<GDISP_DRIVER_COLOR_BITS_G)-1) << GDISP_DRIVER_COLOR_SHIFT_G))
+			#define GDISP_DRIVER_RGB2COLOR_G(g)		((GDISP_DRIVER_COLOR_TYPE)((g) & (0xFF & ~((1<<(8-GDISP_DRIVER_COLOR_BITS_G))-1))))
+		#elif GDISP_DRIVER_COLOR_BITS_G + GDISP_DRIVER_COLOR_SHIFT_G > 8
+			#define GDISP_DRIVER_GREEN_OF(c)		(((c) & (((1<<GDISP_DRIVER_COLOR_BITS_G)-1) << GDISP_DRIVER_COLOR_SHIFT_G)) >> (GDISP_DRIVER_COLOR_BITS_G+GDISP_DRIVER_COLOR_SHIFT_G-8))
+			#define GDISP_DRIVER_RGB2COLOR_G(g)		(((GDISP_DRIVER_COLOR_TYPE)((g) & (0xFF & ~((1<<(8-GDISP_DRIVER_COLOR_BITS_G))-1)))) << (GDISP_DRIVER_COLOR_BITS_G+GDISP_DRIVER_COLOR_SHIFT_G-8))
+		#else // GDISP_DRIVER_COLOR_BITS_G + GDISP_DRIVER_COLOR_SHIFT_G < 8
+			#define GDISP_DRIVER_GREEN_OF(c)		(((c) & (((1<<GDISP_DRIVER_COLOR_BITS_G)-1) << GDISP_DRIVER_COLOR_SHIFT_G)) << (8-(GDISP_DRIVER_COLOR_BITS_G+GDISP_DRIVER_COLOR_SHIFT_G)))
+			#define GDISP_DRIVER_RGB2COLOR_G(g)		(((GDISP_DRIVER_COLOR_TYPE)((g) & (0xFF & ~((1<<(8-GDISP_DRIVER_COLOR_BITS_G))-1)))) >> (8-(GDISP_DRIVER_COLOR_BITS_G+GDISP_DRIVER_COLOR_SHIFT_G)))
+		#endif
+		#if GDISP_DRIVER_COLOR_BITS_B + GDISP_DRIVER_COLOR_SHIFT_B == 8
+			#define GDISP_DRIVER_BLUE_OF(c)			((c) & (((1<<GDISP_DRIVER_COLOR_BITS_B)-1) << GDISP_DRIVER_COLOR_SHIFT_B))
+			#define GDISP_DRIVER_RGB2COLOR_B(b)		((GDISP_DRIVER_COLOR_TYPE)((b) & (0xFF & ~((1<<(8-GDISP_DRIVER_COLOR_BITS_B))-1))))
+		#elif GDISP_DRIVER_COLOR_BITS_B + GDISP_DRIVER_COLOR_SHIFT_B > 8
+			#define GDISP_DRIVER_BLUE_OF(c)			(((c) & (((1<<GDISP_DRIVER_COLOR_BITS_B)-1) << GDISP_DRIVER_COLOR_SHIFT_B)) >> (GDISP_DRIVER_COLOR_BITS_B+GDISP_DRIVER_COLOR_SHIFT_B-8))
+			#define GDISP_DRIVER_RGB2COLOR_B(b)		(((GDISP_DRIVER_COLOR_TYPE)((b) & (0xFF & ~((1<<(8-GDISP_DRIVER_COLOR_BITS_B))-1)))) << (GDISP_DRIVER_COLOR_BITS_B+GDISP_DRIVER_COLOR_SHIFT_B-8))
+		#else // GDISP_DRIVER_COLOR_BITS_B + GDISP_DRIVER_COLOR_SHIFT_B < 8
+			#define GDISP_DRIVER_BLUE_OF(c)			(((c) & (((1<<GDISP_DRIVER_COLOR_BITS_B)-1) << GDISP_DRIVER_COLOR_SHIFT_B)) << (8-(GDISP_DRIVER_COLOR_BITS_B+GDISP_DRIVER_COLOR_SHIFT_B)))
+			#define GDISP_DRIVER_RGB2COLOR_B(b)		(((GDISP_DRIVER_COLOR_TYPE)((b) & (0xFF & ~((1<<(8-GDISP_DRIVER_COLOR_BITS_B))-1)))) >> (8-(GDISP_DRIVER_COLOR_BITS_B+GDISP_DRIVER_COLOR_SHIFT_B)))
+		#endif
+		#define GDISP_DRIVER_LUMA_OF(c)				((GDISP_DRIVER_RED_OF(c)+((uint16_t)GDISP_DRIVER_GREEN_OF(c)<<1)+GDISP_DRIVER_BLUE_OF(c))>>2)
+		#define GDISP_DRIVER_EXACT_RED_OF(c)		(((uint16_t)(((c)>>GDISP_DRIVER_COLOR_SHIFT_R)&((1<<GDISP_DRIVER_COLOR_BITS_R)-1))*255)/((1<<GDISP_DRIVER_COLOR_BITS_R)-1))
+		#define GDISP_DRIVER_EXACT_GREEN_OF(c)		(((uint16_t)(((c)>>GDISP_DRIVER_COLOR_SHIFT_G)&((1<<GDISP_DRIVER_COLOR_BITS_G)-1))*255)/((1<<GDISP_DRIVER_COLOR_BITS_G)-1))
+		#define GDISP_DRIVER_EXACT_BLUE_OF(c)		(((uint16_t)(((c)>>GDISP_DRIVER_COLOR_SHIFT_B)&((1<<GDISP_DRIVER_COLOR_BITS_B)-1))*255)/((1<<GDISP_DRIVER_COLOR_BITS_B)-1))
+		#define GDISP_DRIVER_EXACT_LUMA_OF(c)		((GDISP_DRIVER_EXACT_RED_OF(c)+((uint16_t)GDISP_DRIVER_EXACT_GREEN_OF(c)<<1)+GDISP_DRIVER_EXACT_BLUE_OF(c))>>2)
+		#define GDISP_DRIVER_LUMA2COLOR(l)			(GDISP_DRIVER_RGB2COLOR_R(l) | GDISP_DRIVER_RGB2COLOR_G(l) | GDISP_DRIVER_RGB2COLOR_B(l))
+		#define GDISP_DRIVER_RGB2COLOR(r,g,b)		(GDISP_DRIVER_RGB2COLOR_R(r) | GDISP_DRIVER_RGB2COLOR_G(g) | GDISP_DRIVER_RGB2COLOR_B(b))
+	
+		// Calculate GDISP_DRIVER_HTML2COLOR
+		#if GDISP_DRIVER_COLOR_BITS_R + GDISP_DRIVER_COLOR_SHIFT_R == 24
+			#define GDISP_DRIVER_HTML2COLOR_R(h)	((h) & ((0xFFL & ~((1<<(8-GDISP_DRIVER_COLOR_BITS_R))-1))<<16))
+		#elif GDISP_DRIVER_COLOR_BITS_R + GDISP_DRIVER_COLOR_SHIFT_R > 24
+			#define GDISP_DRIVER_HTML2COLOR_R(h)	(((h) & ((0xFFL & ~((1<<(8-GDISP_DRIVER_COLOR_BITS_R))-1))<<16)) << (GDISP_DRIVER_COLOR_BITS_R+GDISP_DRIVER_COLOR_SHIFT_R-24))
+		#else // GDISP_DRIVER_COLOR_BITS_R + GDISP_DRIVER_COLOR_SHIFT_R < 24
+			#define GDISP_DRIVER_HTML2COLOR_R(h)	(((h) & ((0xFFL & ~((1<<(8-GDISP_DRIVER_COLOR_BITS_R))-1))<<16)) >> (24-(GDISP_DRIVER_COLOR_BITS_R+GDISP_DRIVER_COLOR_SHIFT_R)))
+		#endif
+		#if GDISP_DRIVER_COLOR_BITS_G + GDISP_DRIVER_COLOR_SHIFT_G == 16
+			#define GDISP_DRIVER_HTML2COLOR_G(h)	((h) & ((0xFFL & ~((1<<(8-GDISP_DRIVER_COLOR_BITS_G))-1))<<8))
+		#elif GDISP_DRIVER_COLOR_BITS_G + GDISP_DRIVER_COLOR_SHIFT_G > 16
+			#define GDISP_DRIVER_HTML2COLOR_G(h)	(((h) & ((0xFFL & ~((1<<(8-GDISP_DRIVER_COLOR_BITS_G))-1))<<8)) << (GDISP_DRIVER_COLOR_BITS_G+GDISP_DRIVER_COLOR_SHIFT_G-16))
+		#else // GDISP_DRIVER_COLOR_BITS_G + GDISP_DRIVER_COLOR_SHIFT_G < 16
+			#define GDISP_DRIVER_HTML2COLOR_G(h)	(((h) & ((0xFFL & ~((1<<(8-GDISP_DRIVER_COLOR_BITS_G))-1))<<8)) >> (16-(GDISP_DRIVER_COLOR_BITS_G+GDISP_DRIVER_COLOR_SHIFT_G)))
+		#endif
+		#if GDISP_DRIVER_COLOR_BITS_B + GDISP_DRIVER_COLOR_SHIFT_B == 8
+			#define GDISP_DRIVER_HTML2COLOR_B(h)	((h) & (0xFFL & ~((1<<(8-GDISP_DRIVER_COLOR_BITS_B))-1)))
+		#elif GDISP_DRIVER_COLOR_BITS_B + GDISP_DRIVER_COLOR_SHIFT_B > 8
+			#define GDISP_DRIVER_HTML2COLOR_B(h)	(((h) & (0xFFL & ~((1<<(8-GDISP_DRIVER_COLOR_BITS_B))-1))) << (GDISP_DRIVER_COLOR_BITS_B+GDISP_DRIVER_COLOR_SHIFT_B-8))
+		#else // GDISP_DRIVER_COLOR_BITS_B + GDISP_DRIVER_COLOR_SHIFT_B < 8
+			#define GDISP_DRIVER_HTML2COLOR_B(h)	(((h) & (0xFFL & ~((1<<(8-GDISP_DRIVER_COLOR_BITS_B))-1))) >> (8-(GDISP_DRIVER_COLOR_BITS_B+GDISP_DRIVER_COLOR_SHIFT_B)))
+		#endif
+		#define GDISP_DRIVER_HTML2COLOR(h)			((GDISP_DRIVER_COLOR_TYPE)(GDISP_DRIVER_HTML2COLOR_R(h) | GDISP_DRIVER_HTML2COLOR_G(h) | GDISP_DRIVER_HTML2COLOR_B(h)))
+	
+	//-------------------------
+	//	Gray-scale color system
+	//-------------------------
+	#elif (GDISP_DRIVER_PIXELFORMAT & GDISP_COLORSYSTEM_MASK) == GDISP_COLORSYSTEM_GRAYSCALE
+		#define GDISP_DRIVER_COLOR_SYSTEM			GDISP_COLORSYSTEM_GRAYSCALE
+	
+		// Calculate the number of bits and shifts
+		#define GDISP_DRIVER_COLOR_BITS				(GDISP_DRIVER_PIXELFORMAT & 0xFF)
+		#define GDISP_DRIVER_COLOR_BITS_R			GDISP_DRIVER_COLOR_BITS
+		#define GDISP_DRIVER_COLOR_BITS_G			GDISP_DRIVER_COLOR_BITS
+		#define GDISP_DRIVER_COLOR_BITS_B			GDISP_DRIVER_COLOR_BITS
+		#define GDISP_DRIVER_COLOR_SHIFT_R			0
+		#define GDISP_DRIVER_COLOR_SHIFT_G			0
+		#define GDISP_DRIVER_COLOR_SHIFT_B			0
+	
+		// From the number of bits determine GDISP_DRIVER_COLOR_TYPE, GDISP_DRIVER_COLOR_TYPE_BITS and masking
+		#if GDISP_DRIVER_COLOR_BITS <= 8
+			#define GDISP_DRIVER_COLOR_TYPE			uint8_t
+			#define GDISP_DRIVER_COLOR_TYPE_BITS	8
+		#else
+			#error "GDISP: Cannot define gray-scale color types with more than 8 bits"
+		#endif
+		#if GDISP_DRIVER_COLOR_TYPE_BITS == GDISP_DRIVER_COLOR_BITS
+			#define GDISP_DRIVER_COLOR_NEEDS_MASK	GFXOFF
+		#else
+			#define GDISP_DRIVER_COLOR_NEEDS_MASK	GFXON
+		#endif
+		#define GDISP_DRIVER_COLOR_MASK()			((1 << GDISP_DRIVER_COLOR_BITS)-1)
+	
+		#if GDISP_DRIVER_COLOR_BITS == 1
+			#define GDISP_DRIVER_RGB2COLOR(r,g,b)	(((r)|(g)|(b)) ? 1 : 0)
+			#define GDISP_DRIVER_LUMA2COLOR(l)		((l) ? 1 : 0)
+			#define GDISP_DRIVER_HTML2COLOR(h)		((h) ? 1 : 0)
+			#define GDISP_DRIVER_LUMA_OF(c)			((c) ? 255 : 0)
+			#define GDISP_DRIVER_EXACT_LUMA_OF(c)	GDISP_DRIVER_LUMA_OF(c)
+		#else
+			// They eye is more sensitive to green
+			#define GDISP_DRIVER_RGB2COLOR(r,g,b)	((GDISP_DRIVER_COLOR_TYPE)(((uint16_t)(r)+(g)+(g)+(b)) >> (10-GDISP_DRIVER_COLOR_BITS)))
+			#define GDISP_DRIVER_LUMA2COLOR(l)		((GDISP_DRIVER_COLOR_TYPE)((l)>>(8-GDISP_DRIVER_COLOR_BITS)))
+			#define GDISP_DRIVER_HTML2COLOR(h)		((GDISP_DRIVER_COLOR_TYPE)(((((h)&0xFF0000)>>16)+(((h)&0x00FF00)>>7)+((h)&0x0000FF)) >> (10-GDISP_DRIVER_COLOR_BITS)))
+			#define GDISP_DRIVER_LUMA_OF(c)			(((c) & ((1<<GDISP_DRIVER_COLOR_BITS)-1)) << (8-GDISP_DRIVER_COLOR_BITS))
+			#define GDISP_DRIVER_EXACT_LUMA_OF(c)	((((uint16_t)(c) & ((1<<GDISP_DRIVER_COLOR_BITS)-1))*255)/((1<<GDISP_DRIVER_COLOR_BITS)-1))
+		#endif
+	
+		#define GDISP_DRIVER_RED_OF(c)				GDISP_DRIVER_LUMA_OF(c)
+		#define GDISP_DRIVER_GREEN_OF(c)			GDISP_DRIVER_LUMA_OF(c)
+		#define GDISP_DRIVER_BLUE_OF(c)				GDISP_DRIVER_LUMA_OF(c)
+		#define GDISP_DRIVER_EXACT_RED_OF(c)		GDISP_DRIVER_EXACT_LUMA_OF(c)
+		#define GDISP_DRIVER_EXACT_GREEN_OF(c)		GDISP_DRIVER_EXACT_LUMA_OF(c)
+		#define GDISP_DRIVER_EXACT_BLUE_OF(c)		GDISP_DRIVER_EXACT_LUMA_OF(c)
+	
+	//-------------------------
+	//	Palette color system
+	//-------------------------
+	#elif (GDISP_DRIVER_PIXELFORMAT & GDISP_COLORSYSTEM_MASK) == GDISP_COLORSYSTEM_PALETTE
+		#define GDISP_DRIVER_COLOR_SYSTEM			GDISP_COLORSYSTEM_PALETTE
+	
+		#warning "GDISP: A palette color system for drivers is not currently supported. You will need to provide your own color conversion routines"
+	
+	//-------------------------
+	//	Some other color system
+	//-------------------------
+	#else
+		#warning "GDISP: Unsupported color system for drivers. You will need to provide your own color conversion routines"
+	#endif
+	
+	/* Which is the larger color type */
+	#if COLOR_BITS > GDISP_DRIVER_COLOR_BITS
+		#define GDISP_DRIVER_LARGER_COLOR_BITS	COLOR_BITS
+		#define GDISP_DRIVER_LARGER_COLOR_TYPE	COLOR_TYPE
+	#else
+		#define GDISP_DRIVER_LARGER_COLOR_BITS	LLDCOLOR_BITS
+		#define GDISP_DRIVER_LARGER_COLOR_TYPE	LLDCOLOR_TYPE
+	#endif
+	
+	/**
+	 * @brief	Controls color conversion accuracy for a low level driver
+	 * @details	Should higher precision be used when converting colors.
+	 * @note	Color conversion is only necessary if GDISP_PIXELFORMAT != GDISP_DRIVER_PIXELFORMAT
+	 * @note	It only makes sense to turn this on if you have a high bit depth display but
+	 * 			are running the application in low bit depths.
+	 * @note	To achieve higher color accuracy bit shifting is replaced with multiplies and divides.
+	 */
+	#if GDISP_DRIVER_EXACTCOLORS
+		#if GDISP_DRIVER_COLOR_BITS_R - COLOR_BITS_R < GDISP_DRIVER_COLOR_BITS_R/2 && GDISP_DRIVER_COLOR_BITS_G - COLOR_BITS_G < GDISP_DRIVER_COLOR_BITS_G/2 && GDISP_DRIVER_COLOR_BITS_B - COLOR_BITS_B < GDISP_DRIVER_COLOR_BITS_B/2
+			#undef GDISP_DRIVER_EXACTCOLORS
+			#define GDISP_DRIVER_EXACTCOLORS	GFXOFF
+		#endif
+	#endif
+	
+	/* Low level driver pixel format conversion functions */
+	#if GDISP_PIXELFORMAT == GDISP_LLD_PIXELFORMAT || defined(__DOXYGEN__)
+		/**
+		 * @brief	Convert from a standard color format to the low level driver pixel format
+		 * @note	For use only by low level drivers
+		 */
+		#define gdispColor2Native(c)	(c)
+		/**
+		 * @brief	Convert from a low level driver pixel format to the standard color format
+		 * @note	For use only by low level drivers
+		 */
+		#define gdispNative2Color(c)	(c)
+	#elif COLOR_SYSTEM == GDISP_COLORSYSTEM_GRAYSCALE || GDISP_DRIVER_COLOR_SYSTEM == GDISP_COLORSYSTEM_GRAYSCALE
+		#if GDISP_DRIVER_EXACTCOLORS
+			#define gdispColor2Native(c)	GDISP_DRIVER_LUMA2COLOR(EXACT_LUMA_OF(c))
+			#define gdispNative2Color(c)	LUMA2COLOR(GDISP_DRIVER_EXACT_LUMA_OF(c))
+		#else
+			#define gdispColor2Native(c)	GDISP_DRIVER_LUMA2COLOR(LUMA_OF(c))
+			#define gdispNative2Color(c)	LUMA2COLOR(GDISP_DRIVER_LUMA_OF(c))
+		#endif
+	#elif COLOR_SYSTEM == GDISP_COLORSYSTEM_TRUECOLOR && GDISP_DRIVER_COLOR_SYSTEM == GDISP_COLORSYSTEM_TRUECOLOR
+		#if GDISP_DRIVER_EXACTCOLORS
+			#define gdispColor2Native(c)	GDISP_DRIVER_RGB2COLOR(EXACT_RED_OF(c), EXACT_GREEN_OF(c), EXACT_BLUE_OF(c))
+			#define gdispNative2Color(c)	RGB2COLOR(GDISP_DRIVER_EXACT_RED_OF(c), GDISP_DRIVER_EXACT_GREEN_OF(c), GDISP_DRIVER_EXACT_BLUE_OF(c))
+		#else
+			#define gdispColor2Native(c)	GDISP_DRIVER_RGB2COLOR(RED_OF(c), GREEN_OF(c), BLUE_OF(c))
+			#define gdispNative2Color(c)	RGB2COLOR(GDISP_DRIVER_RED_OF(c), GDISP_DRIVER_GREEN_OF(c), GDISP_DRIVER_BLUE_OF(c))
+		#endif
+	#endif
+	/** @} */
+
+#else	// _GDISP_DRIVERS_COLORS_H
+
+	#undef _GDISP_DRIVERS_COLORS_H
+	
+	#undef GDISP_DRIVER_COLOR_SYSTEM
+
+	#undef GDISP_DRIVER_COLOR_BITS
+	#undef GDISP_DRIVER_COLOR_BITS_R
+	#undef GDISP_DRIVER_COLOR_BITS_G
+	#undef GDISP_DRIVER_COLOR_BITS_B
+	#undef GDISP_DRIVER_COLOR_SHIFT_R
+	#undef GDISP_DRIVER_COLOR_SHIFT_G
+	#undef GDISP_DRIVER_COLOR_SHIFT_B
+	
+	#undef GDISP_DRIVER_COLOR_TYPE
+	#undef GDISP_DRIVER_COLOR_TYPE_BITS
+	#undef GDISP_DRIVER_COLOR_NEEDS_MASK
+	#undef GDISP_DRIVER_COLOR_MASK
+	
+	#undef GDISP_DRIVER_RED_OF
+	#undef GDISP_DRIVER_GREEN_OF
+	#undef GDISP_DRIVER_BLUE_OF
+	#undef GDISP_DRIVER_LUMA_OF
+	#undef GDISP_DRIVER_EXACT_RED_OF
+	#undef GDISP_DRIVER_EXACT_GREEN_OF
+	#undef GDISP_DRIVER_EXACT_BLUE_OF
+	#undef GDISP_DRIVER_EXACT_LUMA_OF
+
+	#undef GDISP_DRIVER_LUMA2COLOR
+	#undef GDISP_DRIVER_RGB2COLOR
+	#undef GDISP_DRIVER_RGB2COLOR_R
+	#undef GDISP_DRIVER_RGB2COLOR_G
+	#undef GDISP_DRIVER_RGB2COLOR_B
+	#undef GDISP_DRIVER_HTML2COLOR
+	#undef GDISP_DRIVER_HTML2COLOR_R
+	#undef GDISP_DRIVER_HTML2COLOR_G
+	#undef GDISP_DRIVER_HTML2COLOR_B
+	
+	#undef GDISP_DRIVER_LARGER_COLOR_BITS
+	#undef GDISP_DRIVER_LARGER_COLOR_TYPE
+	
+	#undef gdispColor2Native
+	#undef gdispNative2Color
+
+#endif // _GDISP_DRIVERS_COLORS_H */

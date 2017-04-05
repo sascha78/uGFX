@@ -12,6 +12,8 @@
 
 #if GFX_USE_GDISP
 
+#include "../../drivers/gdisp/gdisp_drivers_private.h"
+
 // Include the "Single File Make" compatible parts of uGFX
 
 /* The very first thing that has to be compiled here is mf_font.c so that
@@ -363,11 +365,14 @@ static void line_clip(GDisplay *g) {
 
 void _gdispInit(void)
 {
-	GDriverVMTList const *p;
+	const GDISPVMT **p;
+	unsigned cnt;
 	
-	for(p = _GDISP_VMT_CHAIN; p; p = p->next) {
-		if (!(p->vmt->flags & GDISP_VFLG_DYNAMIC))
-			gdriverRegister(p->vmt, 0);
+	for(p = GDISP_DRIVER_LIST; *p; p++) {
+		if (!(p[0]->d.flags & GDISP_VFLG_DYNAMIC)) {
+			for(cnt = p[0]->count(p[0]); cnt; cnt--)
+				gdriverRegister(&p[0]->d, 0);
+		}
 	}
 
 	// Re-clear the display after the timeout if we added the logo
@@ -408,7 +413,7 @@ bool_t _gdispInitDriver(GDriver *g, void *param, unsigned driverinstance, unsign
 	gd->systemdisplay = systeminstance;
 	gd->controllerdisplay = driverinstance;
 	gd->flags = 0;
-	gd->priv = param;
+	gd->p.e.ptr = param;
 	MUTEX_INIT(gd);
 
 	// Call the driver init
@@ -2727,14 +2732,14 @@ void gdispGDrawBox(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gColor
 		static bool mf_drawline_callback(mf_str line, uint16_t count, void *state) {
 			#define GD	((GDisplay *)state)
 				mf_render_aligned(GD->t.font, GD->t.wrapx, GD->t.wrapy, GD->t.lrj, line, count, drawcharglyph, state);
-				GD->t.wrapy += GD->t.font->line_height;
+				GD->t.wrap.y += GD->t.font->line_height;
 			#undef GD
 			return GTrue;
 		}
 		static bool mf_fillline_callback(mf_str line, uint16_t count, void *state) {
 			#define GD	((GDisplay *)state)
 				mf_render_aligned(GD->t.font, GD->t.wrapx, GD->t.wrapy, GD->t.lrj, line, count, fillcharglyph, state);
-				GD->t.wrapy += GD->t.font->line_height;
+				GD->t.wrap.y += GD->t.font->line_height;
 			#undef GD
 			return GTrue;
 		}	
@@ -2882,8 +2887,8 @@ void gdispGDrawBox(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gColor
 		#if GDISP_NEED_TEXT_WORDWRAP
 			if (!(justify & justifyNoWordWrap)) {
 				g->t.lrj = (justify & JUSTIFYMASK_LEFTRIGHT);
-				g->t.wrapx = x;
-				g->t.wrapy = y;
+				g->t.wrap.x = x;
+				g->t.wrap.y = y;
 				
 				mf_wordwrap(font, cx, str, mf_drawline_callback, g);
 			} else
@@ -2969,8 +2974,8 @@ void gdispGDrawBox(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gColor
 			#if GDISP_NEED_TEXT_WORDWRAP
 				if (!(justify & justifyNoWordWrap)) {
 					g->t.lrj = (justify & JUSTIFYMASK_LEFTRIGHT);
-					g->t.wrapx = x;
-					g->t.wrapy = y;
+					g->t.wrap.x = x;
+					g->t.wrap.y = y;
 					
 					mf_wordwrap(font, cx, str, mf_fillline_callback, g);
 				} else

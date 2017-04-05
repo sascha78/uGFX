@@ -192,10 +192,8 @@
 /* Include Compiler and CPU support */
 #include "src/gfx_compilers.h"
 
-
 /**
  * Get all the options for each sub-system.
- *
  */
 #include "src/gos/gos_options.h"
 #include "src/gdriver/gdriver_options.h"
@@ -212,9 +210,13 @@
 #include "src/gaudio/gaudio_options.h"
 
 /**
+ * Get the options for which drivers to include.
+ */
+#include "drivers/gdisp/gdisp_drivers_options.h"
+
+/**
  * Interdependency safety checks on the sub-systems.
  * These must be in dependency order.
- *
  */
 #ifndef GFX_DISPLAY_RULE_WARNINGS
 	#define GFX_DISPLAY_RULE_WARNINGS	GFXOFF

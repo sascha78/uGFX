@@ -6,8 +6,8 @@
  */
 
 /**
- * @file    src/gdisp/gdisp_drivers_options.h
- * @brief   GDISP sub-system drivers header file.
+ * @file    drivers/gdisp/gdisp_drivers_options.h
+ * @brief   GDISP drivers configuration options.
  *
  * @addtogroup GDISP
  * @{
