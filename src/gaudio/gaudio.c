@@ -5,6 +5,7 @@
  *              http://ugfx.org/license.html
  */
 
+#define GFX_IN_IMPLEMENTATION		GFXON
 #include "../../gfx.h"
 
 #if GFX_USE_GAUDIO

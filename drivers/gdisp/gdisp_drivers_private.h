@@ -27,22 +27,22 @@ typedef struct GDISPVMT {
 	bool_t		(*init)		(GDisplay *g);			// Uses p.e.ptr = init param
 	void		(*start)	(GDisplay *g);			// Uses p.win
 	void		(*write)	(GDisplay *g);			// Uses p.pos, p.color, p.e.cnt
-	#if GDISP_HARDWARE_VMT_DEINIT
+	#if GDISP_DRIVER_VMT_DEINIT
 		void	(*deinit)	(GDisplay *g);			// Uses no parameters
 	#endif
-	#if GDISP_HARDWARE_VMT_FLUSH
+	#if GDISP_DRIVER_VMT_FLUSH
 		void	(*flush)	(GDisplay *g);			// Uses no parameters
 	#endif
-	#if GDISP_HARDWARE_VMT_SETPOS
+	#if GDISP_DRIVER_VMT_SETPOS
 		void	(*setpos)	(GDisplay *g);			// Uses p.pos
 	#endif
-	#if GDISP_HARDWARE_VMT_READ
+	#if GDISP_DRIVER_VMT_READ
 		gColor	(*read)		(GDisplay *g);			// Uses p.pos
 	#endif
-	#if GDISP_HARDWARE_VMT_MOVE
+	#if GDISP_DRIVER_VMT_MOVE
 		void	(*move)		(GDisplay *g);			// Uses p.win	p.e.pos2 (=new pos)
 	#endif
-	#if GDISP_HARDWARE_VMT_IOCTL
+	#if GDISP_DRIVER_VMT_IOCTL
 		bool_t	(*ioctl)	(GDisplay *g);			// Uses p.x (=what?????)  p.e.ptr/p.e.cnt (=value)
 	#endif
 } GDISPVMT;
@@ -65,22 +65,22 @@ extern "C" {
 		static bool_t	GDISPDRIVERID(init)		(GDisplay *g);
 		static void		GDISPDRIVERID(start)	(GDisplay *g);
 		static void		GDISPDRIVERID(write)	(GDisplay *g);
-		#if GDISP_HARDWARE_VMT_DEINIT
+		#if GDISP_DRIVER_VMT_DEINIT
 			static void	GDISPDRIVERID(deinit)	(GDisplay *g);
 		#endif
-		#if GDISP_HARDWARE_VMT_FLUSH
+		#if GDISP_DRIVER_VMT_FLUSH
 			static void	GDISPDRIVERID(flush)	(GDisplay *g);
 		#endif
-		#if GDISP_HARDWARE_VMT_SETPOS
+		#if GDISP_DRIVER_VMT_SETPOS
 			static void	GDISPDRIVERID(setpos)	(GDisplay *g);
 		#endif
-		#if GDISP_HARDWARE_VMT_READ
+		#if GDISP_DRIVER_VMT_READ
 			static gColor	GDISPDRIVERID(read)	(GDisplay *g);
 		#endif
-		#if GDISP_HARDWARE_VMT_MOVE
+		#if GDISP_DRIVER_VMT_MOVE
 			static void	GDISPDRIVERID(move)		(GDisplay *g);
 		#endif
-		#if GDISP_HARDWARE_VMT_IOCTL
+		#if GDISP_DRIVER_VMT_IOCTL
 			static void	GDISPDRIVERID(ioctl)	(GDisplay *g);
 		#endif
 		#define gdisp_lld_init(g)		GDISPDRIVERID(init)(g)

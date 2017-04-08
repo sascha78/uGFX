@@ -16,21 +16,8 @@
 // Define the color macros for the specified driver pixel format
 #include "gdisp_driver_colors.h"
 
-// These are actually defined in the driver source file or the board file.
-//	The defaults from the config options need to be ignored.
-#undef GDISP_DRIVER_BYTESDRIVER
-#undef GDISP_DRIVER_BYTESBOARD
-
 // Include the driver source code
 #include GDISP_DRIVER_C
-
-// Re-establish defaults
-#ifndef GDISP_DRIVER_BYTESDRIVER
-	#define GDISP_DRIVER_BYTESDRIVER	0
-#endif
-#ifndef GDISP_DRIVER_BYTESBOARD
-	#define GDISP_DRIVER_BYTESBOARD		0
-#endif
 
 // Define the driver VMT structure
 static const GDISPVMT GDISPDRIVERID(VMT) = {
@@ -41,7 +28,7 @@ static const GDISPVMT GDISPDRIVERID(VMT) = {
 		#else
 			0,
 		#endif
-		sizeof(GDisplay) + GDISP_DRIVER_BYTESDRIVER + GDISP_DRIVER_BYTESBOARD,		// objsize
+		sizeof(GDISPDRIVERID(Driver)),						// objsize
 		_gdispInitDriver,									// init()
 		_gdispPostInitDriver,								// postinit()
 		_gdispDeInitDriver									// deinit()

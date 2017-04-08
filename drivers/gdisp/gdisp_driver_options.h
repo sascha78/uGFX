@@ -147,24 +147,6 @@
 		#define GDISP_DRIVER_IOCTL			GFXOFF
 	#endif
 
-	/**
-	 * @brief   How many bytes to allocate at the end of the driver structure for the drivers private use.
-	 * @details	Optional Setting. Defined in the driver source file (not the driver config file).
-	 * @default Defaults to 0
-	 */
-	#ifndef GDISP_DRIVER_BYTESDRIVER
-		#define GDISP_DRIVER_BYTESDRIVER	0
-	#endif
-
-	/**
-	 * @brief   How many bytes to allocate at the end of the driver structure and its private area for the board files private use.
-	 * @details	Optional Setting. Defined in the board file (not the driver config file).
-	 * @default Defaults to 0
-	 */
-	#ifndef GDISP_DRIVER_BYTESBOARD
-		#define GDISP_DRIVER_BYTESBOARD		0
-	#endif
-
 /** @} */
 
 #else

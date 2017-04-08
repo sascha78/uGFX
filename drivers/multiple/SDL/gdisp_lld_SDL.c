@@ -3,9 +3,7 @@
  * 06.08.2016
  */
 
-// We need to include stdio.h below. Turn off GFILE_NEED_STDIO just for this file to prevent conflicts
-#define GFILE_NEED_STDIO_MUST_BE_OFF
-
+#define GFX_IN_IMPLEMENTATION		GFXON
 #include "gfx.h"
 
 #if GFX_USE_GDISP

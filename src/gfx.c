@@ -25,6 +25,7 @@
 #include "gwin/gwin_mk.c"
 #include "gmisc/gmisc_mk.c"
 #include "gtrans/gtrans_mk.c"
+#include "gdisp/gdisp_mk.c"
 
 static bool_t gfxInitDone = GFalse;
 

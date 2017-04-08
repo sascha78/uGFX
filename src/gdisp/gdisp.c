@@ -81,7 +81,7 @@ GDisplay	*GDISP;
 #define SETPOS(g, x0, y0)			{ g->win.p.x = (x0); g->win.p.y = (y0); }
 #define CHKPOS(g, x0, y0)			((x0) != g->win.p.x || (y0) != g->win.p.y)
 
-#if GDISP_HARDWARE_VMT_SETPOS == GFXON
+#if GDISP_DRIVER_VMT_SETPOS == GFXON
 	#define SETBLK(g, x0, y0)															\
 		{																				\
 			gdisp_lld_start(g);															\
@@ -103,7 +103,7 @@ GDisplay	*GDISP;
 			}																			\
 		}
 	
-#elif GDISP_HARDWARE_VMT_SETPOS == GFXOFF
+#elif GDISP_DRIVER_VMT_SETPOS == GFXOFF
 	#define SETBLK(g, x0, y0)		gdisp_lld_start(g);
 
 	#define SETWINPOS(g, x0, y0, x1, y1, optx)											\
@@ -146,9 +146,9 @@ GDisplay	*GDISP;
 /* Internal functions.														*/
 /*==========================================================================*/
 
-#if GDISP_NEED_AUTOFLUSH && GDISP_HARDWARE_FLUSH == GFXSOME
-	#define autoflush(g)	if (gvmt(g)->flush && ((g)->flags & GDISP_FLG_FLUSHREQ)) gdisp_lld_flush(g)
-#elif GDISP_NEED_AUTOFLUSH && GDISP_HARDWARE_FLUSH
+#if GDISP_DRIVER_VMT_FLUSH == GFXSOME
+	#define autoflush(g)	if (gvmt(g)->flush ((g)->flags & GDISP_FLG_FLUSHREQ)) gdisp_lld_flush(g)
+#elif GDISP_DRIVER_VMT_FLUSH
 	#define autoflush(g)	if (((g)->flags & GDISP_FLG_FLUSHREQ)) gdisp_lld_flush(g)
 #else
 	#define autoflush(g)
@@ -384,7 +384,7 @@ void _gdispInit(void)
 
 			for(g = (GDisplay *)gdriverGetNext(GDRIVER_TYPE_DISPLAY, 0); g; g = (GDisplay *)gdriverGetNext(GDRIVER_TYPE_DISPLAY, (GDriver *)g)) {
 				gdispGClear(g, GDISP_STARTUP_COLOR);
-				#if GDISP_HARDWARE_FLUSH
+				#if GDISP_DRIVER_FLUSH
 					gdispGFlush(g);
 				#endif
 			}
@@ -429,7 +429,7 @@ void _gdispPostInitDriver(GDriver *g) {
 	#define		gd		((GDisplay *)g)
 
 	// Set orientation, clip
-	#if defined(GDISP_DEFAULT_ORIENTATION) && GDISP_NEED_CONTROL && GDISP_HARDWARE_CONTROL
+	#if defined(GDISP_DEFAULT_ORIENTATION) && GDISP_NEED_CONTROL && GDISP_DRIVER_CONTROL
 		#if GDISP_NEED_PIXMAP
 			// Pixmaps should stay in their created orientation (at least initially)
 			if (!(gvmt(gd)->d.flags & GDISP_VFLG_PIXMAP))
@@ -450,7 +450,7 @@ void _gdispPostInitDriver(GDriver *g) {
 	#endif
 
 	// Flush
-	#if GDISP_HARDWARE_FLUSH
+	#if GDISP_DRIVER_FLUSH
 		gdispGFlush(gd);
 	#endif
 
@@ -467,8 +467,8 @@ void _gdispDeInitDriver(GDriver *g) {
 	if (GDISP == gd)
 		GDISP = (GDisplay *)gdriverGetInstance(GDRIVER_TYPE_DISPLAY, 0);
 
-	#if GDISP_HARDWARE_DEINIT
-		#if GDISP_HARDWARE_DEINIT == HARDWARE_AUTODETECT
+	#if GDISP_DRIVER_DEINIT
+		#if GDISP_DRIVER_DEINIT == GFXSOME
 			if (gvmt(gd)->deinit)
 		#endif
 		{
@@ -502,8 +502,8 @@ uint8_t gdispGGetBacklight(GDisplay *g)			{ return g->g.Backlight; }
 uint8_t gdispGGetContrast(GDisplay *g)			{ return g->g.Contrast; }
 
 void gdispGFlush(GDisplay *g) {
-	#if GDISP_HARDWARE_FLUSH
-		#if GDISP_HARDWARE_FLUSH == HARDWARE_AUTODETECT
+	#if GDISP_DRIVER_FLUSH
+		#if GDISP_DRIVER_FLUSH == GFXSOME
 			if (gvmt(g)->flush)
 		#endif
 		{
@@ -538,7 +538,7 @@ void gdispGFlush(GDisplay *g) {
 	}
 
 	void gdispGStreamColor(GDisplay *g, gColor color) {
-		#if !GDISP_HARDWARE_STREAM_WRITE && GDISP_LINEBUF_SIZE != 0 && GDISP_HARDWARE_BITFILLS
+		#if !GDISP_DRIVER_STREAM_WRITE && GDISP_LINEBUF_SIZE != 0 && GDISP_DRIVER_BITFILLS
 			gCoord	 sx1, sy1;
 		#endif
 
@@ -1997,8 +1997,8 @@ void gdispGBlitArea(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoor
 
 		/* Always synchronous as it must return a value */
 		MUTEX_ENTER(g);
-		#if GDISP_HARDWARE_PIXELREAD
-			#if GDISP_HARDWARE_PIXELREAD == HARDWARE_AUTODETECT
+		#if GDISP_DRIVER_PIXELREAD
+			#if GDISP_DRIVER_PIXELREAD == GFXSOME
 				if (gvmt(g)->get)
 			#endif
 			{
@@ -2010,8 +2010,8 @@ void gdispGBlitArea(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoor
 				return c;
 			}
 		#endif
-		#if GDISP_HARDWARE_PIXELREAD != GFXON && GDISP_HARDWARE_STREAM_READ
-			#if GDISP_HARDWARE_STREAM_READ == HARDWARE_AUTODETECT
+		#if GDISP_DRIVER_PIXELREAD != GFXON && GDISP_DRIVER_STREAM_READ
+			#if GDISP_DRIVER_STREAM_READ == GFXSOME
 				if (gvmt(g)->readcolor)
 			#endif
 			{
@@ -2027,8 +2027,8 @@ void gdispGBlitArea(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoor
 				return c;
 			}
 		#endif
-		#if GDISP_HARDWARE_PIXELREAD != GFXON && GDISP_HARDWARE_STREAM_READ != GFXON
-			#if !GDISP_HARDWARE_PIXELREAD && !GDISP_HARDWARE_STREAM_READ
+		#if GDISP_DRIVER_PIXELREAD != GFXON && GDISP_DRIVER_STREAM_READ != GFXON
+			#if !GDISP_DRIVER_PIXELREAD && !GDISP_DRIVER_STREAM_READ
 				// Worst is "not possible"
 				#error "GDISP: GDISP_NEED_PIXELREAD has been set but there is no hardware support for reading the display"
 			#endif
@@ -2043,7 +2043,7 @@ void gdispGBlitArea(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoor
 #if GDISP_NEED_SCROLL
 	void gdispGVerticalScroll(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, int lines, gColor bgcolor) {
 		gCoord		abslines;
-		#if GDISP_HARDWARE_SCROLL != GFXON
+		#if GDISP_DRIVER_SCROLL != GFXON
 			gCoord 	fy, dy, ix, fx, i, j;
 		#endif
 
@@ -2064,8 +2064,8 @@ void gdispGBlitArea(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoor
 			cy = 0;
 		} else {
 			// Best is hardware scroll
-			#if GDISP_HARDWARE_SCROLL
-				#if GDISP_HARDWARE_SCROLL == HARDWARE_AUTODETECT
+			#if GDISP_DRIVER_SCROLL
+				#if GDISP_DRIVER_SCROLL == GFXSOME
 					if (gvmt(g)->vscroll)
 				#endif
 				{
@@ -2078,7 +2078,7 @@ void gdispGBlitArea(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoor
 					gdisp_lld_vertical_scroll(g);
 					cy -= abslines;
 				}
-				#if GDISP_HARDWARE_SCROLL == HARDWARE_AUTODETECT
+				#if GDISP_DRIVER_SCROLL == GFXSOME
 					else
 				#endif
 			#elif GDISP_LINEBUF_SIZE == 0
@@ -2086,7 +2086,7 @@ void gdispGBlitArea(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoor
 			#endif
 
 			// Scroll Emulation
-			#if GDISP_HARDWARE_SCROLL != GFXON
+			#if GDISP_DRIVER_SCROLL != GFXON
 				{
 					cy -= abslines;
 					if (lines < 0) {
@@ -2110,8 +2110,8 @@ void gdispGBlitArea(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoor
 							// Read one line of data from the screen
 
 							// Best line read is hardware streaming
-							#if GDISP_HARDWARE_STREAM_READ
-								#if GDISP_HARDWARE_STREAM_READ == HARDWARE_AUTODETECT
+							#if GDISP_DRIVER_STREAM_READ
+								#if GDISP_DRIVER_STREAM_READ == GFXSOME
 									if (gvmt(g)->readstart)
 								#endif
 								{
@@ -2124,14 +2124,14 @@ void gdispGBlitArea(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoor
 										g->linebuf[j] = gdisp_lld_read_color(g);
 									gdisp_lld_read_stop(g);
 								}
-								#if GDISP_HARDWARE_STREAM_READ == HARDWARE_AUTODETECT
+								#if GDISP_DRIVER_STREAM_READ == GFXSOME
 									else
 								#endif
 							#endif
 
 							// Next best line read is single pixel reads
-							#if GDISP_HARDWARE_STREAM_READ != GFXON && GDISP_HARDWARE_PIXELREAD
-								#if GDISP_HARDWARE_PIXELREAD == HARDWARE_AUTODETECT
+							#if GDISP_DRIVER_STREAM_READ != GFXON && GDISP_DRIVER_PIXELREAD
+								#if GDISP_DRIVER_PIXELREAD == GFXSOME
 									if (gvmt(g)->get)
 								#endif
 								{
@@ -2141,7 +2141,7 @@ void gdispGBlitArea(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoor
 										g->linebuf[j] = gdisp_lld_get_pixel_color(g);
 									}
 								}
-								#if GDISP_HARDWARE_PIXELREAD == HARDWARE_AUTODETECT
+								#if GDISP_DRIVER_PIXELREAD == GFXSOME
 									else {
 										// Worst is "not possible"
 										MUTEX_EXIT(g);
@@ -2151,15 +2151,15 @@ void gdispGBlitArea(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoor
 							#endif
 
 							// Worst is "not possible"
-							#if !GDISP_HARDWARE_STREAM_READ && !GDISP_HARDWARE_PIXELREAD
+							#if !GDISP_DRIVER_STREAM_READ && !GDISP_DRIVER_PIXELREAD
 								#error "GDISP: GDISP_NEED_SCROLL is set but there is no hardware support for scrolling or reading pixels."
 							#endif
 
 							// Write that line to the new location
 
 							// Best line write is hardware bitfills
-							#if GDISP_HARDWARE_BITFILLS
-								#if GDISP_HARDWARE_BITFILLS == HARDWARE_AUTODETECT
+							#if GDISP_DRIVER_BITFILLS
+								#if GDISP_DRIVER_BITFILLS == GFXSOME
 									if (gvmt(g)->blit)
 								#endif
 								{
@@ -2173,14 +2173,14 @@ void gdispGBlitArea(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoor
 									g->p.e.ptr = (void *)g->linebuf;
 									gdisp_lld_blit_area(g);
 								}
-								#if GDISP_HARDWARE_BITFILLS == HARDWARE_AUTODETECT
+								#if GDISP_DRIVER_BITFILLS == GFXSOME
 									else
 								#endif
 							#endif
 
 							// Next best line write is hardware streaming
-							#if GDISP_HARDWARE_BITFILLS != GFXON && GDISP_HARDWARE_STREAM_WRITE
-								#if GDISP_HARDWARE_STREAM_WRITE == HARDWARE_AUTODETECT
+							#if GDISP_DRIVER_BITFILLS != GFXON && GDISP_DRIVER_STREAM_WRITE
+								#if GDISP_DRIVER_STREAM_WRITE == GFXSOME
 									if (gvmt(g)->writestart)
 								#endif
 								{
@@ -2189,7 +2189,7 @@ void gdispGBlitArea(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoor
 									g->p.cx = fx;
 									g->p.cy = 1;
 									gdisp_lld_start(g);
-									#if GDISP_HARDWARE_VMT_SETPOS
+									#if GDISP_DRIVER_VMT_SETPOS
 										gdisp_lld_setpos(g);
 									#endif
 									for(j = 0; j < fx; j++) {
@@ -2198,15 +2198,15 @@ void gdispGBlitArea(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoor
 									}
 									gdisp_lld_write_stop(g);
 								}
-								#if GDISP_HARDWARE_STREAM_WRITE == HARDWARE_AUTODETECT
+								#if GDISP_DRIVER_STREAM_WRITE == GFXSOME
 									else
 								#endif
 							#endif
 
 							// Next best line write is drawing pixels in combination with filling
-							#if GDISP_HARDWARE_BITFILLS != GFXON && GDISP_HARDWARE_STREAM_WRITE != GFXON && GDISP_HARDWARE_FILLS && GDISP_HARDWARE_DRAWPIXEL
+							#if GDISP_DRIVER_BITFILLS != GFXON && GDISP_DRIVER_STREAM_WRITE != GFXON && GDISP_DRIVER_FILLS && GDISP_DRIVER_DRAWPIXEL
 								// We don't need to test for auto-detect on drawpixel as we know we have it because we don't have streaming.
-								#if GDISP_HARDWARE_FILLS == HARDWARE_AUTODETECT
+								#if GDISP_DRIVER_FILLS == GFXSOME
 									if (gvmt(g)->fill)
 								#endif
 								{
@@ -2230,15 +2230,15 @@ void gdispGBlitArea(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoor
 										}
 									}
 								}
-								#if GDISP_HARDWARE_FILLS == HARDWARE_AUTODETECT
+								#if GDISP_DRIVER_FILLS == GFXSOME
 									else
 								#endif
 							#endif
 
 							// Worst line write is drawing pixels
-							#if GDISP_HARDWARE_BITFILLS != GFXON && GDISP_HARDWARE_STREAM_WRITE != GFXON && GDISP_HARDWARE_FILLS != GFXON && GDISP_HARDWARE_DRAWPIXEL
+							#if GDISP_DRIVER_BITFILLS != GFXON && GDISP_DRIVER_STREAM_WRITE != GFXON && GDISP_DRIVER_FILLS != GFXON && GDISP_DRIVER_DRAWPIXEL
 								// The following test is unneeded because we are guaranteed to have draw pixel if we don't have streaming
-								//#if GDISP_HARDWARE_DRAWPIXEL == HARDWARE_AUTODETECT
+								//#if GDISP_DRIVER_DRAWPIXEL == GFXSOME
 								//	if (gvmt(g)->pixel)
 								//#endif
 								{
@@ -2268,9 +2268,9 @@ void gdispGBlitArea(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoor
 #endif
 
 #if GDISP_NEED_CONTROL
-	#if GDISP_HARDWARE_CONTROL
+	#if GDISP_DRIVER_CONTROL
 		void gdispGControl(GDisplay *g, unsigned what, void *value) {
-			#if GDISP_HARDWARE_CONTROL == HARDWARE_AUTODETECT
+			#if GDISP_DRIVER_CONTROL == GFXSOME
 				if (!gvmt(g)->control)
 					return;
 			#endif
@@ -2311,11 +2311,11 @@ void gdispGBlitArea(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gCoor
 #endif
 
 #if GDISP_NEED_QUERY
-	#if GDISP_HARDWARE_QUERY
+	#if GDISP_DRIVER_QUERY
 		void *gdispGQuery(GDisplay *g, unsigned what) {
 			void *res;
 
-			#if GDISP_HARDWARE_QUERY == HARDWARE_AUTODETECT
+			#if GDISP_DRIVER_QUERY == GFXSOME
 				if (!gvmt(g)->query)
 					return -1;
 			#endif
@@ -2640,7 +2640,7 @@ void gdispGDrawBox(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gColor
 #if GDISP_NEED_TEXT
 	#include "mcufont/mcufont.h"
 
-	#if GDISP_NEED_ANTIALIAS && GDISP_HARDWARE_PIXELREAD
+	#if GDISP_NEED_ANTIALIAS && GDISP_DRIVER_PIXELREAD
 		static void drawcharline(int16_t x, int16_t y, uint8_t count, uint8_t alpha, void *state) {
 			#define GD	((GDisplay *)state)
 			if (y < GD->t.clip.p1.y || y >= GD->t.clip.p2.y || x+count <= GD->t.clip.p1.x || x >= GD->t.clip.p2.x)

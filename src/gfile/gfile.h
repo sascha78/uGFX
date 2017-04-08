@@ -399,12 +399,16 @@ extern "C" {
 		#endif
 	#endif
 
-	#if GFILE_NEED_STDIO && !defined(GFILE_NEED_STDIO_MUST_BE_OFF)
+	#if GFILE_NEED_STDIO
 		// Needed routines and definitions
 		size_t gstdioRead(void * ptr, size_t size, size_t count, GFILE *f);
 		size_t gstdioWrite(const void * ptr, size_t size, size_t count, GFILE *f);
 		int gstdioGetpos(GFILE *f, long int *pos);
 		int gstdioSeek(GFILE *f, size_t offset, int origin);
+	#endif
+	
+	#if GFILE_NEED_STDIO && !GFX_IN_IMPLEMENTATION
+		// Needed routines and definitions
 		#define SEEK_SET	0
 		#define SEEK_CUR	1
 		#define SEEK_END	2

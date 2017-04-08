@@ -3,4 +3,4 @@
 #
 #              http://ugfx.org/license.html
 
-GFXSRC +=   $(GFXLIB)/src/gadc/gadc.c
+GFXSRC +=   $(GFXLIB)/src/gadc/gadc_mk.c

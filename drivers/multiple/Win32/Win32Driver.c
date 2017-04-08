@@ -5,59 +5,9 @@
  *              http://ugfx.org/license.html
  */
 
-// Macros for the higher level
-#define GDISP_DRIVER_BYTESDRIVER	sizeof(GDISPDRIVERID(DriverPrivateArea))
-#define GDISP_DRIVER_BYTESBOARD		0
-
-// We need to include stdio.h below. Turn off GFILE_NEED_STDIO just for this file to prevent conflicts
-#define GFILE_NEED_STDIO_MUST_BE_OFF
-
-// Configuration options for this driver
-#ifndef GDISP_WIN32_WIDTH
-	#define GDISP_WIN32_WIDTH	640
-#endif
-#ifndef GDISP_WIN32_HEIGHT
-	#define GDISP_WIN32_HEIGHT	480
-#endif
-#ifndef GDISP_WIN32_DISPLAYS
-	#define GDISP_WIN32_DISPLAYS	1
-#endif
-#ifndef GDISP_WIN32_USE_INDIRECT_UPDATE
-	/**
-	 * Setting this to GFXON delays updating the screen
-	 * to the windows paint routine. Due to the
-	 * drawing lock this does not add as much speed
-	 * as might be expected but it is still faster in
-	 * all tested circumstances and for all operations
-	 * even draw_pixel().
-	 * This is probably due to drawing operations being
-	 * combined as the update regions are merged.
-	 * The only time you might want to turn this off is
-	 * if you are debugging drawing and want to see each
-	 * pixel as it is set.
-	 */
-	#define GDISP_WIN32_USE_INDIRECT_UPDATE		GFXON
-#endif
-#ifndef GKEYBOARD_WIN32_NO_LAYOUT
-	/**
-	 * Setting this to GFXON turns off the layout engine.
-	 * In this situation "cooked" characters are returned but
-	 * shift states etc are lost.
-	 * As only a limited number of keyboard layouts are currently
-	 * defined for Win32 in uGFX (currently only US English), setting this
-	 * to GFXON enables the windows keyboard mapping to be pass non-English
-	 * characters to uGFX or to handle non-standard keyboard layouts at
-	 * the expense of losing special function keys etc.
-	 */
-	#define GKEYBOARD_WIN32_NO_LAYOUT			GFXOFF
-#endif
-#ifndef GKEYBOARD_WIN32_DEFAULT_LAYOUT
-	#define GKEYBOARD_WIN32_DEFAULT_LAYOUT		KeyboardLayout_Win32_US
-#endif
-
-// How far extra windows (multiple displays) should be offset from the first.
-#define DISPLAY_X_OFFSET		50
-#define DISPLAY_Y_OFFSET		50
+//--------------------------------------------------------------------------
+// Headers required for this driver
+//--------------------------------------------------------------------------
 
 #define WIN32_LEAN_AND_MEAN
 #include <stdio.h>
@@ -67,364 +17,54 @@
 #include <wingdi.h>
 #include <assert.h>
 
-#define GDISP_FLG_READY				(GDISP_FLG_DRIVER<<0)
-#define GDISP_FLG_HASTOGGLE			(GDISP_FLG_DRIVER<<1)
+//--------------------------------------------------------------------------
+// Include our board file (not needed for this driver)
+//--------------------------------------------------------------------------
+//#include "gdisp_board_win32.h"
 
-#if GFX_USE_GINPUT && GINPUT_NEED_TOGGLE
-	/* Include toggle support code */
-	#include "../../../src/ginput/ginput_driver_toggle.h"
+//--------------------------------------------------------------------------
+// Configuration options for this driver
+//--------------------------------------------------------------------------
 
-	// Hack until toggle use gdriver.
-	static GDisplay *toggleWindow;
+#ifndef GDISP_WIN32_WIDTH
+	#define GDISP_WIN32_WIDTH		640
+#endif
+#ifndef GDISP_WIN32_HEIGHT
+	#define GDISP_WIN32_HEIGHT		480
+#endif
+#ifndef GDISP_WIN32_DISPLAYS
+	#define GDISP_WIN32_DISPLAYS	1
+#endif
+#ifndef GDISP_WIN32_SCALE
+	#define GDISP_WIN32_SCALE		1
+#endif
+#ifndef GDISP_WIN32_FORCEREDRAW
+	/**
+	 * Setting this to GFXON forces a WM_PAINT after each pixel change.
+	 * This significantly slows down the screen display.
+	 * The only time you might want to turn this on is
+	 * if you are debugging drawing and want to see each
+	 * pixel as it is set.
+	 */
+	#define GDISP_WIN32_FORCEREDRAW		GFXOFF
 #endif
 
-#if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
-	// Include mouse support code
-	#define GMOUSE_DRIVER_VMT		GMOUSEVMT_Win32
-	#include "../../../src/ginput/ginput_driver_mouse.h"
+//--------------------------------------------------------------------------
+// Define our driver private area
+//--------------------------------------------------------------------------
 
-	// Forward definitions
-	static bool_t Win32MouseInit(GMouse *m, unsigned driverinstance);
-	static bool_t Win32MouseRead(GMouse *m, GMouseReading *prd);
+typedef struct GDISPDRIVERID(DriverPrivateArea) {
+	uint8_t			*fb;
+	uint8_t			*p;
+	unsigned		linebytes;
+} GDISPDRIVERID(DriverPrivateArea);
 
-	const GMouseVMT const GMOUSE_DRIVER_VMT[1] = {{
-		{
-			GDRIVER_TYPE_MOUSE,
-			GMOUSE_VFLG_NOPOLL|GMOUSE_VFLG_DYNAMICONLY,
-				// Extra flags for testing only
-				//GMOUSE_VFLG_TOUCH|GMOUSE_VFLG_SELFROTATION|GMOUSE_VFLG_DEFAULTFINGER
-				//GMOUSE_VFLG_CALIBRATE|GMOUSE_VFLG_CAL_EXTREMES|GMOUSE_VFLG_CAL_TEST|GMOUSE_VFLG_CAL_LOADFREE
-				//GMOUSE_VFLG_ONLY_DOWN|GMOUSE_VFLG_POORUPDOWN
-			sizeof(GMouse),
-			_gmouseInitDriver, _gmousePostInitDriver, _gmouseDeInitDriver
-		},
-		1,				// z_max
-		0,				// z_min
-		1,				// z_touchon
-		0,				// z_touchoff
-		{				// pen_jitter
-			0,				// calibrate
-			0,				// click
-			0				// move
-		},
-		{				// finger_jitter
-			0,				// calibrate
-			2,				// click
-			2				// move
-		},
-		Win32MouseInit,	// init
-		0,				// deinit
-		Win32MouseRead,	// get
-		0,				// calsave
-		0				// calload
-	}};
-#endif
-
-#if GFX_USE_GINPUT && GINPUT_NEED_KEYBOARD
-	#define GKEYBOARD_DRIVER_VMT		GKEYBOARDVMT_Win32
-	#include "../../../src/ginput/ginput_driver_keyboard.h"
-
-	#if !GKEYBOARD_WIN32_NO_LAYOUT
-		#if GKEYBOARD_LAYOUT_OFF
-			#error "The Win32 keyboard driver is using the layout engine. Please set GKEYBOARD_LAYOUT_OFF=GFXOFF or GKEYBOARD_WIN32_NO_LAYOUT=GFXON."
-		#endif
-
-		#include "../../../src/ginput/ginput_keyboard_microcode.h"
-
-		// Forward definitions
-		extern uint8_t	GKEYBOARD_WIN32_DEFAULT_LAYOUT[];
-
-		// This is the layout code for the English US keyboard.
-		//	We make it public so that a user can switch to a different layout if required.
-		uint8_t	KeyboardLayout_Win32_US[] = {
-			KMC_HEADERSTART, KMC_HEADER_ID1, KMC_HEADER_ID2, KMC_HEADER_VER_1,
-
-			// Transient Shifters: SHIFT, CTRL, ALT, WINKEY
-			/*  1 */KMC_RECORDSTART, 9,													// SHIFT (left & Right)
-				KMC_TEST_CODETABLE, 2, VK_SHIFT, VK_LSHIFT,
-				KMC_TEST_LASTCODE, 0x00,
-				KMC_ACT_STATEBIT, GKEYSTATE_SHIFT_L_BIT|KMC_BIT_CLEAR,
-				KMC_ACT_DONE,
-			/*  2 */KMC_RECORDSTART, 9,
-				KMC_TEST_CODETABLE, 2, VK_SHIFT, VK_LSHIFT,
-				KMC_TEST_STATEBIT, GKEYSTATE_SHIFT_L_BIT|KMC_BIT_CLEAR,
-				KMC_ACT_STATEBIT, GKEYSTATE_SHIFT_L_BIT,
-				KMC_ACT_DONE,
-			/*  3 */KMC_RECORDSTART, 7,
-				KMC_TEST_CODE, VK_RSHIFT,
-				KMC_TEST_LASTCODE, 0x00,
-				KMC_ACT_STATEBIT, GKEYSTATE_SHIFT_R_BIT|KMC_BIT_CLEAR,
-				KMC_ACT_DONE,
-			/*  4 */KMC_RECORDSTART, 7,
-				KMC_TEST_CODE, VK_RSHIFT,
-				KMC_TEST_STATEBIT, GKEYSTATE_SHIFT_R_BIT|KMC_BIT_CLEAR,
-				KMC_ACT_STATEBIT, GKEYSTATE_SHIFT_R_BIT,
-				KMC_ACT_DONE,
-			/*  5 */KMC_RECORDSTART, 9,													// CONTROL (left & Right)
-				KMC_TEST_CODETABLE, 2, VK_CONTROL, VK_LCONTROL,
-				KMC_TEST_LASTCODE, 0x00,
-				KMC_ACT_STATEBIT, GKEYSTATE_CTRL_L_BIT|KMC_BIT_CLEAR,
-				KMC_ACT_DONE,
-			/*  6 */KMC_RECORDSTART, 9,
-				KMC_TEST_CODETABLE, 2, VK_CONTROL, VK_LCONTROL,
-				KMC_TEST_STATEBIT, GKEYSTATE_CTRL_L_BIT|KMC_BIT_CLEAR,
-				KMC_ACT_STATEBIT, GKEYSTATE_CTRL_L_BIT,
-				KMC_ACT_DONE,
-			/*  7 */KMC_RECORDSTART, 7,
-				KMC_TEST_CODE, VK_RCONTROL,
-				KMC_TEST_LASTCODE, 0x00,
-				KMC_ACT_STATEBIT, GKEYSTATE_CTRL_R_BIT|KMC_BIT_CLEAR,
-				KMC_ACT_DONE,
-			/*  8 */KMC_RECORDSTART, 7,
-				KMC_TEST_CODE, VK_RCONTROL,
-				KMC_TEST_STATEBIT, GKEYSTATE_CTRL_R_BIT|KMC_BIT_CLEAR,
-				KMC_ACT_STATEBIT, GKEYSTATE_CTRL_R_BIT,
-				KMC_ACT_DONE,
-			/*  9 */KMC_RECORDSTART, 9,													// ALT (left & Right)
-				KMC_TEST_CODETABLE, 2, VK_MENU, VK_LMENU,
-				KMC_TEST_LASTCODE, 0x00,
-				KMC_ACT_STATEBIT, GKEYSTATE_ALT_L_BIT|KMC_BIT_CLEAR,
-				KMC_ACT_DONE,
-			/* 10 */KMC_RECORDSTART, 9,
-				KMC_TEST_CODETABLE, 2, VK_MENU, VK_LMENU,
-				KMC_TEST_STATEBIT, GKEYSTATE_ALT_L_BIT|KMC_BIT_CLEAR,
-				KMC_ACT_STATEBIT, GKEYSTATE_ALT_L_BIT,
-				KMC_ACT_DONE,
-			/* 11 */KMC_RECORDSTART, 7,
-				KMC_TEST_CODE, VK_RMENU,
-				KMC_TEST_LASTCODE, 0x00,
-				KMC_ACT_STATEBIT, GKEYSTATE_ALT_R_BIT|KMC_BIT_CLEAR,
-				KMC_ACT_DONE,
-			/* 12 */KMC_RECORDSTART, 7,
-				KMC_TEST_CODE, VK_RMENU,
-				KMC_TEST_STATEBIT, GKEYSTATE_ALT_R_BIT|KMC_BIT_CLEAR,
-				KMC_ACT_STATEBIT, GKEYSTATE_ALT_R_BIT,
-				KMC_ACT_DONE,
-			/* 13 */KMC_RECORDSTART, 9,													// WinKey (left or right)
-				KMC_TEST_CODETABLE, 2, VK_LWIN, VK_RWIN,
-				KMC_TEST_LASTCODE, 0x00,
-				KMC_ACT_STATEBIT, GKEYSTATE_WINKEY_BIT|KMC_BIT_CLEAR,
-				KMC_ACT_DONE,
-			/* 14 */KMC_RECORDSTART, 9,
-				KMC_TEST_CODETABLE, 2, VK_LWIN, VK_RWIN,
-				KMC_TEST_STATEBIT, GKEYSTATE_WINKEY_BIT|KMC_BIT_CLEAR,
-				KMC_ACT_STATEBIT, GKEYSTATE_WINKEY_BIT,
-				KMC_ACT_DONE,
-
-			// Locking Shifters: CAPSLOCK, NUMLOCK and SCROLLLOCK
-			/* 15 */KMC_RECORDSTART, 7,													// CAPSLOCK (keyup only)
-				KMC_TEST_CODE, VK_CAPITAL,
-				KMC_TEST_LASTCODE, 0x00,
-				KMC_ACT_STATEBIT, GKEYSTATE_CAPSLOCK_BIT|KMC_BIT_INVERT,
-				KMC_ACT_DONE,
-			/* 16 */KMC_RECORDSTART, 7,													// NUMLOCK (keyup only)
-				KMC_TEST_CODE, VK_NUMLOCK,
-				KMC_TEST_LASTCODE, 0x00,
-				KMC_ACT_STATEBIT, GKEYSTATE_NUMLOCK_BIT|KMC_BIT_INVERT,
-				KMC_ACT_DONE,
-			/* 17 */KMC_RECORDSTART, 7,													// SCROLLLOCK (keyup only)
-				KMC_TEST_CODE, VK_SCROLL,
-				KMC_TEST_LASTCODE, 0x00,
-				KMC_ACT_STATEBIT, GKEYSTATE_SCROLLLOCK_BIT|KMC_BIT_INVERT,
-				KMC_ACT_DONE,
-
-			// Keyup, Repeat
-			/* 18 */KMC_RECORDSTART, 18,												// Clear any shifter keys that got through
-				KMC_TEST_CODETABLE, 14, VK_SHIFT, VK_LSHIFT, VK_RSHIFT,
-										VK_CONTROL, VK_LCONTROL, VK_RCONTROL,
-										VK_MENU, VK_LMENU, VK_RMENU,
-										VK_LWIN, VK_RWIN,
-										VK_CAPITAL, VK_NUMLOCK, VK_SCROLL,
-				KMC_ACT_RESET,
-				KMC_ACT_STOP,
-			/* 19 */KMC_RECORDSTART, 4,													// Skip special codes 0x00 (Keyup) & 0x01 (Repeat)
-				KMC_TEST_CODERANGE, 0x00, 0x01,
-				KMC_ACT_STOP,
-			/* 20 */KMC_RECORDSTART, 6,													// Keyup
-				KMC_ACT_STATEBIT, GKEYSTATE_KEYUP_BIT|KMC_BIT_CLEAR,
-				KMC_TEST_LASTCODE, 0x00,
-				KMC_ACT_STATEBIT, GKEYSTATE_KEYUP_BIT,
-			/* 21 */KMC_RECORDSTART, 6,													// Repeat
-				KMC_ACT_STATEBIT, GKEYSTATE_REPEAT_BIT|KMC_BIT_CLEAR,
-				KMC_TEST_LASTCODE, 0x01,
-				KMC_ACT_STATEBIT, GKEYSTATE_REPEAT_BIT,
-
-			// 0 - 9
-			/* 22 */KMC_RECORDSTART, 7,													// Alt 0-9
-				KMC_TEST_ALT,
-				KMC_TEST_CODERANGE, '0', '9',
-				KMC_ACT_CHARADD,  10,
-				KMC_ACT_STOP,
-			/* 23 */KMC_RECORDSTART, 17,												// Shifted 0-9
-				KMC_TEST_SHIFT,
-				KMC_TEST_CODERANGE, '0', '9',
-				KMC_ACT_CHARTABLE,  10, ')', '!', '@', '#', '$', '%', '^', '&', '*', '(',
-				KMC_ACT_DONE,
-			/* 24 */KMC_RECORDSTART, 5,													// 0 - 9
-				KMC_TEST_CODERANGE, '0', '9',
-				KMC_ACT_CHARCODE,
-				KMC_ACT_DONE,
-
-			// A - Z
-			/* 25 */KMC_RECORDSTART, 7,													// Control A-Z
-				KMC_TEST_CTRL,
-				KMC_TEST_CODERANGE, 'A', 'Z',
-				KMC_ACT_CHARRANGE, 1,
-				KMC_ACT_DONE,
-			/* 26 */KMC_RECORDSTART, 7,													// No Caps A-Z
-				KMC_TEST_NOCAPS,
-				KMC_TEST_CODERANGE, 'A', 'Z',
-				KMC_ACT_CHARRANGE, 'a',
-				KMC_ACT_DONE,
-			/* 27 */KMC_RECORDSTART, 5,													// Caps A-Z
-				KMC_TEST_CODERANGE, 'A', 'Z',
-				KMC_ACT_CHARCODE,
-				KMC_ACT_DONE,
-
-			// Number pad
-			/* 28 */KMC_RECORDSTART, 7,													// Alt Number pad
-				KMC_TEST_ALT,
-				KMC_TEST_CODERANGE, VK_NUMPAD0, VK_NUMPAD9,
-				KMC_ACT_CHARADD,  10,
-				KMC_ACT_STOP,
-			/* 29 */KMC_RECORDSTART, 5,
-				KMC_TEST_ALT,
-				KMC_TEST_CODERANGE, VK_MULTIPLY, VK_DIVIDE,
-				KMC_ACT_STOP,
-			/* 30 */KMC_RECORDSTART, 7,													// Number pad with Numlock
-				KMC_TEST_NUMLOCK,
-				KMC_TEST_CODERANGE, VK_NUMPAD0, VK_NUMPAD9,
-				KMC_ACT_CHARRANGE, '0',
-				KMC_ACT_DONE,
-			/* 31 */KMC_RECORDSTART, 13,
-				KMC_TEST_NUMLOCK,
-				KMC_TEST_CODERANGE, VK_MULTIPLY, VK_DIVIDE,
-				KMC_ACT_CHARTABLE, 6, '*', '+', GKEY_ENTER, '-', '.', '/',
-				KMC_ACT_DONE,
-			/* 32 */KMC_RECORDSTART, 4,													// Number pad with no Numlock
-				KMC_TEST_CODE, VK_NUMPAD5,
-				KMC_ACT_RESET,
-				KMC_ACT_STOP,
-			/* 33 */KMC_RECORDSTART, 12,
-				KMC_TEST_CODERANGE, VK_MULTIPLY, VK_DIVIDE,
-				KMC_ACT_CHARTABLE, 6, '*', '+', GKEY_ENTER, '-', GKEY_DEL, '/',
-				KMC_ACT_DONE,
-			/* 34 */KMC_RECORDSTART, 18,
-				KMC_TEST_CODERANGE, VK_NUMPAD0, VK_NUMPAD9,
-				KMC_ACT_STATEBIT, GKEYSTATE_SPECIAL_BIT,
-				KMC_ACT_CHARTABLE, 10, GKEY_INSERT, GKEY_END, GKEY_DOWN, GKEY_PAGEDOWN, GKEY_LEFT, '5', GKEY_RIGHT, GKEY_HOME, GKEY_UP, GKEY_PAGEUP,
-				KMC_ACT_DONE,
-
-			// Symbols
-			/* 35 */KMC_RECORDSTART, 14,												// Shifted Symbols
-				KMC_TEST_SHIFT,
-				KMC_TEST_CODERANGE, VK_OEM_1, VK_OEM_3,
-				KMC_ACT_CHARTABLE, 7, ':', '+', '<', '_', '>', '?', '~',
-				KMC_ACT_DONE,
-			/* 36 */KMC_RECORDSTART, 11,
-				KMC_TEST_SHIFT,
-				KMC_TEST_CODERANGE, VK_OEM_4, VK_OEM_7,
-				KMC_ACT_CHARTABLE, 4, '{', '|', '}', '"',
-				KMC_ACT_DONE,
-			/* 37 */KMC_RECORDSTART, 13,												// Non-shifted Symbols
-				KMC_TEST_CODERANGE, VK_OEM_1, VK_OEM_3,
-				KMC_ACT_CHARTABLE, 7, ';', '=', ',', '-', '.', '/', '`',
-				KMC_ACT_DONE,
-			/* 38 */KMC_RECORDSTART, 10,
-				KMC_TEST_CODERANGE, VK_OEM_4, VK_OEM_7,
-				KMC_ACT_CHARTABLE, 4, '[', '\\', ']', '\'',
-				KMC_ACT_DONE,
-
-			// Special Keys
-			// Extra special keys like Media and Browser keys are still to be implemented.
-			/* 39 */KMC_RECORDSTART, 17,												// Normal Control Type Keys
-				KMC_TEST_CODETABLE, 6, VK_BACK, VK_TAB, VK_RETURN, VK_ESCAPE, VK_SPACE, VK_DELETE,
-				KMC_ACT_CHARTABLE,  6, GKEY_BACKSPACE, GKEY_TAB, GKEY_ENTER, GKEY_ESC, GKEY_SPACE, GKEY_DEL,
-				KMC_ACT_DONE,
-			/* 40 */KMC_RECORDSTART, 35,												// Special Keys
-				KMC_TEST_CODETABLE, 14, VK_PRIOR, VK_NEXT,
-										VK_HOME, VK_END,
-										VK_LEFT, VK_RIGHT, VK_UP, VK_DOWN,
-										VK_INSERT,
-										VK_SNAPSHOT, VK_SLEEP, VK_PAUSE, VK_CANCEL,
-										VK_APPS,
-				KMC_ACT_STATEBIT, GKEYSTATE_SPECIAL_BIT,
-				KMC_ACT_CHARTABLE,  14, GKEY_PAGEUP, GKEY_PAGEDOWN,
-										GKEY_HOME, GKEY_END,
-										GKEY_LEFT, GKEY_RIGHT, GKEY_UP, GKEY_DOWN,
-										GKEY_INSERT,
-										GKEY_PRINTSCREEN, GKEY_SLEEP, GKEY_CTRLPAUSE, GKEY_CTRLBREAK,
-										GKEY_RIGHTCLICKKEY,
-				KMC_ACT_DONE,
-			/* 41 */KMC_RECORDSTART, 8,													// F1 .. F15
-				KMC_TEST_CODERANGE, VK_F1, VK_F15,
-				KMC_ACT_STATEBIT, GKEYSTATE_SPECIAL_BIT,
-				KMC_ACT_CHARRANGE, GKEY_FN1,
-				KMC_ACT_DONE,
-
-			// Anything else
-			/* 40 */KMC_RECORDSTART, 1,													// Just send the scan code to the user
-				KMC_ACT_DONE,
-
-			// EOF
-			KMC_RECORDSTART, 0
-		};
-	#elif !GKEYBOARD_LAYOUT_OFF
-		#warning "The WIN32 keyboard driver is not using the layout engine. If no other keyboard is using it consider defining GKEYBOARD_LAYOUT_OFF=GFXON to save code size."
-	#endif
-
-	// Forward definitions
-	static bool_t Win32KeyboardInit(GKeyboard *k, unsigned driverinstance);
-	static int Win32KeyboardGetData(GKeyboard *k, uint8_t *pch, int sz);
-
-	const GKeyboardVMT const GKEYBOARD_DRIVER_VMT[1] = {{
-		{
-			GDRIVER_TYPE_KEYBOARD,
-			GKEYBOARD_VFLG_NOPOLL,			//  GKEYBOARD_VFLG_DYNAMICONLY
-			sizeof(GKeyboard),
-			_gkeyboardInitDriver, _gkeyboardPostInitDriver, _gkeyboardDeInitDriver
-		},
-
-	 	// The Win32 keyboard layout
-		#if GKEYBOARD_WIN32_NO_LAYOUT
-			0,
-		#else
-			GKEYBOARD_WIN32_DEFAULT_LAYOUT,
-		#endif
-
-		Win32KeyboardInit,		// init
-		0,						// deinit
-		Win32KeyboardGetData,	// getdata
-		0						// putdata		void	(*putdata)(GKeyboard *k, char ch);		Optional
-	}};
-
-	static int			keypos;
-	static uint8_t		keybuffer[8];
-	static GKeyboard	*keyboard;
-#endif
-
-static DWORD			winThreadId;
-static volatile bool_t	QReady;
-static HANDLE			drawMutex;
-static HWND				hWndParent = 0;
-
-/*===========================================================================*/
-/* Driver local routines    .                                                */
-/*===========================================================================*/
-
-#if GFX_USE_GINPUT && GINPUT_NEED_TOGGLE
-	#define WIN32_BUTTON_AREA		16
-#else
-	#define WIN32_BUTTON_AREA		0
-#endif
-
-#define APP_NAME "uGFX"
-
-typedef struct {
+typedef struct GDISPDRIVERID(BoardPrivateArea) {
 	HWND			hwnd;
-	HDC				dcBuffer;
-	HBITMAP			dcBitmap;
-	HBITMAP 		dcOldBitmap;
+	BITMAPV4HEADER	drawBMP;
+	HDC				winDC;
+	HBITMAP			winDIB;
+	HBITMAP 		winDIBOrig;
 	#if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
 		gCoord		mousex, mousey;
 		uint16_t	mousebuttons;
@@ -432,233 +72,168 @@ typedef struct {
 		bool_t		mouseenabled;
 		void (*capfn)(void * hWnd, GDisplay *g, uint16_t buttons, gCoord x, gCoord y);
 	#endif
-	#if GFX_USE_GINPUT && GINPUT_NEED_TOGGLE
-		uint8_t		toggles;
-	#endif
-} GDISPDRIVERID(DriverPrivateArea);
+} GDISPDRIVERID(BoardPrivateArea);
 
-void gfxWin32SetParentWindow(void *hwnd) {
-	hWndParent = (HWND)hwnd;
-}
+typedef struct GDISPDRIVERID(Driver) {
+	GDisplay							g;
+	GDISPDRIVERID(DriverPrivateArea)	dpa;
+	GDISPDRIVERID(BoardPrivateArea)		bpa;
+} GDISPDRIVERID(Driver);
+
+#define myg		((GDISPDRIVERID(Driver) *)g)
+
+//--------------------------------------------------------------------------
+// GDISP Driver
+//--------------------------------------------------------------------------
+
+// How far extra windows (multiple displays) should be offset from the first.
+#define DISPLAY_X_OFFSET			50
+#define DISPLAY_Y_OFFSET			50
+
+#define GDISP_FLG_READY				(GDISP_FLG_DRIVER<<0)
+
+#if GFX_USE_GINPUT && GINPUT_NEED_TOGGLE
+	#include "Win32Driver_toggle.c"
+#endif
 
 #if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
-	void gfxWin32MouseInject(GDisplay *g, uint16_t buttons, gCoord x, gCoord y) {
-		GDISPDRIVERID(DriverPrivateArea) *		priv;
-		
-		priv = (GDISPDRIVERID(DriverPrivateArea) *)(g+1);
-		priv->mousebuttons = buttons;
-		priv->mousex = x;
-		priv->mousey = y;
-		if ((gmvmt(priv->mouse)->d.flags & GMOUSE_VFLG_NOPOLL))		// For normal setup this is always GTrue
-			_gmouseWakeup(priv->mouse);
-	}
-	void gfxWin32MouseEnable(GDisplay *g, bool_t enabled) {
-		((GDISPDRIVERID(DriverPrivateArea) *)(g+1))->mouseenabled = enabled;
-	}
-	void gfxWin32MouseCapture(GDisplay *g, void (*capfn)(void * hWnd, GDisplay *g, uint16_t buttons, gCoord x, gCoord y)) {
-		((GDISPDRIVERID(DriverPrivateArea) *)(g+1))->capfn = capfn;
-	}
+	#include "Win32Driver_mouse.c"
 #endif
+
+#if GFX_USE_GINPUT && GINPUT_NEED_KEYBOARD
+	#include "Win32Driver_keyboard.c"
+#endif
+
+static HWND				GDISP_Win32hWndParent = 0;
+
+/*===========================================================================*/
+/* Driver local routines    .                                                */
+/*===========================================================================*/
+
+#define WIN32_GDISP_TITLE 	"uGFX"
+
+void gfxWin32SetParentWindow(void *hwnd) {
+	GDISP_Win32hWndParent = (HWND)hwnd;
+}
+
+typedef struct gfxWin32CreateWinStruct {
+	LPCTSTR			lpClassName;
+	LPCTSTR			lpWindowName;
+	DWORD			dwStyle;
+	int				x, y;
+	int				nWidth, nHeight;
+	HWND			hWndParent;
+	HMENU			hMenu;
+	HINSTANCE		hInstance;
+	LPVOID			lpParam;
+	volatile bool_t	done;
+	volatile HWND	hWnd;
+} gfxWin32CreateWinStruct;
+
+static DWORD WINAPI gfxWin32MessageLoop(void *param) {
+	MSG msg;
+	(void)param;
+
+	// Establish ourselves as a message loop thread	
+	PeekMessage(&msg, 0, 0, 0, PM_NOREMOVE);
+	
+	// Let our parent thread know that we are ready
+	*((bool_t *)param) = GTrue;
+	
+	while(GetMessage(&msg, 0, 0, 0) > 0) {
+		// Is this our special thread message to create a new window?
+		if (!msg.hwnd && msg.message == WM_USER) {
+			gfxWin32CreateWinStruct *w;
+			
+			w = (gfxWin32CreateWinStruct *)msg.lParam;
+			w->hWnd = CreateWindow(w->lpClassName, w->lpWindowName, w->dwStyle, w->x, w->y, w->nWidth, w->nHeight, w->hWndParent, w->hMenu, w->hInstance, w->lpParam);
+			w->done = GTrue;
+
+		// Or just a normal window message
+		} else {
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+	}
+	
+	// Just kill the whole thing when we get the WM_QUIT message (or a fatal message loop error)
+	ExitProcess(0);
+	return 0;
+}
+
+/* Create a Win32 window using the normal CreateWindow parameters.
+ *
+ * 	The reason we do this indirectly is because we want to create a seperate message loop thread to prevent
+ * 	the uGFX having to deal with message loop.
+ *	Unfortunately the thread that creates the window "owns" the message queue so we need to create the window
+ * 	in the above message loop thread. We do this by posting a special thread message to the message loop who then
+ * 	creates the window for us.
+ */
+static HWND gfxWin32CreateWindow(LPCTSTR lpClassName, LPCTSTR lpWindowName, DWORD dwStyle, int x, int y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam) {
+	static DWORD			winThreadId = 0;
+	gfxWin32CreateWinStruct	w;
+	
+	if (!winThreadId) {
+		HANDLE			hth;
+		volatile bool_t	ready;
+		
+		// Start the message loop thread
+		ready = GFalse;
+		if (!(hth = CreateThread(0, 0, gfxWin32MessageLoop, (void *)&ready, 0, &winThreadId)))
+			return 0;
+		SetThreadPriority(hth, THREAD_PRIORITY_ABOVE_NORMAL);
+		CloseHandle(hth);
+		
+		// Wait until the thread says it is a message loop
+		while(!ready)
+			Sleep(1);
+	}
+	
+	w.lpClassName = lpClassName;
+	w.lpWindowName = lpWindowName;
+	w.dwStyle = dwStyle;
+	w.x = x;
+	w.y = y;
+	w.nWidth = nWidth;
+	w.nHeight = nHeight;
+	w.hWndParent = hWndParent;
+	w.hMenu = hMenu;
+	w.hInstance = hInstance;
+	w.lpParam = lpParam;
+	w.done = GFalse;
+	w.hWnd = 0;
+	PostThreadMessage(winThreadId, WM_USER, 0, (LPARAM)&w);
+	
+	// Wait for the result
+	while (!w.done)
+		Sleep(1);
+		
+	return w.hWnd;
+}
 
 static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPARAM lParam)
 {
 	HDC				dc;
 	PAINTSTRUCT		ps;
 	GDisplay *		g;
-	GDISPDRIVERID(DriverPrivateArea) *		priv;
-	#if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
-		uint16_t	btns;
-	#endif
-	#if GFX_USE_GINPUT && GINPUT_NEED_TOGGLE
-		HBRUSH		hbrOn, hbrOff;
-		HPEN		pen;
-		RECT		rect;
-		HGDIOBJ		old;
-		POINT 		p;
-		gCoord		pos;
-		uint8_t		bit;
-	#endif
 
 	switch (Msg) {
 	case WM_CREATE:
 		// Get our GDisplay structure and attach it to the window
 		g = (GDisplay *)((LPCREATESTRUCT)lParam)->lpCreateParams;
-		priv = (GDISPDRIVERID(DriverPrivateArea) *)(g+1);
 		SetWindowLongPtr(hWnd, GWLP_USERDATA, (LONG_PTR)g);
 
 		// Fill in the private area
-		priv->hwnd = hWnd;
+		myg->bpa.hwnd = hWnd;
 		dc = GetDC(hWnd);
-		priv->dcBitmap = CreateCompatibleBitmap(dc, g->g.Width, g->g.Height);
-		priv->dcBuffer = CreateCompatibleDC(dc);
+		myg->bpa.winDIB = CreateCompatibleBitmap(dc, g->g.Width*GDISP_WIN32_SCALE, g->g.Height*GDISP_WIN32_SCALE);
+		myg->bpa.winDC = CreateCompatibleDC(dc);
 		ReleaseDC(hWnd, dc);
-		priv->dcOldBitmap = SelectObject(priv->dcBuffer, priv->dcBitmap);
+		myg->bpa.winDIBOrig = SelectObject(myg->bpa.winDC, myg->bpa.winDIB);
 
 		// Mark the window as ready to go
 		g->flags |= GDISP_FLG_READY;
 		break;
-
-	#if GFX_USE_GINPUT && (GINPUT_NEED_MOUSE || GINPUT_NEED_TOGGLE)
-		case WM_LBUTTONDOWN:
-			// Get our GDisplay structure
-			g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			priv = (GDISPDRIVERID(DriverPrivateArea) *)(g+1);
-
-			// Handle mouse down on the window
-			#if GINPUT_NEED_MOUSE
-				if ((gCoord)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
-					btns = priv->mousebuttons;
-					btns |= GINPUT_MOUSE_BTN_LEFT;
-					goto mousemove;
-				}
-			#endif
-
-			// Handle mouse down on the toggle area
-			#if GINPUT_NEED_TOGGLE
-				if ((gCoord)HIWORD(lParam) >= GDISP_WIN32_HEIGHT && (g->flags & GDISP_FLG_HASTOGGLE)) {
-					bit = 1 << ((gCoord)LOWORD(lParam)*8/g->g.Width);
-					priv->toggles ^= bit;
-					rect.left = 0;
-					rect.right = GDISP_WIN32_WIDTH;
-					rect.top = GDISP_WIN32_HEIGHT;
-					rect.bottom = GDISP_WIN32_HEIGHT + WIN32_BUTTON_AREA;
-					InvalidateRect(hWnd, &rect, FALSE);
-					UpdateWindow(hWnd);
-					#if GINPUT_TOGGLE_POLL_PERIOD == TIME_INFINITE
-						ginputToggleWakeup();
-					#endif
-				}
-			#endif
-			break;
-
-		case WM_LBUTTONUP:
-			// Get our GDisplay structure
-			g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			priv = (GDISPDRIVERID(DriverPrivateArea) *)(g+1);
-
-			// Handle mouse up on the toggle area
-			#if GINPUT_NEED_TOGGLE
-				if ((g->flags & GDISP_FLG_HASTOGGLE)) {
-					if ((priv->toggles & 0x0F)) {
-						priv->toggles &= ~0x0F;
-						rect.left = 0;
-						rect.right = GDISP_WIN32_WIDTH;
-						rect.top = GDISP_WIN32_HEIGHT;
-						rect.bottom = GDISP_WIN32_HEIGHT + WIN32_BUTTON_AREA;
-						InvalidateRect(hWnd, &rect, FALSE);
-						UpdateWindow(hWnd);
-						#if GINPUT_TOGGLE_POLL_PERIOD == TIME_INFINITE
-							ginputToggleWakeup();
-						#endif
-					}
-				}
-			#endif
-
-			// Handle mouse up on the window
-			#if GINPUT_NEED_MOUSE
-				if ((gCoord)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
-					btns = priv->mousebuttons;
-					btns &= ~GINPUT_MOUSE_BTN_LEFT;
-					goto mousemove;
-				}
-			#endif
-			break;
-	#endif
-
-	#if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
-		case WM_MBUTTONDOWN:
-			g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			priv = (GDISPDRIVERID(DriverPrivateArea) *)(g+1);
-			if ((gCoord)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
-				btns = priv->mousebuttons;
-				btns |= GINPUT_MOUSE_BTN_MIDDLE;
-				goto mousemove;
-			}
-			break;
-		case WM_MBUTTONUP:
-			g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			priv = (GDISPDRIVERID(DriverPrivateArea) *)(g+1);
-			if ((gCoord)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
-				btns = priv->mousebuttons;
-				btns &= ~GINPUT_MOUSE_BTN_MIDDLE;
-				goto mousemove;
-			}
-			break;
-		case WM_RBUTTONDOWN:
-			g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			priv = (GDISPDRIVERID(DriverPrivateArea) *)(g+1);
-			if ((gCoord)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
-				btns = priv->mousebuttons;
-				btns |= GINPUT_MOUSE_BTN_RIGHT;
-				goto mousemove;
-			}
-			break;
-		case WM_RBUTTONUP:
-			g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			priv = (GDISPDRIVERID(DriverPrivateArea) *)(g+1);
-			if ((gCoord)HIWORD(lParam) < GDISP_WIN32_HEIGHT) {
-				btns = priv->mousebuttons;
-				btns &= ~GINPUT_MOUSE_BTN_RIGHT;
-				goto mousemove;
-			}
-			break;
-		case WM_MOUSEMOVE:
-			g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-			priv = (GDISPDRIVERID(DriverPrivateArea) *)(g+1);
-			if ((gCoord)HIWORD(lParam) >= GDISP_WIN32_HEIGHT)
-				break;
-			btns = priv->mousebuttons;
-
-		mousemove:
-			if (priv->capfn)
-				priv->capfn(hWnd, g, btns, (gCoord)LOWORD(lParam), (gCoord)HIWORD(lParam));
-			if (priv->mouseenabled) {
-				priv->mousebuttons = btns;
-				priv->mousex = (gCoord)LOWORD(lParam);
-				priv->mousey = (gCoord)HIWORD(lParam);
-				if ((gmvmt(priv->mouse)->d.flags & GMOUSE_VFLG_NOPOLL))		// For normal setup this is always GTrue
-					_gmouseWakeup(priv->mouse);
-			}
-			break;
-	#endif
-
-	#if GFX_USE_GINPUT && GINPUT_NEED_KEYBOARD
-		case WM_SYSKEYDOWN:
-		case WM_SYSKEYUP:
-		case WM_KEYDOWN:
-		case WM_KEYUP:
-			// A layout is being used: Send scan codes to the keyboard buffer
-			if (keyboard && keyboard->pLayout && keypos < (int)sizeof(keybuffer)-1 && (wParam & 0xFF) > 0x01) {
-				if (Msg == WM_KEYUP || Msg == WM_SYSKEYUP)
-					keybuffer[keypos++] = 0x00;			// Keyup
-				else if (HIWORD(lParam) & KF_REPEAT)
-					keybuffer[keypos++] = 0x01;			// Repeat
-				keybuffer[keypos++] = wParam;
-				if ((gkvmt(keyboard)->d.flags & GKEYBOARD_VFLG_NOPOLL))		// For normal setup this is always GTrue
-					_gkeyboardWakeup(keyboard);
-			}
-			return 0;
-		case WM_CHAR:
-			// A layout is not being used: Send character codes to the keyboard buffer
-			if (keyboard && !keyboard->pLayout && keypos < (int)sizeof(keybuffer)) {
-				wchar_t	w;
-				int		len;
-
-				// Convert from a UTF16 character to a UTF8 string.
-				w = wParam;
-				len = WideCharToMultiByte(CP_UTF8, 0, &w, 1, (char *)(keybuffer+keypos), sizeof(keybuffer)-keypos, 0, 0);
-				keypos += len;
-				if (len && (gkvmt(keyboard)->d.flags & GKEYBOARD_VFLG_NOPOLL))		// For normal setup this is always GTrue
-					_gkeyboardWakeup(keyboard);
-			}
-			return 0;
-		/*
-		case WM_DEADCHAR:
-		case WM_SYSCHAR:
-		case WM_SYSDEADCHAR:
-			break;
-		*/
-	#endif
 
 	case WM_ERASEBKGND:
 		// Pretend we have erased the background.
@@ -669,133 +244,43 @@ static LRESULT GDISPDRIVERID(WindowProc)(HWND hWnd,	UINT Msg, WPARAM wParam, LPA
 	case WM_PAINT:
 		// Get our GDisplay structure
 		g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-		priv = (GDISPDRIVERID(DriverPrivateArea) *)(g+1);
 
 		// Paint the main window area
-		WaitForSingleObject(drawMutex, INFINITE);
 		dc = BeginPaint(hWnd, &ps);
 		BitBlt(dc, ps.rcPaint.left, ps.rcPaint.top,
 			ps.rcPaint.right - ps.rcPaint.left,
-			(ps.rcPaint.bottom > GDISP_WIN32_HEIGHT ? GDISP_WIN32_HEIGHT : ps.rcPaint.bottom) - ps.rcPaint.top,
-			priv->dcBuffer, ps.rcPaint.left, ps.rcPaint.top, SRCCOPY);
-
-		// Paint the toggle area
-		#if GFX_USE_GINPUT && GINPUT_NEED_TOGGLE
-			if (ps.rcPaint.bottom >= GDISP_WIN32_HEIGHT && (g->flags & GDISP_FLG_HASTOGGLE)) {
-				pen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
-				hbrOn = CreateSolidBrush(RGB(0, 0, 255));
-				hbrOff = CreateSolidBrush(RGB(128, 128, 128));
-				old = SelectObject(dc, pen);
-				MoveToEx(dc, 0, GDISP_WIN32_HEIGHT, &p);
-				LineTo(dc, GDISP_WIN32_WIDTH, GDISP_WIN32_HEIGHT);
-				for(pos = 0, bit=1; pos < GDISP_WIN32_WIDTH; pos=rect.right, bit <<= 1) {
-					rect.left = pos;
-					rect.right = pos + GDISP_WIN32_WIDTH/8;
-					rect.top = GDISP_WIN32_HEIGHT;
-					rect.bottom = GDISP_WIN32_HEIGHT + WIN32_BUTTON_AREA;
-					FillRect(dc, &rect, (priv->toggles & bit) ? hbrOn : hbrOff);
-					if (pos > 0) {
-						MoveToEx(dc, rect.left, rect.top, &p);
-						LineTo(dc, rect.left, rect.bottom);
-					}
-				}
-				DeleteObject(hbrOn);
-				DeleteObject(hbrOff);
-				SelectObject(dc, old);
-			}
-		#endif
+			ps.rcPaint.bottom - ps.rcPaint.top,
+			myg->bpa.winDC, ps.rcPaint.left, ps.rcPaint.top, SRCCOPY);
 		EndPaint(hWnd, &ps);
-		ReleaseMutex(drawMutex);
 		break;
 
 	case WM_DESTROY:
 		// Get our GDisplay structure
 		g = (GDisplay *)GetWindowLongPtr(hWnd, GWLP_USERDATA);
-		priv = (GDISPDRIVERID(DriverPrivateArea) *)(g+1);
 
 		// Restore the window and free our bitmaps
-		SelectObject(priv->dcBuffer, priv->dcOldBitmap);
-		DeleteDC(priv->dcBuffer);
-		DeleteObject(priv->dcBitmap);
+		SelectObject(myg->bpa.winDC, myg->bpa.winDIBOrig);
+		DeleteDC(myg->bpa.winDC);
+		DeleteObject(myg->bpa.winDIB);
 
 		// Quit the application
 		PostQuitMessage(0);
-
-		// Actually the above doesn't work (who knows why)
-		ExitProcess(0);
 		break;
 
 	default:
+		#if GFX_USE_GINPUT && GINPUT_NEED_KEYBOARD
+			if (Win32KeyboardMsgHook(hWnd,	Msg, wParam, lParam)
+				break;
+		#endif
+		#if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
+			if (Win32MouseMsgHook(hWnd,	Msg, wParam, lParam)
+				break;
+		#endif
+
+
 		return DefWindowProc(hWnd, Msg, wParam, lParam);
 	}
 	return 0;
-}
-
-static DWORD WINAPI GDISPDRIVERID(WindowThread)(void *param) {
-	(void)param;
-	MSG msg;
-
-	// Establish this thread as a message queue thread
-	winThreadId = GetCurrentThreadId();
-	PeekMessage(&msg, 0, WM_USER, WM_USER, PM_NOREMOVE);
-	QReady = GTrue;
-
-	// Create the window class
-	{
-		WNDCLASS		wc;
-		ATOM			winClass;
-
-		wc.style           = CS_HREDRAW | CS_VREDRAW; // | CS_OWNDC;
-		wc.lpfnWndProc     = (WNDPROC)GDISPDRIVERID(WindowProc);
-		wc.cbClsExtra      = 0;
-		wc.cbWndExtra      = 0;
-		wc.hInstance       = GetModuleHandle(0);
-		wc.hIcon           = LoadIcon(0, IDI_APPLICATION);
-		wc.hCursor         = LoadCursor(0, IDC_ARROW);
-		wc.hbrBackground   = GetStockObject(WHITE_BRUSH);
-		wc.lpszMenuName    = 0;
-		wc.lpszClassName   = APP_NAME;
-		winClass = RegisterClass(&wc);
-		assert(winClass != 0);
-	}
-
-	do {
-		// This is a high priority task - make sure other tasks get a go.
-		Sleep(1);
-
-		while(PeekMessage(&msg, 0, 0, 0, PM_REMOVE)) {
-			// Is this our special thread message to create a new window?
-			if (!msg.hwnd && msg.message == WM_USER) {
-				RECT		rect;
-				GDisplay	*g;
-
-				g = (GDisplay *)msg.lParam;
-
-				// Set the window rectangle
-				rect.top = 0; rect.bottom = g->g.Height;
-				rect.left = 0; rect.right = g->g.Width;
-				#if GFX_USE_GINPUT && GINPUT_NEED_TOGGLE
-					if ((g->flags & GDISP_FLG_HASTOGGLE))
-						rect.bottom += WIN32_BUTTON_AREA;
-				#endif
-				AdjustWindowRect(&rect, WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU, 0);
-
-				// Create the window
-				msg.hwnd = CreateWindow(APP_NAME, "", WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU|WS_BORDER, msg.wParam*DISPLAY_X_OFFSET, msg.wParam*DISPLAY_Y_OFFSET,
-								rect.right-rect.left, rect.bottom-rect.top,
-								hWndParent, 0,
-								GetModuleHandle(0), g);
-				assert(msg.hwnd != 0);
-
-			// Or just a normal window message
-			} else {
-				TranslateMessage(&msg);
-				DispatchMessage(&msg);
-			}
-		}
-	} while (msg.message != WM_QUIT);
-	ExitProcess(0);
-	return msg.wParam;
 }
 
 /*===========================================================================*/
@@ -808,26 +293,28 @@ static unsigned GDISPDRIVERID(count)(const struct GDISPVMT *vmt) {
 }
 
 static bool_t GDISPDRIVERID(init)(GDisplay *g) {
-	GDISPDRIVERID(DriverPrivateArea)	*	priv;
-	char		buf[132];
+	static bool_t initDone = 0;
+	RECT		rect;
+	char		titlebuf[sizeof(WIN32_GDISP_TITLE) + 10];
 
-	// Initialise the window thread and the window class (if it hasn't been done already)
-	if (!QReady) {
-		HANDLE			hth;
+	// Initialise the window class (if it hasn't been done already)
+	if (!initDone) {
+		WNDCLASS		wc;
+		ATOM			winClass;
 
-		// Create the draw mutex
-		drawMutex = CreateMutex(0, FALSE, 0);
-
-		// Create the thread
-		if (!(hth = CreateThread(0, 0, GDISPDRIVERID(WindowThread), 0, CREATE_SUSPENDED, 0)))
-			return GFalse;
-		SetThreadPriority(hth, THREAD_PRIORITY_ABOVE_NORMAL);
-		ResumeThread(hth);
-		CloseHandle(hth);
-
-		// Wait for our thread to be ready
-		while (!QReady)
-			Sleep(1);
+		// Create the window class
+		wc.style           = CS_HREDRAW | CS_VREDRAW; // | CS_OWNDC;
+		wc.lpfnWndProc     = (WNDPROC)GDISPDRIVERID(WindowProc);
+		wc.cbClsExtra      = 0;
+		wc.cbWndExtra      = 0;
+		wc.hInstance       = GetModuleHandle(0);
+		wc.hIcon           = LoadIcon(0, IDI_APPLICATION);
+		wc.hCursor         = LoadCursor(0, IDC_ARROW);
+		wc.hbrBackground   = GetStockObject(WHITE_BRUSH);
+		wc.lpszMenuName    = 0;
+		wc.lpszClassName   = WIN32_GDISP_TITLE;
+		winClass = RegisterClass(&wc);
+		assert(winClass != 0);
 	}
 
 	// Initialise the GDISP structure
@@ -838,19 +325,47 @@ static bool_t GDISPDRIVERID(init)(GDisplay *g) {
 	g->g.Width = GDISP_WIN32_WIDTH;
 	g->g.Height = GDISP_WIN32_HEIGHT;
 
-	// Turn on toggles for the first GINPUT_TOGGLE_CONFIG_ENTRIES windows
-	#if GFX_USE_GINPUT && GINPUT_NEED_TOGGLE
-		if (g->controllerdisplay < GINPUT_TOGGLE_CONFIG_ENTRIES) {
-			g->flags |= GDISP_FLG_HASTOGGLE;
-			toggleWindow = g;
-		}
-	#endif
+	// Buld the framebuffer info and the corresponding windows bitmap info
+	myg->dpa.linebytes					= (sizeof(GDISP_DRIVER_COLOR_TYPE) * g->g.Width + 3) & ~3;
+	
+	myg->bpa.drawBMP.bV4Size			= sizeof(myg->bpa.drawBMP);
+	myg->bpa.drawBMP.bV4Width			= g->g.Width;
+	myg->bpa.drawBMP.bV4Height			= -g->g.Height; /* top-down image */
+	myg->bpa.drawBMP.bV4Planes			= 1;
+	myg->bpa.drawBMP.bV4BitCount		= GDISP_DRIVER_COLOR_TYPE_BITS;
+	myg->bpa.drawBMP.bV4V4Compression	= BI_BITFIELDS;
+	myg->bpa.drawBMP.bV4SizeImage		= g->g.Height * myg->dpa.linebytes;
+	myg->bpa.drawBMP.bV4XPelsPerMeter	= 3078;
+	myg->bpa.drawBMP.bV4YPelsPerMeter	= 3078;
+	myg->bpa.drawBMP.bV4ClrUsed			= 0;
+	myg->bpa.drawBMP.bV4ClrImportant	= 0;
+	myg->bpa.drawBMP.bV4RedMask			= GDISP_DRIVER_RGB2COLOR(255,0,0);
+	myg->bpa.drawBMP.bV4GreenMask		= GDISP_DRIVER_RGB2COLOR(0,255,0);
+	myg->bpa.drawBMP.bV4BlueMask		= GDISP_DRIVER_RGB2COLOR(0,0,255);
+	myg->bpa.drawBMP.bV4AlphaMask		= 0;
+	myg->bpa.drawBMP.bV4CSType			= 0; //LCS_sRGB;
 
-	// Create a private area for this window
-	priv = (GDISPDRIVERID(DriverPrivateArea) *)(g+1);
+	// Allocate the frame buffer - we use the Win32 API here to avoid any uGFX heap
+	myg->dpa.fb = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, myg->bpa.drawBMP.bV4SizeImage);
+	assert(myg->dpa.fb != 0);
+	myg->dpa.p = myg->dpa.fb;
 
-	// Create the window in the message thread
-	PostThreadMessage(winThreadId, WM_USER, (WPARAM)g->controllerdisplay, (LPARAM)g);
+
+	// Set the window rectangle
+	rect.top = 0; rect.bottom = g->g.Height*GDISP_WIN32_SCALE;
+	rect.left = 0; rect.right = g->g.Width*GDISP_WIN32_SCALE;
+	AdjustWindowRect(&rect, WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU, 0);
+
+	// Generate the window title
+	sprintf(titlebuf, WIN32_GDISP_TITLE " - %u", g->systemdisplay+1);
+
+	// Create the window
+	myg->bpa.hwnd = gfxWin32CreateWindow(WIN32_GDISP_TITLE, titlebuf, WS_OVERLAPPED|WS_CAPTION|WS_SYSMENU|WS_BORDER|WS_VISIBLE,
+						g->controllerdisplay*DISPLAY_X_OFFSET, g->controllerdisplay*DISPLAY_Y_OFFSET,
+						rect.right-rect.left, rect.bottom-rect.top,
+						GDISP_Win32hWndParent, 0,
+						GetModuleHandle(0), g);
+	assert(myg->bpa.hwnd != 0);
 
 	// Wait for the window creation to complete (for safety)
 	while(!(((volatile GDisplay *)g)->flags & GDISP_FLG_READY))
@@ -858,30 +373,25 @@ static bool_t GDISPDRIVERID(init)(GDisplay *g) {
 
 	// Create the associated mouse
 	#if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
-		priv->mouseenabled = hWndParent ? GFalse : GTrue;
-		priv->mouse = (GMouse *)gdriverRegister((const GDriverVMT const *)GMOUSE_DRIVER_VMT, g);
+		myg->bpa.mouseenabled = GDISP_Win32hWndParent ? GFalse : GTrue;
+		myg->bpa.mouse = (GMouse *)gdriverRegister((const GDriverVMT const *)GMOUSE_DRIVER_VMT, g);
 	#endif
-
-	sprintf(buf, APP_NAME " - %u", g->systemdisplay+1);
-	SetWindowText(priv->hwnd, buf);
-	ShowWindow(priv->hwnd, SW_SHOW);
-	UpdateWindow(priv->hwnd);
 
 	return GTrue;
 }
 
 #if GDISP_DRIVER_FLUSH
 	static void GDISPDRIVERID(flush)(GDisplay *g) {
-		GDISPDRIVERID(DriverPrivateArea)	*	priv;
-
-		priv = (GDISPDRIVERID(DriverPrivateArea))(g+1);
-		UpdateWindow(priv->hwnd);
+		g->flags &= ~GDISP_FLG_FLUSHREQ;
+		StretchDIBits(myg->bpa.winDC, 0, 0, g->g.Width*GDISP_WIN32_SCALE, g->g.Height*GDISP_WIN32_SCALE,
+						0, 0, g->g.Width, g->g.Height,
+						myg->dpa.fb, (BITMAPINFO*)&myg->bpa.drawBMP, DIB_RGB_COLORS, SRCCOPY);
+		InvalidateRect(myg->bpa.hwnd, 0, FALSE);
+		#if GDISP_WIN32_FORCEREDRAW
+			UpdateWindow(myg->bpa.hwnd);
+		#endif
 	}
 #endif
-
-void BAD_PARAMETER(const char *msg) {
-	fprintf(stderr, "%s\n", msg);
-}
 
 static	void GDISPDRIVERID(start)(GDisplay *g) {
 	#if GDISP_DRIVER_SETPOS
@@ -889,16 +399,35 @@ static	void GDISPDRIVERID(start)(GDisplay *g) {
 	#else
 		g->win.p.x = g->win.r.p1.x;
 		g->win.p.y = g->win.r.p1.y;
+		myg->dpa.p = myg->dpa.fb + g->win.p.y * myg->dpa.linebytes + g->win.p.x * sizeof(GDISP_DRIVER_COLOR_TYPE);
 	#endif
 }
 
 static	void GDISPDRIVERID(write)(GDisplay *g) {
-	GDISPDRIVERID(DriverPrivateArea)	*	priv;
 	int			x, y, cnt;
 	COLORREF	color;
 
-	priv = (GDISPDRIVERID(DriverPrivateArea) *)(g+1);
 	color = gdispColor2Native(g->p.color);
+
+#if 0
+
+	// More efficient code - but currently crashing
+	
+	for (cnt = g->p.e.cnt; cnt; cnt--, myg->dpa.p += sizeof(GDISP_DRIVER_COLOR_TYPE))
+		*((GDISP_DRIVER_COLOR_TYPE *)myg->dpa.p) = color;
+		
+	// Update the cursor
+	g->win.p.x += g->p.e.cnt;
+	if (g->win.p.x > g->win.r.p2.x) {
+		g->win.p.x = g->win.r.p1.x;
+		if (++g->win.p.y > g->win.r.p2.y) {
+			g->win.p.y = g->win.r.p1.y;
+			myg->dpa.p = myg->dpa.fb;
+		} else
+			myg->dpa.p += myg->dpa.linebytes - g->win.r.p1.x * sizeof(GDISP_DRIVER_COLOR_TYPE);
+	}
+	
+#else	
 
 	for (cnt = g->p.e.cnt; cnt; cnt--) {
 		#if GDISP_DRIVER_IOCTL
@@ -925,28 +454,9 @@ static	void GDISPDRIVERID(write)(GDisplay *g) {
 			x = g->win.p.x;
 			y = g->win.p.y;
 		#endif
-		
-		// Draw the pixel on the screen and in the buffer.
-		WaitForSingleObject(drawMutex, INFINITE);
-		SetPixel(priv->dcBuffer, x, y, color);
-		#if GDISP_WIN32_USE_INDIRECT_UPDATE
-			ReleaseMutex(drawMutex);
-			{
-				RECT	r;
-				r.left = x; r.right = x+1;
-				r.top = y; r.bottom = y+1;
-				InvalidateRect(priv->hwnd, &r, FALSE);
-			}
-		#else
-			{
-				HDC		dc;
-				dc = GetDC(priv->hwnd);
-				SetPixel(dc, x, y, color);
-				ReleaseDC(priv->hwnd, dc);
-				ReleaseMutex(drawMutex);
-			}
-		#endif
-	
+
+		((GDISP_DRIVER_COLOR_TYPE *)myg->dpa.fb)[y*g->g.Width+x] = color;
+
 		// Update the cursor
 		if (++g->win.p.x > g->win.r.p2.x) {
 			g->win.p.x = g->win.r.p1.x;
@@ -954,40 +464,44 @@ static	void GDISPDRIVERID(write)(GDisplay *g) {
 				g->win.p.y = g->win.r.p1.y;
 		}
 	}
+#endif
+
+	#if GDISP_WIN32_FORCEREDRAW && GDISP_DRIVER_FLUSH
+		GDISPDRIVERID(flush)(g);
+	#else
+		g->flags |= GDISP_FLG_FLUSHREQ;
+	#endif
 }
 
 #if GDISP_DRIVER_SETPOS
 	static void GDISPDRIVERID(setpos)(GDisplay *g) {
-		(void) g;
+		myg->dpa.p = myg->dpa.fb + g->win.p.y * myg->dpa.linebytes + x * sizeof(GDISP_DRIVER_COLOR_TYPE);
 	}
 #endif
 
 #if GDISP_DRIVER_READ
 	static	gColor GDISPDRIVERID(read)(GDisplay *g) {
-		GDISPDRIVERID(DriverPrivateArea)	*	priv;
 		COLORREF	color;
-
-		priv = (GDISPDRIVERID(DriverPrivateArea))(g+1);
 
 		WaitForSingleObject(drawMutex, INFINITE);
 		#if GDISP_DRIVER_IOCTL
 			switch(g->g.Orientation) {
 			case GDISP_ROTATE_0:
 			default:
-				color = GetPixel(priv->dcBuffer, g->win.p.x, g->win.p.y);
+				color = GetPixel(myg->bpa.winDC, g->win.p.x, g->win.p.y);
 				break;
 			case GDISP_ROTATE_90:
-				color = GetPixel(priv->dcBuffer, g->win.p.y, g->g.Width - 1 - g->win.p.x);
+				color = GetPixel(myg->bpa.winDC, g->win.p.y, g->g.Width - 1 - g->win.p.x);
 				break;
 			case GDISP_ROTATE_180:
-				color = GetPixel(priv->dcBuffer, g->g.Width - 1 - g->win.p.x, g->g.Height - 1 - g->win.p.y);
+				color = GetPixel(myg->bpa.winDC, g->g.Width - 1 - g->win.p.x, g->g.Height - 1 - g->win.p.y);
 				break;
 			case GDISP_ROTATE_270:
-				color = GetPixel(priv->dcBuffer, g->g.Height - 1 - g->win.p.y, g->win.p.x);
+				color = GetPixel(myg->bpa.winDC, g->g.Height - 1 - g->win.p.y, g->win.p.x);
 				break;
 			}
 		#else
-			color = GetPixel(priv->dcBuffer, g->win.p.x, g->win.p.y);
+			color = GetPixel(myg->bpa.winDC, g->win.p.x, g->win.p.y);
 		#endif
 		ReleaseMutex(drawMutex);
 
@@ -1053,38 +567,36 @@ static	void GDISPDRIVERID(write)(GDisplay *g) {
 	#endif
 
 	static void gdisp_lld_blit_area(GDisplay *g) {
-		GDISPDRIVERID(DriverPrivateArea)	*		priv;
 		gPixel	*		buffer;
 		RECT			rect;
-		BITMAPV4HEADER	bmpInfo;
+		BITMAPV4HEADER	drawBMP;
 
 		// Make everything relative to the start of the line
-		priv = (GDISPDRIVERID(DriverPrivateArea))(g+1);
 		buffer = g->p.ptr;
 		buffer += g->p.x2*g->p.y1;
 
-		memset(&bmpInfo, 0, sizeof(bmpInfo));
-		bmpInfo.bV4Size = sizeof(bmpInfo);
-		bmpInfo.bV4Planes = 1;
-		bmpInfo.bV4BitCount = COLOR_TYPE_BITS;
-		bmpInfo.bV4AlphaMask = 0;
-		bmpInfo.bV4RedMask		= RGB2COLOR(255,0,0);
-		bmpInfo.bV4GreenMask	= RGB2COLOR(0,255,0);
-		bmpInfo.bV4BlueMask		= RGB2COLOR(0,0,255);
-		bmpInfo.bV4V4Compression = BI_BITFIELDS;
-		bmpInfo.bV4XPelsPerMeter = 3078;
-		bmpInfo.bV4YPelsPerMeter = 3078;
-		bmpInfo.bV4ClrUsed = 0;
-		bmpInfo.bV4ClrImportant = 0;
-		bmpInfo.bV4CSType = 0; //LCS_sRGB;
+		memset(&drawBMP, 0, sizeof(drawBMP));
+		drawBMP.bV4Size = sizeof(drawBMP);
+		drawBMP.bV4Planes = 1;
+		drawBMP.bV4BitCount = COLOR_TYPE_BITS;
+		drawBMP.bV4AlphaMask = 0;
+		drawBMP.bV4RedMask		= RGB2COLOR(255,0,0);
+		drawBMP.bV4GreenMask	= RGB2COLOR(0,255,0);
+		drawBMP.bV4BlueMask		= RGB2COLOR(0,0,255);
+		drawBMP.bV4V4Compression = BI_BITFIELDS;
+		drawBMP.bV4XPelsPerMeter = 3078;
+		drawBMP.bV4YPelsPerMeter = 3078;
+		drawBMP.bV4ClrUsed = 0;
+		drawBMP.bV4ClrImportant = 0;
+		drawBMP.bV4CSType = 0; //LCS_sRGB;
 
 		#if GDISP_NEED_CONTROL
 			switch(g->g.Orientation) {
 			case GDISP_ROTATE_0:
 			default:
-				bmpInfo.bV4SizeImage = (g->p.cy*g->p.x2) * sizeof(gPixel);
-				bmpInfo.bV4Width = g->p.x2;
-				bmpInfo.bV4Height = -g->p.cy; /* top-down image */
+				drawBMP.bV4SizeImage = (g->p.cy*g->p.x2) * sizeof(gPixel);
+				drawBMP.bV4Width = g->p.x2;
+				drawBMP.bV4Height = -g->p.cy; /* top-down image */
 				rect.top = g->p.y;
 				rect.bottom = rect.top+g->p.cy;
 				rect.left = g->p.x;
@@ -1092,9 +604,9 @@ static	void GDISPDRIVERID(write)(GDisplay *g) {
 				break;
 			case GDISP_ROTATE_90:
 				if (!(buffer = rotateimg(g, buffer))) return;
-				bmpInfo.bV4SizeImage = (g->p.cy*g->p.cx) * sizeof(gPixel);
-				bmpInfo.bV4Width = g->p.cy;
-				bmpInfo.bV4Height = -g->p.cx; /* top-down image */
+				drawBMP.bV4SizeImage = (g->p.cy*g->p.cx) * sizeof(gPixel);
+				drawBMP.bV4Width = g->p.cy;
+				drawBMP.bV4Height = -g->p.cx; /* top-down image */
 				rect.bottom = g->g.Width - g->p.x;
 				rect.top = rect.bottom-g->p.cx;
 				rect.left = g->p.y;
@@ -1102,9 +614,9 @@ static	void GDISPDRIVERID(write)(GDisplay *g) {
 				break;
 			case GDISP_ROTATE_180:
 				if (!(buffer = rotateimg(g, buffer))) return;
-				bmpInfo.bV4SizeImage = (g->p.cy*g->p.cx) * sizeof(gPixel);
-				bmpInfo.bV4Width = g->p.cx;
-				bmpInfo.bV4Height = -g->p.cy; /* top-down image */
+				drawBMP.bV4SizeImage = (g->p.cy*g->p.cx) * sizeof(gPixel);
+				drawBMP.bV4Width = g->p.cx;
+				drawBMP.bV4Height = -g->p.cy; /* top-down image */
 				rect.bottom = g->g.Height-1 - g->p.y;
 				rect.top = rect.bottom-g->p.cy;
 				rect.right = g->g.Width - g->p.x;
@@ -1112,9 +624,9 @@ static	void GDISPDRIVERID(write)(GDisplay *g) {
 				break;
 			case GDISP_ROTATE_270:
 				if (!(buffer = rotateimg(g, buffer))) return;
-				bmpInfo.bV4SizeImage = (g->p.cy*g->p.cx) * sizeof(gPixel);
-				bmpInfo.bV4Width = g->p.cy;
-				bmpInfo.bV4Height = -g->p.cx; /* top-down image */
+				drawBMP.bV4SizeImage = (g->p.cy*g->p.cx) * sizeof(gPixel);
+				drawBMP.bV4Width = g->p.cy;
+				drawBMP.bV4Height = -g->p.cx; /* top-down image */
 				rect.top = g->p.x;
 				rect.bottom = rect.top+g->p.cx;
 				rect.right = g->g.Height - g->p.y;
@@ -1122,9 +634,9 @@ static	void GDISPDRIVERID(write)(GDisplay *g) {
 				break;
 			}
 		#else
-			bmpInfo.bV4SizeImage = (g->p.cy*g->p.x2) * sizeof(gPixel);
-			bmpInfo.bV4Width = g->p.x2;
-			bmpInfo.bV4Height = -g->p.cy; /* top-down image */
+			drawBMP.bV4SizeImage = (g->p.cy*g->p.x2) * sizeof(gPixel);
+			drawBMP.bV4Width = g->p.x2;
+			drawBMP.bV4Height = -g->p.cy; /* top-down image */
 			rect.top = g->p.y;
 			rect.bottom = rect.top+g->p.cy;
 			rect.left = g->p.x;
@@ -1132,16 +644,16 @@ static	void GDISPDRIVERID(write)(GDisplay *g) {
 		#endif
 
 		WaitForSingleObject(drawMutex, INFINITE);
-		SetDIBitsToDevice(priv->dcBuffer, rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top, 0, 0, 0, rect.bottom-rect.top, buffer, (BITMAPINFO*)&bmpInfo, DIB_RGB_COLORS);
-		#if GDISP_WIN32_USE_INDIRECT_UPDATE
+		SetDIBitsToDevice(myg->bpa.winDC, rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top, 0, 0, 0, rect.bottom-rect.top, buffer, (BITMAPINFO*)&drawBMP, DIB_RGB_COLORS);
+		#if !GDISP_WIN32_FORCEREDRAW
 			ReleaseMutex(drawMutex);
-			InvalidateRect(priv->hwnd, &rect, FALSE);
+			InvalidateRect(myg->bpa.hwnd, &rect, FALSE);
 		#else
 			{
 				HDC		dc;
-				dc = GetDC(priv->hwnd);
-				SetDIBitsToDevice(dc, rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top, 0, 0, 0, rect.bottom-rect.top, buffer, (BITMAPINFO*)&bmpInfo, DIB_RGB_COLORS);
-				ReleaseDC(priv->hwnd, dc);
+				dc = GetDC(myg->bpa.hwnd);
+				SetDIBitsToDevice(dc, rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top, 0, 0, 0, rect.bottom-rect.top, buffer, (BITMAPINFO*)&drawBMP, DIB_RGB_COLORS);
+				ReleaseDC(myg->bpa.hwnd, dc);
 				ReleaseMutex(drawMutex);
 			}
 		#endif
@@ -1155,11 +667,8 @@ static	void GDISPDRIVERID(write)(GDisplay *g) {
 
 #if GDISP_NEED_SCROLL && GDISP_DRIVER_SCROLL
 	static void gdisp_lld_vertical_scroll(GDisplay *g) {
-		GDISPDRIVERID(DriverPrivateArea)	*	priv;
 		RECT		rect;
 		gCoord		lines;
-
-		priv = (GDISPDRIVERID(DriverPrivateArea))(g+1);
 
 		#if GDISP_NEED_CONTROL
 			switch(g->g.Orientation) {
@@ -1192,16 +701,16 @@ static	void GDISPDRIVERID(write)(GDisplay *g) {
 				}
 				if (g->p.cy >= lines && g->p.cy >= -lines) {
 					WaitForSingleObject(drawMutex, INFINITE);
-					ScrollDC(priv->dcBuffer, 0, lines, &rect, 0, 0, 0);
-					#if GDISP_WIN32_USE_INDIRECT_UPDATE
+					ScrollDC(myg->bpa.winDC, 0, lines, &rect, 0, 0, 0);
+					#if !GDISP_WIN32_FORCEREDRAW
 						ReleaseMutex(drawMutex);
-						InvalidateRect(priv->hwnd, &rect, FALSE);
+						InvalidateRect(myg->bpa.hwnd, &rect, FALSE);
 					#else
 						{
 							HDC		dc;
-							dc = GetDC(priv->hwnd);
+							dc = GetDC(myg->bpa.hwnd);
 							ScrollDC(dc, 0, lines, &rect, 0, 0, 0);
-							ReleaseDC(priv->hwnd, dc);
+							ReleaseDC(myg->bpa.hwnd, dc);
 							ReleaseMutex(drawMutex);
 						}
 					#endif
@@ -1221,16 +730,16 @@ static	void GDISPDRIVERID(write)(GDisplay *g) {
 				}
 				if (g->p.cy >= lines && g->p.cy >= -lines) {
 					WaitForSingleObject(drawMutex, INFINITE);
-					ScrollDC(priv->dcBuffer, lines, 0, &rect, 0, 0, 0);
-					#if GDISP_WIN32_USE_INDIRECT_UPDATE
+					ScrollDC(myg->bpa.winDC, lines, 0, &rect, 0, 0, 0);
+					#if !GDISP_WIN32_FORCEREDRAW
 						ReleaseMutex(drawMutex);
-						InvalidateRect(priv->hwnd, &rect, FALSE);
+						InvalidateRect(myg->bpa.hwnd, &rect, FALSE);
 					#else
 						{
 							HDC		dc;
-							dc = GetDC(priv->hwnd);
+							dc = GetDC(myg->bpa.hwnd);
 							ScrollDC(dc, lines, 0, &rect, 0, 0, 0);
-							ReleaseDC(priv->hwnd, dc);
+							ReleaseDC(myg->bpa.hwnd, dc);
 							ReleaseMutex(drawMutex);
 						}
 					#endif
@@ -1250,16 +759,16 @@ static	void GDISPDRIVERID(write)(GDisplay *g) {
 			}
 			if (g->p.cy >= lines && g->p.cy >= -lines) {
 				WaitForSingleObject(drawMutex, INFINITE);
-				ScrollDC(priv->dcBuffer, 0, lines, &rect, 0, 0, 0);
-				#if GDISP_WIN32_USE_INDIRECT_UPDATE
+				ScrollDC(myg->bpa.winDC, 0, lines, &rect, 0, 0, 0);
+				#if !GDISP_WIN32_FORCEREDRAW
 					ReleaseMutex(drawMutex);
-					InvalidateRect(priv->hwnd, &rect, FALSE);
+					InvalidateRect(myg->bpa.hwnd, &rect, FALSE);
 				#else
 					{
 						HDC		dc;
-						dc = GetDC(priv->hwnd);
+						dc = GetDC(myg->bpa.hwnd);
 						ScrollDC(dc, 0, lines, &rect, 0, 0, 0);
-						ReleaseDC(priv->hwnd, dc);
+						ReleaseDC(myg->bpa.hwnd, dc);
 						ReleaseMutex(drawMutex);
 					}
 				#endif
@@ -1299,109 +808,6 @@ static	void GDISPDRIVERID(write)(GDisplay *g) {
 	}
 #endif
 
-#if GFX_USE_GINPUT && GINPUT_NEED_MOUSE
-	static bool_t Win32MouseInit(GMouse *m, unsigned driverinstance) {
-		(void)	m;
-		(void)	driverinstance;
-		return GTrue;
-	}
-	static bool_t Win32MouseRead(GMouse *m, GMouseReading *pt) {
-		GDisplay *	g;
-		GDISPDRIVERID(DriverPrivateArea)	*	priv;
-
-		g = m->display;
-		priv = (GDISPDRIVERID(DriverPrivateArea))(g+1);
-
-		pt->x = priv->mousex;
-		pt->y = priv->mousey;
-		pt->z = (priv->mousebuttons & GINPUT_MOUSE_BTN_LEFT) ? 1 : 0;
-		pt->buttons = priv->mousebuttons;
-
-		#if GDISP_NEED_CONTROL
-			// If the self-rotation has been set in the VMT then do that here (TESTING ONLY)
-			if ((gmvmt(m)->d.flags & GMOUSE_VFLG_SELFROTATION)) {		// For normal setup this is always False
-				gCoord		t;
-
-				switch(gdispGGetOrientation(m->display)) {
-					case GDISP_ROTATE_0:
-					default:
-						break;
-					case GDISP_ROTATE_90:
-						t = pt->x;
-						pt->x = g->g.Width - 1 - pt->y;
-						pt->y = t;
-						break;
-					case GDISP_ROTATE_180:
-						pt->x = g->g.Width - 1 - pt->x;
-						pt->y = g->g.Height - 1 - pt->y;
-						break;
-					case GDISP_ROTATE_270:
-						t = pt->y;
-						pt->y = g->g.Height - 1 - pt->x;
-						pt->x = t;
-						break;
-				}
-			}
-		#endif
-
-		return GTrue;
-	}
-#endif /* GINPUT_NEED_MOUSE */
-
-#if GFX_USE_GINPUT && GINPUT_NEED_KEYBOARD
-	static bool_t Win32KeyboardInit(GKeyboard *k, unsigned driverinstance) {
-		(void)	driverinstance;
-
-		// Only one please
-		if (keyboard)
-			return GFalse;
-
-		keyboard = k;
-		return GTrue;
-	}
-
-	static int Win32KeyboardGetData(GKeyboard *k, uint8_t *pch, int sz) {
-		int		i, j;
-		(void)	k;
-
-		if (!keypos)
-			return 0;
-
-		for(i = 0; i < keypos && i < sz; i++)
-			pch[i] = keybuffer[i];
-		keypos -= i;
-		for(j=0; j < keypos; j++)
-			keybuffer[j] = keybuffer[i+j];
-		return i;
-	}
-#endif
-
-#if GFX_USE_GINPUT && GINPUT_NEED_TOGGLE
-	#if GINPUT_TOGGLE_CONFIG_ENTRIES > 1
-		#error "GDISP Win32: GINPUT_TOGGLE_CONFIG_ENTRIES must be 1 until Toggles can use GDriver"
-	#endif
-
-	const GToggleConfig GInputToggleConfigTable[GINPUT_TOGGLE_CONFIG_ENTRIES];
-
-	void ginput_lld_toggle_init(const GToggleConfig *ptc) {
-		// Save the associated window struct
-		//ptc->id = &GDISP_WIN32[ptc - GInputToggleConfigTable];
-		((GToggleConfig *)ptc)->id = 0;
-
-		// We have 8 buttons per window.
-		((GToggleConfig *)ptc)->mask = 0xFF;
-
-		// No inverse or special mode
-		((GToggleConfig *)ptc)->invert = 0x00;
-		((GToggleConfig *)ptc)->mode = 0;
-	}
-	unsigned ginput_lld_toggle_getbits(const GToggleConfig *ptc) {
-		(void)		ptc;
-
-		// This should use ID
-		if (!toggleWindow)
-			return 0;
-		return ((GDISPDRIVERID(DriverPrivateArea) *)(toggleWindow+1))->toggles;
-		//return ((GDISPDRIVERID(DriverPrivateArea) *)((GDisplay *)(ptc->id))+1)->toggles;
-	}
-#endif /* GINPUT_NEED_TOGGLE */
+// Cleanup all non-drivername tagged macros
+#undef myg
+#undef GDISP_FLG_READY

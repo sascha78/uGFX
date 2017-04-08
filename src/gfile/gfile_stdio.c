@@ -11,7 +11,7 @@
 
 #include "../../gfx.h"
 
-#if GFX_USE_GFILE && GFILE_NEED_STDIO && !defined(GFILE_NEED_STDIO_MUST_BE_OFF)
+#if GFX_USE_GFILE && GFILE_NEED_STDIO
 
 #include "gfile_fs.h"
 
@@ -24,13 +24,15 @@ size_t gstdioWrite(const void * ptr, size_t size, size_t count, GFILE *f) {
 }
 
 int gstdioSeek(GFILE *f, size_t offset, int origin) {
+	// Don't use the SEEK_xxx macros here as they are not defined in the source as we have excluded the definitions in gfile.h
+	// The reason is that the definitions may conflict with the implementing operating system's macros whose headers we need to compile other code.
 	switch(origin) {
-	case SEEK_SET:
+	case 0:			// SEEK_SET
 		break;
-	case SEEK_CUR:
+	case 1:			// SEEK_CUR
 		offset += f->pos;
 		break;
-	case SEEK_END:
+	case 2:			// SEEK_END
 		offset += gfileGetSize(f);
 		break;
 	default:

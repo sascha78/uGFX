@@ -9,7 +9,6 @@ ifeq ($(GFXSINGLEMAKE),yes)
 	GFXSRC += $(GFXLIB)/src/gfx_mk.c
 else
 	GFXSRC +=	$(GFXLIB)/src/gfx.c
-	include $(GFXLIB)/src/gdisp/gdisp.mk
 	include $(GFXLIB)/src/ginput/ginput.mk
 	include $(GFXLIB)/src/gadc/gadc.mk
 	include $(GFXLIB)/src/gaudio/gaudio.mk
