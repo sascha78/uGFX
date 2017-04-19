@@ -147,12 +147,112 @@ GDisplay	*GDISP;
 /*==========================================================================*/
 
 #if GDISP_DRIVER_VMT_FLUSH == GFXSOME
-	#define autoflush(g)	if (gvmt(g)->flush ((g)->flags & GDISP_FLG_FLUSHREQ)) gdisp_lld_flush(g)
+	#define autoflush(g)	if (gvmt(g)->flush) gdisp_lld_flush(g)
 #elif GDISP_DRIVER_VMT_FLUSH
-	#define autoflush(g)	if (((g)->flags & GDISP_FLG_FLUSHREQ)) gdisp_lld_flush(g)
+	#define autoflush(g)	gdisp_lld_flush(g)
 #else
 	#define autoflush(g)
 #endif
+
+#if GDISP_NEED_ORIENTATION
+	static void rot0pnt(gPoint *p) {
+		(void)p;
+	}
+	static void rot0rect(gRect *r) {
+		(void)r;
+	}
+	static void rot90pnt(gPoint *p) {
+		//TODO
+	}
+	static void rot90rect(gRect *r) {
+		//TODO
+	}
+	static void rot180pnt(gPoint *p) {
+		//TODO
+	}
+	static void rot180rect(gRect *r) {
+		//TODO
+	}
+	static void rot270pnt(gPoint *p) {
+		//TODO
+	}
+	static void rot270rect(gRect *r) {
+		//TODO
+	}
+#endif
+
+#if GDISP_DRIVER_VMT_SETPOS != GFXON
+	static void nsp_drawpixel(GDisplay *g) {
+		if (CHKPOS(g, g->p.pos.x, g->p.pos.y) || CHKWIN(g, g->p.pos.x, g->p.pos.y, g->p.pos.x, g->p.pos.y)) {
+			SETWIN(g, g->p.pos.x, g->p.pos.y, g->g.Width-1, g->g.Height-1);
+			gdisp_lld_start(g);
+		}
+		g->p.e.cnt = 1;
+		gdisp_lld_write(g);
+	}
+	static void nsp_fill(GDisplay *g) {
+		gdisp_lld_start(g);
+		
+		// We write at most one horizontal line at a time - this makes it easier for the driver to calculate positions
+		g->p.e.cnt = g->win.r.p2.x - g->win.r.p1.x + 1;
+		do {
+			gdisp_lld_write(g);
+		} while (g->win.p.y != g->win.r.p1.y);
+	}
+	static void nsp_hline(GDisplay *g) {
+		if (CHKPOS(g, g->p.pos.x, g->p.pos.y) || CHKWIN(g, g->p.pos.x, g->p.pos.y, g->p.e.pos2.x, g->p.e.pos2.y)) {
+			SETWIN(g, g->p.pos.x, g->p.pos.y, g->p.e.pos2.x, g->g.Height-1);
+			gdisp_lld_start(g);
+		}
+		g->p.e.cnt = g->p.e.pos2.x - g->p.pos.x + 1;
+		gdisp_lld_write(g);
+	}
+#endif
+#if GDISP_DRIVER_VMT_SETPOS != GFXOFF
+	static void wsp_drawpixel(GDisplay *g) {
+		if (CHKWIN(g, g->p.pos.x, g->p.pos.y, g->p.pos.x, g->p.pos.y)) {
+			SETWIN(g, 0, 0, g->g.Width-1, g->g.Height-1);
+			gdisp_lld_start(g);
+		}
+		if (CHKPOS(g, g->p.pos.x, g->p.pos.y)) {
+			SETPOS(g, g->p.pos.x, g->p.pos.y);
+			gdisp_lld_setpos(g);
+		}
+		g->p.e.cnt = 1;
+		gdisp_lld_write(g);
+	}
+	static void wsp_fill(GDisplay *g) {
+		gdisp_lld_start(g);
+		if (CHKPOS(g, g->win.r.p1.x, g->win.r.p1.y)) {
+			SETPOS(g, g->win.r.p1.x, g->win.r.p1.y);
+			gdisp_lld_setpos(g);
+		}
+		
+		// We write at most one horizontal line at a time - this makes it easier for the driver to calculate positions
+		g->p.e.cnt = g->win.r.p2.x - g->win.r.p1.x + 1;
+		do {
+			gdisp_lld_write(g);
+		} while (g->win.p.y != g->win.r.p1.y);
+	}
+	static void wsp_hline(GDisplay *g) {
+		if (CHKWIN(g, g->p.pos.x, g->p.pos.y, g->p.e.pos2.x, g->p.e.pos2.y)) {
+			SETWIN(g, 0, 0, g->g.Width-1, g->g.Height-1);
+			gdisp_lld_start(g);
+		}
+		if (CHKPOS(g, g->p.pos.x, g->p.pos.y)) {
+			SETPOS(g, g->p.pos.x, g->p.pos.y);
+			gdisp_lld_setpos(g);
+		}
+		g->p.e.cnt = g->p.e.pos2.x - g->p.pos.x + 1;
+		gdisp_lld_write(g);
+	}
+#endif
+
+static void xsp_vline(GDisplay *g) {
+	// Do a fill area of the 1 pixel wide
+	SETWIN(g, g->p.pos.x, g->p.pos.y, g->p.pos.x, g->p.e.pos2.y);						\
+	g->f_fill(g);	
+}
 
 // drawpixel_clip(g)
 // Parameters:	p.pos, p.color
@@ -163,9 +263,7 @@ static void drawpixel_clip(GDisplay *g) {
 			return;
 	#endif
 
-	SETWINPOS(g, g->p.pos.x, g->p.pos.y, g->p.pos.x, g->p.pos.y, g->g.Width-1);
-	g->p.e.cnt = 1;
-	gdisp_lld_write(g);
+	g->f_pnt(g);
 }
 
 // fillarea(g)
@@ -173,17 +271,13 @@ static void drawpixel_clip(GDisplay *g) {
 // Alters:		p.e
 // Note:		This is not clipped
 static GFXINLINE void fillarea(GDisplay *g) {
-	SETBLK(g, g->p.pos.x, g->p.pos.y);
+	// Rotate the rect in here
 	
-	// We write at most one horizontal line at a time - this makes it easier for the driver to calculate positions
-	g->p.e.cnt = g->win.r.p2.x - g->win.r.p1.x + 1;
-	do {
-		gdisp_lld_write(g);
-	} while (g->win.p.y != g->win.r.p1.y);
+	g->f_fill(g);
 }
 
 // Parameters:	p.pos, p.e.pos2.x, p.color
-// Alters:		win, p.e
+// Alters:		win, p.pos, p.e
 static void hline_clip(GDisplay *g) {
 	// Swap the points if necessary so it always goes from x to x1
 	if (g->p.e.pos2.x < g->p.pos.x) {
@@ -198,9 +292,7 @@ static void hline_clip(GDisplay *g) {
 		if (g->p.e.pos2.x < g->p.pos.x) return;
 	#endif
 
-	SETWINPOS(g, g->p.pos.x, g->p.pos.y, g->p.e.pos2.x, g->p.e.pos2.y, g->p.e.pos2.x);
-	g->p.e.cnt = g->p.e.pos2.x - g->p.pos.x + 1;
-	gdisp_lld_write(g);
+	g->f_hline(g);
 }
 
 // Parameters:	p.pos, p.e.pos2.y, p.color
@@ -222,13 +314,11 @@ static void vline_clip(GDisplay *g) {
 	// Optimise a single pixel draw
 	// NB: The optimisation here is not the processing for this line but the better end effect it has for subsequent operations
 	if (g->p.pos.y == g->p.e.pos2.y) {
-		drawpixel_clip(g);
+		g->f_pnt(g);
 		return;
 	}
 
-	// Do a fill area of the 1 pixel wide
-	SETWIN(g, g->p.pos.x, g->p.pos.y, g->p.pos.x, g->p.e.pos2.y);						\
-	fillarea(g);	
+	g->f_vline(g);
 }
 
 // Parameters:	p.pos, p.e.pos2, p.color
@@ -420,6 +510,7 @@ bool_t _gdispInitDriver(GDriver *g, void *param, unsigned driverinstance, unsign
 	MUTEX_ENTER(gd);
 	ret = gdisp_lld_init(gd);
 	MUTEX_EXIT(gd);
+	
 	return ret;
 
 	#undef gd
@@ -428,13 +519,60 @@ bool_t _gdispInitDriver(GDriver *g, void *param, unsigned driverinstance, unsign
 void _gdispPostInitDriver(GDriver *g) {
 	#define		gd		((GDisplay *)g)
 
+	// Set up the initial drawing routines
+	// TODO - orientation handling
+	#if GDISP_DRIVER_VMT_SETPOS == GFXON
+		gd->f_pnt	= wsp_drawpixel;
+		gd->f_fill	= wsp_fill;
+		gd->f_hline = wsp_hline;
+		gd->f_vline = xsp_vline;
+	#elif GDISP_DRIVER_VMT_SETPOS == GFXOFF
+		gd->f_pnt	= nsp_drawpixel;
+		gd->f_fill	= nsp_fill;
+		gd->f_hline = nsp_hline;
+		gd->f_vline = xsp_vline;
+	#else
+		if (gvmt(gd)->setpos) {														\
+			gd->f_pnt	= wsp_drawpixel;
+			gd->f_fill	= wsp_fill;
+			gd->f_hline = wsp_hline;
+			gd->f_vline = xsp_vline;
+		} else {
+			gd->f_pnt	= nsp_drawpixel;
+			gd->f_fill	= nsp_fill;
+			gd->f_hline = nsp_hline;
+			gd->f_vline = xsp_vline;
+		}
+	#endif
+
 	// Set orientation, clip
-	#if defined(GDISP_DEFAULT_ORIENTATION) && GDISP_NEED_CONTROL && GDISP_DRIVER_CONTROL
+	#if defined(GDISP_DEFAULT_ORIENTATION) && GDISP_NEED_ORIENTATION && GDISP_DRIVER_CONTROL
 		#if GDISP_NEED_PIXMAP
 			// Pixmaps should stay in their created orientation (at least initially)
 			if (!(gvmt(gd)->d.flags & GDISP_VFLG_PIXMAP))
 		#endif
 			gdispGControl(gd, GDISP_CONTROL_ORIENTATION, (void *)GDISP_DEFAULT_ORIENTATION);
+	#endif
+	#if GDISP_NEED_ORIENTATION
+		switch(gd->g.Orientation)
+		case GDISP_ROTATE_0:
+		default:
+			gd->f_rotpnt	= rot0pnt;
+			gd->f_rotrect	= rot0rect;
+			break;
+		case GDISP_ROTATE_90:
+			gd->f_rotpnt	= rot90pnt;
+			gd->f_rotrect	= rot90rect;
+			break;
+		case GDISP_ROTATE_180:
+			gd->f_rotpnt	= rot180pnt;
+			gd->f_rotrect	= rot180rect;
+			break;
+		case GDISP_ROTATE_270:
+			gd->f_rotpnt	= rot270pnt;
+			gd->f_rotrect	= rot270rect;
+			break;
+		}
 	#endif
 	#if GDISP_NEED_VALIDATION || GDISP_NEED_CLIP
 		gdispGSetClip(gd, 0, 0, gd->g.Width, gd->g.Height);
@@ -508,7 +646,7 @@ void gdispGFlush(GDisplay *g) {
 		#endif
 		{
 			MUTEX_ENTER(g);
-			if (((g)->flags & GDISP_FLG_FLUSHREQ))
+			//if (((g)->flags & GDISP_FLG_FLUSHREQ))
 				gdisp_lld_flush(g);
 			MUTEX_EXIT(g);
 		}

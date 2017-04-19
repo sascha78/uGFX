@@ -38,8 +38,18 @@
  */
 typedef int16_t	gCoord;
 
+/**
+ * @brief   The maximum value for a gCoord.
+ */
+#define GCOORD_MAX		(32767)
+
+/**
+ * @brief   The minimum value for a gCoord.
+ */
+#define GCOORD_MIN		(-32768)
+
 #if GFX_COMPAT_V2
-	#define	gCoord gCoord
+	#define	coord_t gCoord
 #endif
 
 #if GFX_USE_GDISP || defined(__DOXYGEN__)
@@ -1346,6 +1356,17 @@ void gdispGDrawBox(GDisplay *g, gCoord x, gCoord y, gCoord cx, gCoord cy, gColor
 			} e;
 		} p;
 
+		// Driver call functions
+		void (*f_hline)	(struct GDisplay *);
+		void (*f_vline)	(struct GDisplay *);
+		void (*f_fill) 	(struct GDisplay *);
+		void (*f_pnt)  	(struct GDisplay *);
+
+		#if GDISP_NEED_ORIENTATION
+			void (*f_rotpnt)	(gPoint *);
+			void (*f_rotrect)	(gRect *);
+		#endif
+				
 		// In call working buffers
 	
 		#if GDISP_NEED_TEXT

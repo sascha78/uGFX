@@ -83,6 +83,13 @@
 			#define GFX_USE_GFILE	GFXON
 		#endif
 	#endif
+	#if GFX_COMPAT_V2 && GDISP_NEED_CONTROL && !GDISP_NEED_ORIENTATION
+		#if GFX_DISPLAY_RULE_WARNINGS
+			#warning "GDISP: GDISP_NEED_CONTROL has been set but GDISP_NEED_ORIENTATION has not. It has been turned on for you due to GFX_COMPAT_V2 being enabled."
+		#endif
+		#undef GDISP_NEED_ORIENTATION
+		#define GDISP_NEED_ORIENTATION			GFXON
+	#endif
 #endif
 
 #endif /* _GDISP_RULES_H */

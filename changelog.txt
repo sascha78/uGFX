@@ -16,6 +16,7 @@ CHANGE:		Update all demos to run without GFX_COMPAT_V2
 DEPRECATED:	Deprecated TRUE/FALSE macro constants [still available with GFX_COMPAT_V2]
 DEPRECATED:	Deprecated color constants Red, Green etc [still available with GFX_COMPAT_V2 && GFX_COMPAT_OLDCOLORS]
 DEPRECATED:	Deprecated types color_t, pixel_t, point, point_t [still available with GFX_COMPAT_V2]
+CHANGE:		Added GDISP_NEED_ORIENTATION option which was formally bundled into GDISP_NEED_CONTROL
 
 
 *** Changes after 2.7 ***

@@ -154,6 +154,7 @@
 //#define GDISP_NEED_PIXMAP                            GFXOFF
 //    #define GDISP_NEED_PIXMAP_IMAGE                  GFXOFF
 
+//#define GDISP_NEED_ORIENTATION                       GFXOFF
 //#define GDISP_DEFAULT_ORIENTATION                    GDISP_ROTATE_LANDSCAPE    // If not defined the native hardware orientation is used.
 //#define GDISP_LINEBUF_SIZE                           128
 //#define GDISP_STARTUP_COLOR                          GFXBLACK

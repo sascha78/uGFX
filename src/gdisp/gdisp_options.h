@@ -162,10 +162,20 @@
 		#define GDISP_NEED_PIXELREAD			GFXOFF
 	#endif
 	/**
+	 * @brief   Add display orientation support.
+	 * @details	Defaults to GFXOFF
+	 * @note	This allows controlling the screen orientation.
+	 * @note	If GFX_COMPAT_V2 is turned on, this will automatically
+	 * 			be turned on if GDISP_NEED_CONTROL is enabled.
+	 */
+	#ifndef GDISP_NEED_ORIENTATION
+		#define GDISP_NEED_ORIENTATION			GFXOFF
+	#endif
+	/**
 	 * @brief   Control some aspect of the hardware operation.
 	 * @details	Defaults to GFXOFF
 	 * @note	This allows control of hardware specific features such as
-	 * 			screen rotation, backlight levels, contrast etc
+	 * 			backlight levels, contrast etc
 	 */
 	#ifndef GDISP_NEED_CONTROL
 		#define GDISP_NEED_CONTROL				GFXOFF
